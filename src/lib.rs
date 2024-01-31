@@ -9,9 +9,7 @@ pub mod logging;
 pub mod vectors;
 pub mod matrix;
 
-use window::*;
-use vectors::*;
-use matrix::*;
+use {window::{*, data_structures::*}, vectors::*, matrix::*};
 
 
 //= Constants
