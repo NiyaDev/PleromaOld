@@ -8,6 +8,7 @@ pub mod window;
 pub mod logging;
 pub mod vectors;
 pub mod matrix;
+pub mod platform;
 
 use {window::{*, data_structures::*}, vectors::*, matrix::*};
 
@@ -71,10 +72,10 @@ pub static mut CORE: CoreData = CoreData {
 	input: Input{
 		keyboard: Keyboard{
 			exit_key: KeyboardKey::KeyEscape,
-			current_key_state: [KeyboardKey::KeyNull; MAX_KEYBOARD_KEYS],
-			previous_key_state: [KeyboardKey::KeyNull; MAX_KEYBOARD_KEYS],
-			key_repeat_in_frame: [KeyboardKey::KeyNull; MAX_KEYBOARD_KEYS],
-			key_press_queue: [KeyboardKey::KeyNull; MAX_KEY_PRESSED_QUEUE],
+			current_key_state: [0; MAX_KEYBOARD_KEYS],
+			previous_key_state: [0; MAX_KEYBOARD_KEYS],
+			key_repeat_in_frame: [0; MAX_KEYBOARD_KEYS],
+			key_press_queue: [0; MAX_KEY_PRESSED_QUEUE],
 			key_press_queue_count: 0,
 			char_press_queue: [0; MAX_CHAR_PRESSED_QUEUE],
 			char_press_queue_count: 0,
@@ -87,8 +88,8 @@ pub static mut CORE: CoreData = CoreData {
 			cursor: MouseCursor::MouseCursorArrow,
 			cursor_hidden: false,
 			cursor_on_screen: false,
-			current_button_state: [MouseButton::MouseButtonExtra; MAX_MOUSE_BUTTONS],
-			previous_button_state: [MouseButton::MouseButtonExtra; MAX_MOUSE_BUTTONS],
+			current_button_state: [0; MAX_MOUSE_BUTTONS],
+			previous_button_state: [0; MAX_MOUSE_BUTTONS],
 			current_wheel_move: Vector2{x: 0.0, y: 0.0},
 			previous_wheel_move: Vector2{x: 0.0, y: 0.0},
 		},

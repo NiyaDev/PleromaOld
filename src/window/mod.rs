@@ -7,7 +7,7 @@
 use std::ops::BitAnd;
 
 pub mod data_structures;
-use crate::{*, vectors::*, matrix::*, logging::*, tracelog};
+use crate::{*, vectors::*, matrix::*, logging::*, platform::desktop::*, tracelog};
 
 
 //= Constants
@@ -266,7 +266,7 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 		// TODO: CORE.input.gamepad.lastButtonPressed = GAMEPAD_BUTTON_UNKNOWN;
 
 		//* Initialize platform */
-		// TODO: init_platform();
+		init_platform();
 
 		//* Initialize rlgl default data (buffers and shaders) */
 		// NOTE: CORE.window.current_fbo.width and CORE.window.current_fbo.height not used, just stored as globals in rlgl
