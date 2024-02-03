@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 raylib-ffi = "5.0.1"
 glfw = "0.54.0"
+platforms = "3.3.0"
 current_platform = "0.2.0"

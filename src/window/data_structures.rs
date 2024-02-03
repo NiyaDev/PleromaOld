@@ -122,7 +122,13 @@ pub struct Touch {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Gamepad {
-	// TODO: Will get done at some point
+	pub last_button_pressed: i32,
+	pub axis_count: [i32; MAX_GAMEPADS],
+	pub ready: [bool; MAX_GAMEPADS],
+	pub name: [[u8; 64]; MAX_GAMEPADS],
+	pub current_button_state: [[i8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+	pub previous_button_states: [[i8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+	pub axis_state: [[f32; MAX_GAMEPAD_AXIS]; MAX_GAMEPADS],
 }
 
 #[derive(Debug, Clone, PartialEq)]

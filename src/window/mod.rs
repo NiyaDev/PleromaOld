@@ -4,7 +4,7 @@
 
 
 //= Imports
-use std::ops::BitAnd;
+use std::{fmt::Display, ops::BitAnd};
 
 pub mod data_structures;
 use crate::{*, vectors::*, matrix::*, logging::*, platform::desktop::*, tracelog};
@@ -15,6 +15,9 @@ pub const MAX_KEYBOARD_KEYS: usize = 512;
 pub const MAX_KEY_PRESSED_QUEUE: usize = 16;
 pub const MAX_CHAR_PRESSED_QUEUE: usize = 16;
 pub const MAX_MOUSE_BUTTONS: usize = 8;
+pub const MAX_GAMEPADS: usize = 4;
+pub const MAX_GAMEPAD_BUTTONS: usize = 32;
+pub const MAX_GAMEPAD_AXIS: usize = 8;
 
 
 //= Structures & Enumerations
@@ -209,6 +212,11 @@ pub struct Size {
 	pub width: u32,
 	pub height: u32,
 }
+impl Display for Size {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}x{}", self.width, self.height)
+	}
+}
 
 
 //= Procedures
@@ -251,12 +259,7 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 		CORE.window.screen.width = width;
 		CORE.window.screen.height = height;
 		CORE.window.event_waiting = false;
-		CORE.window.screen_scale = Matrix{
-			m0:  1.0, m4:  0.0, m8:  0.0, m12: 0.0,
-			m1:  0.0, m5:  1.0, m9:  0.0, m13: 0.0,
-			m2:  0.0, m6:  0.0, m10: 1.0, m14: 0.0,
-			m3:  0.0, m7:  0.0, m11: 0.0, m15: 1.0,
-		};
+		CORE.window.screen_scale = Matrix::identity();
 		CORE.window.title = title;
 
 		//* Initialize global input state */
@@ -315,5 +318,72 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 
 		//* Initialize random seed */
 		// TODO: SetRandomSeed((unsigned int)time(NULL));
+	}
+}
+
+/// Compute framebuffer size relative to screen size and display size
+// NOTE: Global variables CORE.Window.render.width/CORE.Window.render.height and CORE.Window.renderOffset.x/CORE.Window.renderOffset.y can be modified
+pub unsafe fn setup_framebuffer() {
+	//* Calculate CORE.Window.render.width and CORE.Window.render.height, we have the display size (input params) and the desired screen size (global var) */
+	if (CORE.window.screen.width > CORE.window.display.width) || (CORE.window.screen.height > CORE.window.display.height) {
+		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscaling required: Screen size ({}) is bigger than the display size ({})", CORE.window.screen, CORE.window.display);
+
+		//* Downscaling to fit display with border-bars */
+		let width_ratio = CORE.window.display.width as f32 / CORE.window.screen.width as f32;
+		let height_ratio = CORE.window.display.height as f32 / CORE.window.screen.height as f32;
+
+		if width_ratio <= height_ratio {
+			CORE.window.render.width = CORE.window.display.width;
+			CORE.window.render.height = (CORE.window.screen.height as f32 * width_ratio).round() as u32;
+			CORE.window.render_offset.x = 0;
+			CORE.window.render_offset.y = (CORE.window.display.height - CORE.window.render.height) as i32;
+		} else {
+			CORE.window.render.width = (CORE.window.screen.width as f32 * height_ratio).round() as u32;
+			CORE.window.render.height = CORE.window.display.height;
+			CORE.window.render_offset.x = (CORE.window.display.width - CORE.window.render.width) as i32;
+			CORE.window.render_offset.y = 0;
+		}
+
+		//* Screen scaling required */
+		let scale_ratio = CORE.window.render.width as f32 / CORE.window.screen.width as f32;
+		CORE.window.screen_scale = Matrix::scale(scale_ratio, scale_ratio, 1.0);
+
+		// NOTE: We render to full display resolution!
+		//* We just need to calculate above parameters for downscale matrix and offsets */
+        CORE.window.render.width = CORE.window.display.width;
+        CORE.window.render.height = CORE.window.display.height;
+
+		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscale matrix generated, content will be rendered at ({})", CORE.window.render);
+	} else if (CORE.window.screen.width < CORE.window.display.width) || (CORE.window.screen.height < CORE.window.display.height) {
+		//* Required screen size is smaller than display size */
+		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Upscaling required: Screen size ({}) is smaller than the display size ({})", CORE.window.screen, CORE.window.display);
+
+		if (CORE.window.screen.width == 0) || (CORE.window.screen.height == 0) {
+			CORE.window.screen.width = CORE.window.display.width;
+			CORE.window.screen.height = CORE.window.display.height;
+		}
+
+		//* Upscaling to fit display with border-bars */
+		let display_ratio = CORE.window.display.width as f32 / CORE.window.display.height as f32;
+		let screen_ratio = CORE.window.screen.width as f32 / CORE.window.screen.height as f32;
+
+		if display_ratio <= screen_ratio {
+			CORE.window.render.width = CORE.window.screen.width;
+			CORE.window.render.height = (CORE.window.screen.width as f32 / display_ratio).round() as u32;
+			CORE.window.render_offset.x = 0;
+			CORE.window.render_offset.y = (CORE.window.render.height - CORE.window.screen.height) as i32;
+		}
+		else
+		{
+			CORE.window.render.width = (CORE.window.screen.height as f32 * display_ratio).round() as u32;
+			CORE.window.render.height = CORE.window.screen.height;
+			CORE.window.render_offset.x = (CORE.window.render.width - CORE.window.screen.width) as i32;
+			CORE.window.render_offset.y = 0;
+		}
+	} else {
+		CORE.window.render.width = CORE.window.screen.width;
+		CORE.window.render.height = CORE.window.screen.height;
+		CORE.window.render_offset.x = 0;
+		CORE.window.render_offset.y = 0;
 	}
 }

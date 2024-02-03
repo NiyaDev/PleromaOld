@@ -46,6 +46,6 @@ pub fn set_trace_log_level(log_type: TraceLogLevel) {
 #[macro_export]
 macro_rules! tracelog {
 	($a:expr,$($arg:tt)*) => {{
-		if $a > $crate::logging::LOG_TYPE_LEVEL { println!($($arg)*) }
+		if $a >= $crate::logging::LOG_TYPE_LEVEL { println!($($arg)*) }
 	}};
 }

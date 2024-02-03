@@ -4,17 +4,25 @@
 use std::time::Instant;
 
 fn main() {
-	let mut now = Instant::now();
+	{
+		let now = Instant::now();
 
-	navia::window::init_window(1280, 720, "TEST");
+		navia::window::init_window(1280, 720, "NAVIA");
 
-	let mut elapsed = now.elapsed();
-	println!("\x1b[91mTime\x1b[0m: {:.2?}",elapsed);
+		let elapsed = now.elapsed();
+		println!("\x1b[91mNavia Time\x1b[0m: {:.2?}",elapsed);
+	}
+	
+	{
+		let now = Instant::now();
 
-	now = Instant::now();
+		//unsafe{raylib_ffi::InitWindow(1280, 720, raylib_ffi::rl_str!("RAYLIB"));}
 
-	unsafe{raylib_ffi::InitWindow(1280, 720, raylib_ffi::rl_str!("TEST"));}
+		let elapsed = now.elapsed();
+		println!("\x1b[91mRaylib Time\x1b[0m: {:.2?}",elapsed);
+	}
 
-	elapsed = now.elapsed();
-	println!("\x1b[91mTime\x1b[0m: {:.2?}",elapsed);
+	loop {
+		
+	}
 }

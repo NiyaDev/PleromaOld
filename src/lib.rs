@@ -94,7 +94,15 @@ pub static mut CORE: CoreData = CoreData {
 			previous_wheel_move: Vector2{x: 0.0, y: 0.0},
 		},
 		touch: Touch{},
-		gamepad: Gamepad{},
+		gamepad: Gamepad{
+			last_button_pressed: 0,
+			axis_count: [0; MAX_GAMEPADS],
+			ready: [false; MAX_GAMEPADS],
+			name: [[0; 64]; MAX_GAMEPADS],
+			current_button_state: [[0; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+			previous_button_states: [[0; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+			axis_state: [[0.0; MAX_GAMEPAD_AXIS]; MAX_GAMEPADS],
+		},
 	},
 	time: Time{
 		current: 0.0,
