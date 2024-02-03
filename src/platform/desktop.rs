@@ -4,7 +4,7 @@
 
 
 //= Imports
-use glfw::{self, Context};
+use glfw::{self, ffi::GLFWmonitor, Context};
 use platforms;
 use current_platform::CURRENT_PLATFORM;
 
@@ -172,7 +172,7 @@ pub fn init_platform() -> i32 {
 				}
 			}
 
-			tracelog!(TraceLogLevel::LogWarning, "SYSTEM: Closest fullscreen videomode: {} x {}", CORE.window.display.width, CORE.window.display.height);
+			tracelog!(TraceLogLevel::LogWarning, "SYSTEM: Closest fullscreen videomode: {}", CORE.window.display);
 
 			// NOTE: ISSUE: Closest videomode could not match monitor aspect-ratio, for example,
 			//* for a desired screen size of 800x450 (16:9), closest supported videomode is 800x600 (4:3), */
@@ -248,7 +248,7 @@ pub fn init_platform() -> i32 {
 					);
 
 					//* Mouse input scaling for the new screen size */
-					// TODO: SetMouseScale((float)CORE.Window.screen.width/fbWidth, (float)CORE.Window.screen.height/fbHeight);
+					set_mouse_scale((CORE.window.screen.width / fb_width) as f32, (CORE.window.screen.height / fb_height) as f32);
 				}
 			}
 
@@ -258,10 +258,10 @@ pub fn init_platform() -> i32 {
 			CORE.window.current_fbo.height = fb_height;
 
 			tracelog!(TraceLogLevel::LogInfo, "DISPLAY: Device initialized successfully");
-			tracelog!(TraceLogLevel::LogInfo, "    > Display size: {} x {}", CORE.window.display.width, CORE.window.display.height);
-			tracelog!(TraceLogLevel::LogInfo, "    > Screen size:  {} x {}", CORE.window.screen.width, CORE.window.screen.height);
-			tracelog!(TraceLogLevel::LogInfo, "    > Render size:  {} x {}", CORE.window.render.width, CORE.window.render.height);
-			tracelog!(TraceLogLevel::LogInfo, "    > Viewport offsets: {} x {}", CORE.window.render_offset.x, CORE.window.render_offset.y);
+			tracelog!(TraceLogLevel::LogInfo, "    > Display size: {}", CORE.window.display);
+			tracelog!(TraceLogLevel::LogInfo, "    > Screen size:  {}", CORE.window.screen);
+			tracelog!(TraceLogLevel::LogInfo, "    > Render size:  {}", CORE.window.render);
+			tracelog!(TraceLogLevel::LogInfo, "    > Viewport offsets: {}", CORE.window.render_offset);
 		} else {
 			tracelog!(TraceLogLevel::LogFatal, "PLATFORM: Failed to initialize graphics device");
 			return -1;
@@ -271,7 +271,7 @@ pub fn init_platform() -> i32 {
 
 		//* If graphic device is not properly initialized, we end program */
 		if !CORE.window.ready { tracelog!(TraceLogLevel::LogFatal, "PLATFORM: Failed to initialize graphics device") }
-		// TODO: else { set_window_position(get_monitor_width(get_current_monitor()) / 2 - CORE.window.screen.width / 2, get_monitor_height(get_current_monitor()) / 2 - CORE.window.screen.height / 2) }
+		else { set_window_position(get_monitor_width(get_current_monitor()) / 2 - CORE.window.screen.width as i32 / 2, get_monitor_height(get_current_monitor()) / 2 - CORE.window.screen.height as i32 / 2) }
 		
 		//* Load OpenGL extensions */
 		// NOTE: GL procedures address loader is required to load extensions
@@ -315,12 +315,12 @@ pub fn init_platform() -> i32 {
 		}
 
 		//=----------------------------------------------------------------------------
-		//= Initialize timing system */
+		//= Initialize timing system
 		//=----------------------------------------------------------------------------
 		// TODO: init_timer();
 
 		//=----------------------------------------------------------------------------
-		//= Initialize storage system */
+		//= Initialize storage system
 		//=----------------------------------------------------------------------------
 		// TODO: CORE.Storage.basePath = GetWorkingDirectory();
 
@@ -335,9 +335,149 @@ pub fn init_platform() -> i32 {
 }
 
 /// Set window state: minimized
-pub unsafe fn minimize_window() {
+pub fn minimize_window() {
 	// NOTE: Following function launches callback that sets appropriate flag!
-	WINDOW.as_mut().unwrap().iconify();
+	unsafe { WINDOW.as_mut().unwrap().iconify() }
+}
+
+/// Set window position on screen (windowed mode)
+pub fn set_window_position(x: i32, y: i32) {
+	unsafe { WINDOW.as_mut().unwrap().set_pos(x, y) }
+}
+
+/// Get number of monitors
+pub fn get_monitor_count() -> i32 {
+	let mut count = [0;1];
+	unsafe { let _ = glfw::ffi::glfwGetMonitors(count.as_mut_ptr()); }
+
+	return count[0];
+}
+
+/// Get number of monitors
+pub fn get_current_monitor() -> i32 {
+	unsafe {
+		let mut index = 0;
+		let mut monitor_count = [0;1];
+		let monitors = glfw::ffi::glfwGetMonitors(monitor_count.as_mut_ptr());
+		let mut monitor: *mut GLFWmonitor;
+
+		if monitor_count[0] >= 1 {
+			if is_window_fullscreen() {
+				//* Get the handle of the monitor that the specified window is in full screen on */
+				monitor = glfw::ffi::glfwGetWindowMonitor(WINDOW.as_mut().unwrap().window_ptr());
+
+				for i in 0..monitor_count[0] {
+					if *monitors.wrapping_add(i as usize).as_ref().unwrap() == monitor {
+						index = i;
+						break;
+					}
+				}
+			} else {
+				//* In case the window is between two monitors, we use below logic */
+				//* to try to detect the "current monitor" for that window, note that */
+				//* this is probably an overengineered solution for a very side case */
+				//* trying to match SDL behaviour */
+
+				let mut closest_dist = 0x7FFFFFFF;
+
+				//* Window center position */
+				let (wcx, wcy) = WINDOW.as_mut().unwrap().get_pos();
+
+				for i in 0..monitor_count[0] {
+					//* Monitor top-left position */
+					let (mut mx, mut my) = ([0;1],[0;1]);
+
+					monitor = *monitors.wrapping_add(i as usize).as_ref().unwrap();
+					glfw::ffi::glfwGetMonitorPos(monitor, mx.as_mut_ptr(), my.as_mut_ptr());
+					let video_mode = glfw::ffi::glfwGetVideoMode(monitor);
+
+					if !video_mode.is_null() {
+						let right = mx[0] + video_mode.as_ref().unwrap().width - 1;
+						let bottom = my[0] + video_mode.as_ref().unwrap().height - 1;
+
+						if (wcx >= mx[0]) && (wcx <= right) && (wcy >= my[0]) && (wcy >= bottom) {
+							index = i;
+							break;
+						}
+
+						let mut closest_x = wcx;
+						if wcx < mx[0] { closest_x = mx[0] }
+						else if wcx > right { closest_x = right }
+
+						let mut closest_y = wcy;
+						if wcy < my[0] { closest_y = my[0] }
+						else if wcy > bottom { closest_y = bottom }
+
+						let dx = wcx - closest_x;
+						let dy = wcy - closest_y;
+						let dist = (dx*dx) + (dy*dy);
+						if dist < closest_dist {
+							index = i;
+							closest_dist = dist;
+						}
+					} else {
+						tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find the video mode for selected monitor");
+					}
+				}
+			}
+		}
+
+		return index;
+	}
+}
+
+/// Get selected monitor position
+pub fn get_monitor_position(monitor: i32) -> Vector2 {
+	unsafe {
+		let mut monitor_count = [0;1];
+		let monitors = glfw::ffi::glfwGetMonitors(monitor_count.as_mut_ptr());
+
+		if monitor >= 0 && monitor< monitor_count[0] {
+			let (mut x, mut y) = ([0;1], [0;1]);
+			glfw::ffi::glfwGetMonitorPos(*monitors.wrapping_add(monitor as usize).as_ref().unwrap(), x.as_mut_ptr(), y.as_mut_ptr());
+			
+			return Vector2{x: x[0] as f32, y: y[0] as f32};
+		}
+		tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find selected monitor");
+
+		return Vector2{x: 0.0, y: 0.0};
+	}
+}
+
+/// Get selected monitor width (currently used by monitor)
+pub fn get_monitor_width(monitor: i32) -> i32 {
+	unsafe {
+		let mut width = 0;
+		let mut monitor_count = [0;1];
+		let monitors = glfw::ffi::glfwGetMonitors(monitor_count.as_mut_ptr());
+
+		if monitor >= 0 && monitor < monitor_count[0] {
+			let video_mode = glfw::ffi::glfwGetVideoMode(*monitors.wrapping_add(monitor as usize).as_ref().unwrap());
+
+			if !video_mode.is_null() { width = video_mode.as_ref().unwrap().width }
+			else { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find video mode for selected monitor") }
+		} else { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find selected monitor") }
+
+		return width;
+	}
+}
+
+/// Get selected monitor height (currently used by monitor)
+pub fn get_monitor_height(monitor: i32) -> i32 {
+	unsafe {
+		let mut height = 0;
+		let mut monitor_count = [0;1];
+		let monitors = glfw::ffi::glfwGetMonitors(monitor_count.as_mut_ptr());
+
+		if monitor >= 0 && monitor < monitor_count[0] {
+			let video_mode = glfw::ffi::glfwGetVideoMode(*monitors.wrapping_add(monitor as usize).as_ref().unwrap());
+
+			if !video_mode.is_null() { height = video_mode.as_ref().unwrap().height }
+			else { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find video mode for selected monitor") }
+		} else { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to find selected monitor") }
+
+		return height;
+	}
 }
 
 

@@ -206,6 +206,11 @@ pub struct Point {
 	pub x: i32,
 	pub y: i32,
 }
+impl Display for Point {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}x{}", self.x, self.y)
+	}
+}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Size {
@@ -323,67 +328,79 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 
 /// Compute framebuffer size relative to screen size and display size
 // NOTE: Global variables CORE.Window.render.width/CORE.Window.render.height and CORE.Window.renderOffset.x/CORE.Window.renderOffset.y can be modified
-pub unsafe fn setup_framebuffer() {
-	//* Calculate CORE.Window.render.width and CORE.Window.render.height, we have the display size (input params) and the desired screen size (global var) */
-	if (CORE.window.screen.width > CORE.window.display.width) || (CORE.window.screen.height > CORE.window.display.height) {
-		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscaling required: Screen size ({}) is bigger than the display size ({})", CORE.window.screen, CORE.window.display);
+pub fn setup_framebuffer() {
+	unsafe {
+		//* Calculate CORE.Window.render.width and CORE.Window.render.height, we have the display size (input params) and the desired screen size (global var) */
+		if (CORE.window.screen.width > CORE.window.display.width) || (CORE.window.screen.height > CORE.window.display.height) {
+			tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscaling required: Screen size ({}) is bigger than the display size ({})", CORE.window.screen, CORE.window.display);
 
-		//* Downscaling to fit display with border-bars */
-		let width_ratio = CORE.window.display.width as f32 / CORE.window.screen.width as f32;
-		let height_ratio = CORE.window.display.height as f32 / CORE.window.screen.height as f32;
+			//* Downscaling to fit display with border-bars */
+			let width_ratio = CORE.window.display.width as f32 / CORE.window.screen.width as f32;
+			let height_ratio = CORE.window.display.height as f32 / CORE.window.screen.height as f32;
 
-		if width_ratio <= height_ratio {
-			CORE.window.render.width = CORE.window.display.width;
-			CORE.window.render.height = (CORE.window.screen.height as f32 * width_ratio).round() as u32;
-			CORE.window.render_offset.x = 0;
-			CORE.window.render_offset.y = (CORE.window.display.height - CORE.window.render.height) as i32;
+			if width_ratio <= height_ratio {
+				CORE.window.render.width = CORE.window.display.width;
+				CORE.window.render.height = (CORE.window.screen.height as f32 * width_ratio).round() as u32;
+				CORE.window.render_offset.x = 0;
+				CORE.window.render_offset.y = (CORE.window.display.height - CORE.window.render.height) as i32;
+			} else {
+				CORE.window.render.width = (CORE.window.screen.width as f32 * height_ratio).round() as u32;
+				CORE.window.render.height = CORE.window.display.height;
+				CORE.window.render_offset.x = (CORE.window.display.width - CORE.window.render.width) as i32;
+				CORE.window.render_offset.y = 0;
+			}
+
+			//* Screen scaling required */
+			let scale_ratio = CORE.window.render.width as f32 / CORE.window.screen.width as f32;
+			CORE.window.screen_scale = Matrix::scale(scale_ratio, scale_ratio, 1.0);
+
+			// NOTE: We render to full display resolution!
+			//* We just need to calculate above parameters for downscale matrix and offsets */
+    	    CORE.window.render.width = CORE.window.display.width;
+    	    CORE.window.render.height = CORE.window.display.height;
+
+			tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscale matrix generated, content will be rendered at ({})", CORE.window.render);
+		} else if (CORE.window.screen.width < CORE.window.display.width) || (CORE.window.screen.height < CORE.window.display.height) {
+			//* Required screen size is smaller than display size */
+			tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Upscaling required: Screen size ({}) is smaller than the display size ({})", CORE.window.screen, CORE.window.display);
+
+			if (CORE.window.screen.width == 0) || (CORE.window.screen.height == 0) {
+				CORE.window.screen.width = CORE.window.display.width;
+				CORE.window.screen.height = CORE.window.display.height;
+			}
+
+			//* Upscaling to fit display with border-bars */
+			let display_ratio = CORE.window.display.width as f32 / CORE.window.display.height as f32;
+			let screen_ratio = CORE.window.screen.width as f32 / CORE.window.screen.height as f32;
+
+			if display_ratio <= screen_ratio {
+				CORE.window.render.width = CORE.window.screen.width;
+				CORE.window.render.height = (CORE.window.screen.width as f32 / display_ratio).round() as u32;
+				CORE.window.render_offset.x = 0;
+				CORE.window.render_offset.y = (CORE.window.render.height - CORE.window.screen.height) as i32;
+			}
+			else
+			{
+				CORE.window.render.width = (CORE.window.screen.height as f32 * display_ratio).round() as u32;
+				CORE.window.render.height = CORE.window.screen.height;
+				CORE.window.render_offset.x = (CORE.window.render.width - CORE.window.screen.width) as i32;
+				CORE.window.render_offset.y = 0;
+			}
 		} else {
-			CORE.window.render.width = (CORE.window.screen.width as f32 * height_ratio).round() as u32;
-			CORE.window.render.height = CORE.window.display.height;
-			CORE.window.render_offset.x = (CORE.window.display.width - CORE.window.render.width) as i32;
-			CORE.window.render_offset.y = 0;
-		}
-
-		//* Screen scaling required */
-		let scale_ratio = CORE.window.render.width as f32 / CORE.window.screen.width as f32;
-		CORE.window.screen_scale = Matrix::scale(scale_ratio, scale_ratio, 1.0);
-
-		// NOTE: We render to full display resolution!
-		//* We just need to calculate above parameters for downscale matrix and offsets */
-        CORE.window.render.width = CORE.window.display.width;
-        CORE.window.render.height = CORE.window.display.height;
-
-		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Downscale matrix generated, content will be rendered at ({})", CORE.window.render);
-	} else if (CORE.window.screen.width < CORE.window.display.width) || (CORE.window.screen.height < CORE.window.display.height) {
-		//* Required screen size is smaller than display size */
-		tracelog!(TraceLogLevel::LogWarning, "DISPLAY: Upscaling required: Screen size ({}) is smaller than the display size ({})", CORE.window.screen, CORE.window.display);
-
-		if (CORE.window.screen.width == 0) || (CORE.window.screen.height == 0) {
-			CORE.window.screen.width = CORE.window.display.width;
-			CORE.window.screen.height = CORE.window.display.height;
-		}
-
-		//* Upscaling to fit display with border-bars */
-		let display_ratio = CORE.window.display.width as f32 / CORE.window.display.height as f32;
-		let screen_ratio = CORE.window.screen.width as f32 / CORE.window.screen.height as f32;
-
-		if display_ratio <= screen_ratio {
 			CORE.window.render.width = CORE.window.screen.width;
-			CORE.window.render.height = (CORE.window.screen.width as f32 / display_ratio).round() as u32;
-			CORE.window.render_offset.x = 0;
-			CORE.window.render_offset.y = (CORE.window.render.height - CORE.window.screen.height) as i32;
-		}
-		else
-		{
-			CORE.window.render.width = (CORE.window.screen.height as f32 * display_ratio).round() as u32;
 			CORE.window.render.height = CORE.window.screen.height;
-			CORE.window.render_offset.x = (CORE.window.render.width - CORE.window.screen.width) as i32;
+			CORE.window.render_offset.x = 0;
 			CORE.window.render_offset.y = 0;
 		}
-	} else {
-		CORE.window.render.width = CORE.window.screen.width;
-		CORE.window.render.height = CORE.window.screen.height;
-		CORE.window.render_offset.x = 0;
-		CORE.window.render_offset.y = 0;
 	}
+}
+
+/// Set mouse scaling
+pub fn set_mouse_scale(scale_x: f32, scale_y: f32) {
+	unsafe { CORE.input.mouse.offset = Vector2{x: scale_x, y: scale_y} }
+}
+
+/// Check if window is currently fullscreen
+pub fn is_window_fullscreen() -> bool {
+	unsafe { return CORE.window.fullscreen; }
 }
