@@ -5,6 +5,7 @@
 
 //= Imports
 use std::{fmt::Display, ops::BitAnd};
+use current_platform::CURRENT_PLATFORM;
 
 pub mod data_structures;
 use crate::{*, vectors::*, matrix::*, logging::*, platform::desktop::*, tracelog};
@@ -18,6 +19,7 @@ pub const MAX_MOUSE_BUTTONS: usize = 8;
 pub const MAX_GAMEPADS: usize = 4;
 pub const MAX_GAMEPAD_BUTTONS: usize = 32;
 pub const MAX_GAMEPAD_AXIS: usize = 8;
+pub const MAX_FILEPATH_LENGTH: usize = 4096;
 
 
 //= Structures & Enumerations
@@ -403,4 +405,20 @@ pub fn set_mouse_scale(scale_x: f32, scale_y: f32) {
 /// Check if window is currently fullscreen
 pub fn is_window_fullscreen() -> bool {
 	unsafe { return CORE.window.fullscreen; }
+}
+
+/// Initialize hi-resolution timer
+pub fn init_timer() {
+	//* Setting a higher resolution can improve the accuracy of time-out intervals in wait functions. */
+	//* However, it can also reduce overall system performance, because the thread scheduler switches tasks more often. */
+	//* High resolutions can also prevent the CPU power management system from entering power-saving modes. */
+	//* Setting a higher resolution does not improve the accuracy of the high-resolution performance counter. */
+	let is_linux = if CURRENT_PLATFORM.contains(&platforms::OS::Linux.to_string()) { true } else { false };
+	let is_freebsd = if CURRENT_PLATFORM.contains(&platforms::OS::FreeBSD.to_string()) { true } else { false };
+	let is_openbsd = if CURRENT_PLATFORM.contains(&platforms::OS::OpenBSD.to_string()) { true } else { false };
+	let is_emscripten = if CURRENT_PLATFORM.contains(&platforms::OS::Emscripten.to_string()) { true } else { false };
+
+	if is_linux || is_freebsd || is_openbsd || is_emscripten {
+		//let now = 0;
+	}
 }

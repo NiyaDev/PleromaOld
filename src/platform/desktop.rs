@@ -319,11 +319,6 @@ pub fn init_platform() -> i32 {
 		//=----------------------------------------------------------------------------
 		// TODO: init_timer();
 
-		//=----------------------------------------------------------------------------
-		//= Initialize storage system
-		//=----------------------------------------------------------------------------
-		// TODO: CORE.Storage.basePath = GetWorkingDirectory();
-
 
 		CONTEXT = Some(context);
 		WINDOW = Some(window);
