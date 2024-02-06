@@ -8,7 +8,7 @@ use std::{fmt::Display, ops::BitAnd};
 use current_platform::CURRENT_PLATFORM;
 
 pub mod data_structures;
-use crate::{*, vectors::*, matrix::*, logging::*, platform::desktop::*, tracelog};
+use crate::{*, vectors::*, matrix::*, logging::*, platform::desktop::*, tracelog, flags::WindowFlags::*};
 
 
 //= Constants
@@ -294,7 +294,8 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 			// WARNING: rshapes module is required, if not available, default internal white rectangle is used
 			if CORE.rshapes {
 				// TODO: Rectangle rec = GetFontDefault().recs[95];
-				if ConfigFlags::FlagMsaa4xHint & CORE.window.flags {
+				// TODO: if ConfigFlags::FlagMsaa4xHint & CORE.window.flags {
+				if CORE.window.flags.contains(MSAA4xHint.into()) {
 					// NOTE: We try to maxime rec padding to avoid pixel bleeding on MSAA filtering
 					// TODO: SetShapesTexture(GetFontDefault().texture, (Rectangle){ rec.x + 2, rec.y + 2, 1, 1 });
 				} else {
@@ -312,7 +313,8 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 		}
 
 		if CORE.rtext {
-			if ConfigFlags::FlagWindowHighdpi & CORE.window.flags {
+			// TODO: if ConfigFlags::FlagWindowHighdpi & CORE.window.flags {
+			if CORE.window.flags.contains(HighDPI.into()) {
 				//* Set default font texture filter for HighDPI (blurry) */
 				//* RL_TEXTURE_FILTER_LINEAR - tex filter: BILINEAR, no mipmaps */
 				// TODO: SrlTextureParameters(GetFontDefault().texture.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_LINEAR);

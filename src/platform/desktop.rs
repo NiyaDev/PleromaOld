@@ -8,13 +8,14 @@ use glfw::{self, ffi::GLFWmonitor, Context};
 use platforms;
 use current_platform::CURRENT_PLATFORM;
 
-use crate::{*, logging::TraceLogLevel};
+use crate::{*, logging::TraceLogLevel, flags::WindowFlags::*};
+
 
 
 
 //= Constants
-pub static mut CONTEXT: Option<glfw::Glfw> = None;
-pub static mut WINDOW:  Option<glfw::PWindow> = None;
+pub static mut CONTEXT: Option<glfw::Glfw> = Option::None;
+pub static mut WINDOW:  Option<glfw::PWindow> = Option::None;
 
 
 //= Structures & Enumerations
@@ -32,65 +33,63 @@ pub fn init_platform() -> i32 {
 		let result = glfw::init_no_callbacks();
 		if result.is_err() { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to initialize GLFW"); return -1; }
 
-		let mut context = result.unwrap();
-		context.set_error_callback(error_callback);
-
-		context.default_window_hints();
+		CONTEXT = Some(result.unwrap());
+		CONTEXT.as_mut().unwrap().set_error_callback(error_callback);
+		CONTEXT.as_mut().unwrap().default_window_hints();
 
     	//= Check window creation flags
 		//* Fullscreen */
-		if (CORE.window.flags & FLAG_FULLSCREEN_MODE) > 0 { CORE.window.fullscreen = true }
+		if CORE.window.flags.contains(FullscreenMode.into()) { CORE.window.fullscreen = true }
 
 		//* Window visible */
-		if (CORE.window.flags & FLAG_WINDOW_HIDDEN) > 0 { context.window_hint(glfw::WindowHint::Visible(false)) }
-		else { context.window_hint(glfw::WindowHint::Visible(true)) }
+		if CORE.window.flags.contains(Hidden.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Visible(false)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Visible(true)) }
 
 		//* Window decoration */
-		if (CORE.window.flags & FLAG_WINDOW_UNDECORATED) > 0 { context.window_hint(glfw::WindowHint::Decorated(false)) }
-		else { context.window_hint(glfw::WindowHint::Decorated(true)) }
+		if CORE.window.flags.contains(Undecorated.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Decorated(true)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Decorated(true)) }
 
 		//* Window resizeable */
-		if (CORE.window.flags & FLAG_WINDOW_RESIZABLE) > 0 { context.window_hint(glfw::WindowHint::Resizable(false)) }
-		else { context.window_hint(glfw::WindowHint::Resizable(true)) }
+		if CORE.window.flags.contains(Resizable.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Resizable(false)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Resizable(true)) }
 
 		//* Disable FLAG_WINDOW_MINIMIZED, not supported on initialization */
-		if (CORE.window.flags & FLAG_WINDOW_MINIMIZED) > 0 { CORE.window.flags &= !FLAG_WINDOW_MINIMIZED }
+		if CORE.window.flags.contains(Minimized.into()) { CORE.window.flags.clear(Minimized.into()) }
 
 		//* Disable FLAG_WINDOW_MAXIMIZED, not supported on initialization */
-		if (CORE.window.flags & FLAG_WINDOW_MAXIMIZED) > 0 { CORE.window.flags &= !FLAG_WINDOW_MAXIMIZED }
+		if CORE.window.flags.contains(Maximized.into()) { CORE.window.flags.clear(Maximized.into()) }
 
 		//* Window unfocused */
-		if (CORE.window.flags & FLAG_WINDOW_UNFOCUSED) > 0 { context.window_hint(glfw::WindowHint::Focused(false)) }
-		else { context.window_hint(glfw::WindowHint::Focused(true)) }
+		if CORE.window.flags.contains(Unfocused.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Focused(false)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Focused(true)) }
 
-		//* Window unfocused */
-		if (CORE.window.flags & FLAG_WINDOW_TOPMOST) > 0 { context.window_hint(glfw::WindowHint::Floating(true)) }
-		else { context.window_hint(glfw::WindowHint::Floating(false)) }
+		//* Window on top of others */
+		if CORE.window.flags.contains(TopMost.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Floating(true)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Floating(false)) }
 
-		//* Window unfocused */
+		//* Window transparent */
 		// NOTE: Some GLFW flags are not supported on HTML5
-		if (CORE.window.flags & FLAG_WINDOW_TRANSPARENT) > 0 { context.window_hint(glfw::WindowHint::TransparentFramebuffer(true)) }
-		else { context.window_hint(glfw::WindowHint::TransparentFramebuffer(false)) }
+		if CORE.window.flags.contains(Transparent.into()) { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::TransparentFramebuffer(true)) }
+		else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::TransparentFramebuffer(false)) }
 
-		if (CORE.window.flags & FLAG_WINDOW_HIGHDPI) > 0 {
+		if CORE.window.flags.contains(HighDPI.into()) {
 			//* Resize window content area based on the monitor content scale. */
 			//* Scale content area based on the monitor content scale where window is placed on. */
 			//* On platforms like macOS the resolution of the framebuffer is changed independently of the window size. */
 			// NOTE: This hint only has an effect on platforms where screen coordinates and pixels always map 1:1 such as Windows and X11.
-			context.window_hint(glfw::WindowHint::ScaleToMonitor(true));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ScaleToMonitor(true));
 
-			if is_mac { context.window_hint(glfw::WindowHint::CocoaRetinaFramebuffer(true)) }
-		} else { context.window_hint(glfw::WindowHint::ScaleToMonitor(false)) }
+			if is_mac { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::CocoaRetinaFramebuffer(true)) }
+		} else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ScaleToMonitor(false)) }
 
 		//* Mouse passthrough */
-		// TODO: Rusts version of glfw doesn't have "GLFW_MOUSE_PASSTHROUGH"
-		// TODO: if (CORE.window.flags & FLAG_WINDOW_MOUSE_PASSTHROUGH) > 0 { context.window_hint(glfw::WindowHint::(true)) }
-		// TODO: else { context.window_hint(glfw::WindowHint::(false)) }
+		// NOTE: Not available in rust library baseline.
 
-		if (CORE.window.flags & FLAG_MSAA_4X_HINT) > 0 {
+		//* Anti-Aliasing */
+		if CORE.window.flags.contains(MSAA4xHint.into()) {
 			// NOTE: MSAA is only enabled for main framebuffer, not user-created FBOs
 			tracelog!(TraceLogLevel::LogInfo, "DISPLAY: Trying to enable MSAA x4");
-			context.window_hint(glfw::WindowHint::Samples(Some(4)));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::Samples(Some(4)));
 		}
 
 		// NOTE: When asking for an OpenGL context version, most drivers provide the highest supported version
@@ -98,48 +97,47 @@ pub fn init_platform() -> i32 {
 		//* For example, if using OpenGL 1.1, driver can provide a 4.3 backwards compatible context. */
 		
 		//* Check selection OpenGL version */
-		if rl_get_version() == GlVersion::RlOpengl21 { context.window_hint(glfw::WindowHint::ContextVersion(2, 1)) }
+		if rl_get_version() == GlVersion::RlOpengl21 { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(2, 1)) }
 		else if rl_get_version() == GlVersion::RlOpengl33 {
-			context.window_hint(glfw::WindowHint::ContextVersion(3, 3));
-			context.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(3, 3));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
-			if is_mac { context.window_hint(glfw::WindowHint::OpenGlForwardCompat(true)) }
-			else { context.window_hint(glfw::WindowHint::OpenGlForwardCompat(false)) }
+			if is_mac { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(true)) }
+			else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false)) }
 
-			context.window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
 		} else if rl_get_version() == GlVersion::RlOpengl43 {
-			context.window_hint(glfw::WindowHint::ContextVersion(4, 3));
-			context.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
-			context.window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(4, 3));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
 		} else if rl_get_version() == GlVersion::RlOpenglEs20 {
-			context.window_hint(glfw::WindowHint::ContextVersion(2, 0));
-			context.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
-			context.window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(2, 0));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));
 		} else if rl_get_version() == GlVersion::RlOpenglEs30 {
-			context.window_hint(glfw::WindowHint::ContextVersion(3, 0));
-			context.window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
-			context.window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));	
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(3, 0));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
+			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));	
 		}
 
 		// NOTE: GLFW 3.4+ defers initialization of the Joystick subsystem on the first call to any Joystick related functions.
 		//* Forcing this initialization here avoids doing it on PollInputEvents() called by EndDrawing() after first frame has been just drawn. */
 		//* The initialization will still happen and possible delays still occur, but before the window is shown, which is a nicer experience. */
-		context.unset_joystick_callback();
+		CONTEXT.as_mut().unwrap().unset_joystick_callback();
 
 		//* Find monitor resolution */
-		let vid_mode = context.with_primary_monitor(|_, m| {
-			m.unwrap().get_video_mode()
+		let vid_mode = CONTEXT.as_mut().unwrap().with_primary_monitor(|_, m| {
+			let opt = m.as_ref().unwrap().get_video_mode();
+			if m.is_none() { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to get primary monitor"); }
+			opt.unwrap()
 		});
-		if vid_mode.is_none() { tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to get primary monitor"); return -1; }
 
-		CORE.window.display.width = vid_mode.unwrap().width;
-		CORE.window.display.height = vid_mode.unwrap().height;
+		CORE.window.display.width = vid_mode.width;
+		CORE.window.display.height = vid_mode.height;
 
 		//* Set screen width/height to the display width/height if they are 0 */
 		if CORE.window.screen.width == 0 { CORE.window.screen.width = CORE.window.display.width }
 		if CORE.window.screen.height == 0 { CORE.window.screen.height = CORE.window.display.height }
-
-		let mut window: glfw::PWindow;
 
 		if CORE.window.fullscreen {
 			//* remember center for switchinging from fullscreen to window */
@@ -157,7 +155,7 @@ pub fn init_platform() -> i32 {
 			if CORE.window.position.y < 0 { CORE.window.position.y = 0 }
 
 			//* Obtain recommended CORE.Window.display.width/CORE.Window.display.height from a valid videomode for the monitor */
-			let video_modes = context.with_primary_monitor(|_, m| {
+			let video_modes = CONTEXT.as_mut().unwrap().with_primary_monitor(|_, m| {
 				m.unwrap().get_video_modes()
 			});
 
@@ -186,31 +184,31 @@ pub fn init_platform() -> i32 {
 			//* HighDPI monitors are properly considered in a following similar function: SetupViewport() */
 			setup_framebuffer();
 
-			let result = context.create_window(CORE.window.display.width, CORE.window.display.height, CORE.window.title, glfw::WindowMode::FullScreen(&glfw::Monitor::from_primary()));
+			let result = CONTEXT.as_mut().unwrap().create_window(CORE.window.display.width, CORE.window.display.height, CORE.window.title, glfw::WindowMode::FullScreen(&glfw::Monitor::from_primary()));
 			if result.is_none() {
 				tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to initialize Window");
 				return -1;
 			}
-			window = result.unwrap().0;
+			WINDOW = Some(result.unwrap().0);
 		} else {
 			//* If we are windowed fullscreen, ensures that window does not minimize when focus is lost */
 			if (CORE.window.screen.width == CORE.window.display.width) && (CORE.window.screen.height == CORE.window.display.height) {
-				context.window_hint(glfw::WindowHint::AutoIconify(false))
+				CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::AutoIconify(false))
 			}
 
 			//* No-fullscreen window creation */
-			let result = context.create_window(CORE.window.screen.width, CORE.window.screen.height, CORE.window.title, glfw::WindowMode::Windowed);
+			let result = CONTEXT.as_mut().unwrap().create_window(CORE.window.screen.width, CORE.window.screen.height, CORE.window.title, glfw::WindowMode::Windowed);
 			if result.is_none() {
 				tracelog!(TraceLogLevel::LogWarning, "GLFW: Failed to initialize Window");
 				return -1;
 			}
-			window = result.unwrap().0;
+			WINDOW = Some(result.unwrap().0);
 
 			CORE.window.render.width = CORE.window.screen.width;
 			CORE.window.render.height = CORE.window.screen.height;
 		}
 
-		window.make_current();
+		WINDOW.as_mut().unwrap().make_current();
 
 		let error = glfw::get_error();
 
@@ -218,25 +216,24 @@ pub fn init_platform() -> i32 {
 		if (error != glfw::Error::NoWindowContext) && (error != glfw::Error::PlatformError) {
 			CORE.window.ready = true;
 
-			context.set_swap_interval(glfw::SwapInterval::None);
+			CONTEXT.as_mut().unwrap().set_swap_interval(glfw::SwapInterval::None);
 
 			//* Try to enable GPU V-Sync, so frames are limited to screen refresh rate (60Hz -> 60 FPS) */
-			// NOTE: V-Sync can be enabled by graphic driver configuration, it doesn't need
-			//* to be activated on web platforms since VSync is enforced there. */
-			if (CORE.window.flags & FLAG_VSYNC_HINT) != 0 {
+			// NOTE: V-Sync can be enabled by graphic driver configuration, it doesn't need to be activated on web platforms since VSync is enforced there.
+			if CORE.window.flags.contains(VSyncHint.into()) {
 				// WARNING: It seems to hit a critical render path in Intel HD Graphics
-				context.set_swap_interval(glfw::SwapInterval::Sync(1));
+				CONTEXT.as_mut().unwrap().set_swap_interval(glfw::SwapInterval::Sync(1));
 				tracelog!(TraceLogLevel::LogInfo, "DISPLAY: Trying to enable VSYNC");
 			}
 
 			let mut fb_width = CORE.window.screen.width;
 			let mut fb_height = CORE.window.screen.height;
 
-			if (CORE.window.flags & FLAG_WINDOW_HIGHDPI) > 0 {
+			if CORE.window.flags.contains(HighDPI.into()) {
 				// NOTE: On APPLE platforms system should manage window/input scaling and also framebuffer scaling.
 				//* Framebuffer scaling should be activated with: glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE); */
 				if !is_mac {
-					let (inter_width, inter_height) = window.get_framebuffer_size();
+					let (inter_width, inter_height) = WINDOW.as_mut().unwrap().get_framebuffer_size();
 					fb_width = inter_width as u32;
 					fb_height = inter_height as u32;
 
@@ -267,7 +264,7 @@ pub fn init_platform() -> i32 {
 			return -1;
 		}
 
-		if (CORE.window.flags & FLAG_WINDOW_MINIMIZED) > 0 { minimize_window() }
+		if CORE.window.flags.contains(Minimized.into()) { minimize_window() }
 
 		//* If graphic device is not properly initialized, we end program */
 		if !CORE.window.ready { tracelog!(TraceLogLevel::LogFatal, "PLATFORM: Failed to initialize graphics device") }
@@ -301,9 +298,8 @@ pub fn init_platform() -> i32 {
 		// TODO: glfwSetInputMode(platform.handle, GLFW_LOCK_KEY_MODS, GLFW_TRUE);    // Enable lock keys modifiers (CAPS, NUM)
 
 		//* Retrieve gamepad names */
-		// TODO: 
 		for i in 0..MAX_GAMEPADS {
-			let joystick = context.get_joystick(glfw::JoystickId::from_i32(i as i32).unwrap());
+			let joystick = CONTEXT.as_mut().unwrap().get_joystick(glfw::JoystickId::from_i32(i as i32).unwrap());
 			if joystick.is_present() {
 				let str = joystick.get_gamepad_name().unwrap();
 				let bytes = str.as_bytes();
@@ -319,9 +315,6 @@ pub fn init_platform() -> i32 {
 		//=----------------------------------------------------------------------------
 		// TODO: init_timer();
 
-
-		CONTEXT = Some(context);
-		WINDOW = Some(window);
 
 		tracelog!(TraceLogLevel::LogInfo, "PLATFORM: DESKTOP (GLFW): Initialized successfully");
 

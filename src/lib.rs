@@ -9,8 +9,9 @@ pub mod logging;
 pub mod vectors;
 pub mod matrix;
 pub mod platform;
+pub mod flags;
 
-use {window::{*, data_structures::*}, vectors::*, matrix::*};
+use {flags::Flag, matrix::*, vectors::*, window::{data_structures::*, *}};
 
 
 //= Constants
@@ -31,7 +32,7 @@ pub static mut CORE: CoreData = CoreData {
 
 	window: Window {
 		title: "",
-		flags: 0,
+		flags: Flag::new(),
 		ready: false,
 		fullscreen: false,
 		should_close: false,
