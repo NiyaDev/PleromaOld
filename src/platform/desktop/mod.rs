@@ -4,11 +4,14 @@
 
 
 //= Imports
-use glfw::{self, ffi::GLFWmonitor, Context};
+use glfw::{self, ffi::GLFWmonitor, Context, PWindow};
 use platforms;
 use current_platform::CURRENT_PLATFORM;
 
+pub mod callback;
+
 use crate::{flags::WindowFlags::*, logging::TraceLogLevel, *};
+use callback::*;
 
 
 //= Constants
@@ -263,11 +266,17 @@ pub fn init_platform() -> i32 {
 			return -1;
 		}
 
-		if CORE.window.flags.contains(Minimized.into()) { minimize_window() }
+		if CORE.window.flags.contains(Minimized.into()) { WINDOW.as_mut().unwrap().iconify() }
 
 		//* If graphic device is not properly initialized, we end program */
 		if !CORE.window.ready { tracelog!(TraceLogLevel::LogFatal, "PLATFORM: Failed to initialize graphics device") }
-		else { set_window_position(get_monitor_width(get_current_monitor()) / 2 - CORE.window.screen.width as i32 / 2, get_monitor_height(get_current_monitor()) / 2 - CORE.window.screen.height as i32 / 2) }
+		else {
+			let current_monitor = get_current_monitor(WINDOW.as_mut().unwrap());
+			WINDOW.as_mut().unwrap().set_pos(
+				get_monitor_width(current_monitor) / 2 - CORE.window.screen.width as i32 / 2,
+				get_monitor_height(current_monitor) / 2 - CORE.window.screen.height as i32 / 2,
+			)
+		}
 		
 		//* Load OpenGL extensions */
 		// NOTE: GL procedures address loader is required to load extensions
@@ -285,13 +294,13 @@ pub fn init_platform() -> i32 {
 		if CORE.window.flags.contains(HighDPI.into()) { WINDOW.as_mut().unwrap().set_content_scale_callback(window_content_scale_callback) }
 
 		//* Set input callback events */
-		// TODO: window.set_key_callback(key_callback);
-		// TODO: window.set_char_callback(char_callback);
-		// TODO: window.set_mouse_button_callback(mouse_button_callback);
-		// TODO: window.set_cursor_pos_callback(mouse_cursor_position_callback);
-		// TODO: window.set_scroll_callback(mouse_scroll_callback);
-		// TODO: window.set_cursor_enter_callback(mouse_cursor_enter_callback);
-		// TODO: context.set_joystick_callback(joystick_callback);
+		WINDOW.as_mut().unwrap().set_key_callback(key_callback);
+		WINDOW.as_mut().unwrap().set_char_callback(char_callback);
+		WINDOW.as_mut().unwrap().set_mouse_button_callback(mouse_button_callback);
+		WINDOW.as_mut().unwrap().set_cursor_pos_callback(mouse_cursor_position_callback);
+		WINDOW.as_mut().unwrap().set_scroll_callback(mouse_scroll_callback);
+		WINDOW.as_mut().unwrap().set_cursor_enter_callback(mouse_cursor_enter_callback);
+		CONTEXT.as_mut().unwrap().set_joystick_callback(joystick_callback);
 		// TODO: glfwSetInputMode(platform.handle, GLFW_LOCK_KEY_MODS, GLFW_TRUE);    // Enable lock keys modifiers (CAPS, NUM)
 
 		//* Retrieve gamepad names */
@@ -319,121 +328,32 @@ pub fn init_platform() -> i32 {
 	}
 }
 
+
 /// Close platform
 // TODO: Figure out why this doesn't work
 pub fn close_platform() {
 	//unsafe {
-		// TODO: WINDOW.as_deref_mut().unwrap().close();
-		// TODO: CONTEXT.unwrap().terminate();
-		// TODO: #if defined(_WIN32) && defined(SUPPORT_WINMM_HIGHRES_TIMER) && !defined(SUPPORT_BUSY_WAIT_LOOP)
-		// TODO: timeEndPeriod(1);           // Restore time period
-		// TODO: #endif
+	//	let window = *WINDOW.as_mut().unwrap();
+	//	window.close();
+	//	// TODO: WINDOW.as_deref_mut().unwrap().close();
+	//	// TODO: CONTEXT.unwrap().terminate();
+	//	// TODO: #if defined(_WIN32) && defined(SUPPORT_WINMM_HIGHRES_TIMER) && !defined(SUPPORT_BUSY_WAIT_LOOP)
+	//	// TODO: timeEndPeriod(1);           // Restore time period
+	//	// TODO: #endif
 	//}
 }
-
-/// GLFW3 Error Callback, runs on GLFW3 error
-pub fn error_callback(error: glfw::Error, description: String) {
-	unsafe {tracelog!(TraceLogLevel::LogWarning, "GLFW: Error: {} Description: {}", error, description);}
-}
-
-/// GLFW3 WindowSize Callback, runs when window is resizedLastFrame
-// NOTE: Window resizing not allowed by default
-pub fn window_size_callback(_: &mut glfw::Window, width: i32, height: i32) {
-	unsafe {
-		//* Reset viewport and projection matrix for new size */
-		// TODO: SetupViewport(width, height);
-
-		CORE.window.current_fbo.width = width as u32;
-		CORE.window.current_fbo.height = height as u32;
-		CORE.window.resized_last_frame = true;
-
-		if is_window_fullscreen() { return }
-
-		//* Set current screen size */
-		let is_mac = if CURRENT_PLATFORM.contains(&platforms::OS::MacOS.to_string()) { true } else { false };
-		if is_mac {
-			CORE.window.screen.width = width as u32;
-			CORE.window.screen.height = height as u32;
-		} else {
-			if CORE.window.flags.contains(HighDPI.into()) {
-				// TODO: let window_scale_dpi = GetWindowScaleDPI();
-				let window_scale_dpi = Vector2{x: 1.0, y: 1.0};
-
-				CORE.window.screen.width = (width / window_scale_dpi.x as i32) as u32;
-				CORE.window.screen.height = (height / window_scale_dpi.y as i32) as u32;
-			} else {
-				CORE.window.screen.width = width as u32;
-				CORE.window.screen.height = height as u32;
-			}
-		}
-	}
-	// NOTE: Postprocessing texture is not scaled to new size
-}
-
-/// GLFW3 ContentScall Callback
-pub fn window_content_scale_callback(_: &mut glfw::Window, scalex: f32, scaley: f32) {
-	unsafe { CORE.window.screen_scale = Matrix::scale(scalex, scaley, 1.0); }
-}
-
-/// GLFW3 WindowIconify Callback, runs when window is minimized/restored
-pub fn window_iconify_callback(_: &mut glfw::Window, iconify: bool) {
-	unsafe {
-		if iconify { CORE.window.flags.set(Minimized.into()) }
-		else { CORE.window.flags.clear(Minimized.into()) }
-	}
-}
-
-/// GLFW3 WindowMaximize Callback, runs when window is maximized/restored
-pub fn window_maximize_callback(_: &mut glfw::Window, maximized: bool) {
-	unsafe {
-		if maximized { CORE.window.flags.set(Maximized.into()) }
-		else { CORE.window.flags.clear(Maximized.into()) }
-	}
-}
-
-/// GLFW3 WindowFocus Callback, runs when window get/lose focus
-pub fn window_focus_callback(_: &mut glfw::Window, focused: bool) {
-	unsafe {
-		if focused { CORE.window.flags.clear(Unfocused.into()) }
-		else { CORE.window.flags.set(Unfocused.into()) }
-	}
-}
-
-/// GLFW3 Window Drop Callback, runs when drop files into window
-pub fn window_drop_callback(_: &mut glfw::Window, paths: Vec<std::path::PathBuf>) {
-	unsafe {
-		if paths.len() > 0 {
-			//* In case previous dropped filepaths have not been freed, we free them */
-			if CORE.window.dropped_file_count > 0 {
-				for i in 0..CORE.window.dropped_file_count { CORE.window.dropped_filepaths[i as usize] = [0;64] }
-            	CORE.window.dropped_file_count = 0;
-			}
-
-			// WARNING: Paths are freed by GLFW when the callback returns, we must keep an internal copy
-			CORE.window.dropped_file_count = paths.len() as u32;
-			for i in 0..paths.len() {
-				let str = paths[i].to_str().unwrap().as_bytes();
-				for l in 0..str.len() {
-					if l >= 64 { break }
-					CORE.window.dropped_filepaths[l][i] = str[l];
-				}
-			}
-		}
-	}
-}
-
 
 
 /// Set window state: minimized
 // NOTE: Following function launches callback that sets appropriate flag!
-pub fn minimize_window() {
-	unsafe { WINDOW.as_mut().unwrap().iconify() }
-}
+//pub fn minimize_window() {
+//	unsafe { window.iconify() }
+//}
 
 /// Set window position on screen (windowed mode)
-pub fn set_window_position(x: i32, y: i32) {
-	unsafe { WINDOW.as_mut().unwrap().set_pos(x, y) }
-}
+//pub fn set_window_position(x: i32, y: i32) {
+//	unsafe { window.set_pos(x, y) }
+//}
 
 /// Get number of monitors
 pub fn get_monitor_count() -> i32 {
@@ -444,7 +364,7 @@ pub fn get_monitor_count() -> i32 {
 }
 
 /// Get number of monitors
-pub fn get_current_monitor() -> i32 {
+pub fn get_current_monitor(window: &mut PWindow) -> i32 {
 	unsafe {
 		let mut index = 0;
 		let mut monitor_count = [0;1];
@@ -454,7 +374,7 @@ pub fn get_current_monitor() -> i32 {
 		if monitor_count[0] >= 1 {
 			if is_window_fullscreen() {
 				//* Get the handle of the monitor that the specified window is in full screen on */
-				monitor = glfw::ffi::glfwGetWindowMonitor(WINDOW.as_mut().unwrap().window_ptr());
+				monitor = glfw::ffi::glfwGetWindowMonitor(window.window_ptr());
 
 				for i in 0..monitor_count[0] {
 					if *monitors.wrapping_add(i as usize).as_ref().unwrap() == monitor {
@@ -471,7 +391,7 @@ pub fn get_current_monitor() -> i32 {
 				let mut closest_dist = 0x7FFFFFFF;
 
 				//* Window center position */
-				let (wcx, wcy) = WINDOW.as_mut().unwrap().get_pos();
+				let (wcx, wcy) = window.get_pos();
 
 				for i in 0..monitor_count[0] {
 					//* Monitor top-left position */

@@ -276,7 +276,7 @@ pub fn init_window(width: u32, height: u32, title: &'static str) {
 		// TODO: CORE.input.gamepad.lastButtonPressed = GAMEPAD_BUTTON_UNKNOWN;
 
 		//* Initialize platform */
-		init_platform();
+		let _ = init_platform();
 
 		//* Initialize rlgl default data (buffers and shaders) */
 		// NOTE: CORE.window.current_fbo.width and CORE.window.current_fbo.height not used, just stored as globals in rlgl

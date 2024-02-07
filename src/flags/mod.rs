@@ -17,7 +17,6 @@ pub struct Flag(u32);
 
 
 pub enum WindowFlags {
-	None				= 0x00000000,
 	FullscreenMode		= 0x00000002,	// Set to run program in fullscreen
 	Resizable			= 0x00000004,	// Set to allow resizable window
 	Undecorated			= 0x00000008,	// Set to disable window decoration (frame and buttons)
