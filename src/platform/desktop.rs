@@ -8,9 +8,7 @@ use glfw::{self, ffi::GLFWmonitor, Context};
 use platforms;
 use current_platform::CURRENT_PLATFORM;
 
-use crate::{*, logging::TraceLogLevel, flags::WindowFlags::*};
-
-
+use crate::{flags::WindowFlags::*, logging::TraceLogLevel, *};
 
 
 //= Constants
@@ -23,6 +21,7 @@ pub static mut WINDOW:  Option<glfw::PWindow> = Option::None;
 
 //= Procedures
 
+/// Initialize platform: graphics, inputs and more
 pub fn init_platform() -> i32 {
 	unsafe {
 		//* Check whether this is on MacOS */
@@ -272,19 +271,18 @@ pub fn init_platform() -> i32 {
 		
 		//* Load OpenGL extensions */
 		// NOTE: GL procedures address loader is required to load extensions
-		// TODO: rl_load_extensions(glfwGetProcAddress);
+		// TODO: rl_load_extensions(CONTEXT.unwrap().get_proc_address_raw(""));
 		
 		//=----------------------------------------------------------------------------
 		//= Initialize input events callbacks
 		//=----------------------------------------------------------------------------
 		//* Set window callback events */
-		// TODO: window.set_size_callback(window_size_callback);			// NOTE: Resizing not allowed by default!
-		// TODO: window.set_maximize_callback(window_maximize_callback);
-		// TODO: window.set_iconify_callback(window_iconify_callback);
-		// TODO: window.set_focus_callback(window_focus_callback);
-		// TODO: window.set_drag_and_drop_callback(window_drop_callback);
-
-		// TODO: if (CORE.window.flags & FLAG_WINDOW_HIGHDPI) > 0 { window.set_content_scale_callback(window_content_scale_callback) }
+		WINDOW.as_mut().unwrap().set_size_callback(window_size_callback);	// NOTE: Resizing not allowed by default!
+		WINDOW.as_mut().unwrap().set_maximize_callback(window_maximize_callback);
+		WINDOW.as_mut().unwrap().set_iconify_callback(window_iconify_callback);
+		WINDOW.as_mut().unwrap().set_focus_callback(window_focus_callback);
+		WINDOW.as_mut().unwrap().set_drag_and_drop_callback(window_drop_callback);
+		if CORE.window.flags.contains(HighDPI.into()) { WINDOW.as_mut().unwrap().set_content_scale_callback(window_content_scale_callback) }
 
 		//* Set input callback events */
 		// TODO: window.set_key_callback(key_callback);
@@ -294,7 +292,6 @@ pub fn init_platform() -> i32 {
 		// TODO: window.set_scroll_callback(mouse_scroll_callback);
 		// TODO: window.set_cursor_enter_callback(mouse_cursor_enter_callback);
 		// TODO: context.set_joystick_callback(joystick_callback);
-
 		// TODO: glfwSetInputMode(platform.handle, GLFW_LOCK_KEY_MODS, GLFW_TRUE);    // Enable lock keys modifiers (CAPS, NUM)
 
 		//* Retrieve gamepad names */
@@ -322,9 +319,114 @@ pub fn init_platform() -> i32 {
 	}
 }
 
+/// Close platform
+// TODO: Figure out why this doesn't work
+pub fn close_platform() {
+	//unsafe {
+		// TODO: WINDOW.as_deref_mut().unwrap().close();
+		// TODO: CONTEXT.unwrap().terminate();
+		// TODO: #if defined(_WIN32) && defined(SUPPORT_WINMM_HIGHRES_TIMER) && !defined(SUPPORT_BUSY_WAIT_LOOP)
+		// TODO: timeEndPeriod(1);           // Restore time period
+		// TODO: #endif
+	//}
+}
+
+/// GLFW3 Error Callback, runs on GLFW3 error
+pub fn error_callback(error: glfw::Error, description: String) {
+	unsafe {tracelog!(TraceLogLevel::LogWarning, "GLFW: Error: {} Description: {}", error, description);}
+}
+
+/// GLFW3 WindowSize Callback, runs when window is resizedLastFrame
+// NOTE: Window resizing not allowed by default
+pub fn window_size_callback(_: &mut glfw::Window, width: i32, height: i32) {
+	unsafe {
+		//* Reset viewport and projection matrix for new size */
+		// TODO: SetupViewport(width, height);
+
+		CORE.window.current_fbo.width = width as u32;
+		CORE.window.current_fbo.height = height as u32;
+		CORE.window.resized_last_frame = true;
+
+		if is_window_fullscreen() { return }
+
+		//* Set current screen size */
+		let is_mac = if CURRENT_PLATFORM.contains(&platforms::OS::MacOS.to_string()) { true } else { false };
+		if is_mac {
+			CORE.window.screen.width = width as u32;
+			CORE.window.screen.height = height as u32;
+		} else {
+			if CORE.window.flags.contains(HighDPI.into()) {
+				// TODO: let window_scale_dpi = GetWindowScaleDPI();
+				let window_scale_dpi = Vector2{x: 1.0, y: 1.0};
+
+				CORE.window.screen.width = (width / window_scale_dpi.x as i32) as u32;
+				CORE.window.screen.height = (height / window_scale_dpi.y as i32) as u32;
+			} else {
+				CORE.window.screen.width = width as u32;
+				CORE.window.screen.height = height as u32;
+			}
+		}
+	}
+	// NOTE: Postprocessing texture is not scaled to new size
+}
+
+/// GLFW3 ContentScall Callback
+pub fn window_content_scale_callback(_: &mut glfw::Window, scalex: f32, scaley: f32) {
+	unsafe { CORE.window.screen_scale = Matrix::scale(scalex, scaley, 1.0); }
+}
+
+/// GLFW3 WindowIconify Callback, runs when window is minimized/restored
+pub fn window_iconify_callback(_: &mut glfw::Window, iconify: bool) {
+	unsafe {
+		if iconify { CORE.window.flags.set(Minimized.into()) }
+		else { CORE.window.flags.clear(Minimized.into()) }
+	}
+}
+
+/// GLFW3 WindowMaximize Callback, runs when window is maximized/restored
+pub fn window_maximize_callback(_: &mut glfw::Window, maximized: bool) {
+	unsafe {
+		if maximized { CORE.window.flags.set(Maximized.into()) }
+		else { CORE.window.flags.clear(Maximized.into()) }
+	}
+}
+
+/// GLFW3 WindowFocus Callback, runs when window get/lose focus
+pub fn window_focus_callback(_: &mut glfw::Window, focused: bool) {
+	unsafe {
+		if focused { CORE.window.flags.clear(Unfocused.into()) }
+		else { CORE.window.flags.set(Unfocused.into()) }
+	}
+}
+
+/// GLFW3 Window Drop Callback, runs when drop files into window
+pub fn window_drop_callback(_: &mut glfw::Window, paths: Vec<std::path::PathBuf>) {
+	unsafe {
+		if paths.len() > 0 {
+			//* In case previous dropped filepaths have not been freed, we free them */
+			if CORE.window.dropped_file_count > 0 {
+				for i in 0..CORE.window.dropped_file_count { CORE.window.dropped_filepaths[i as usize] = [0;64] }
+            	CORE.window.dropped_file_count = 0;
+			}
+
+			// WARNING: Paths are freed by GLFW when the callback returns, we must keep an internal copy
+			CORE.window.dropped_file_count = paths.len() as u32;
+			for i in 0..paths.len() {
+				let str = paths[i].to_str().unwrap().as_bytes();
+				for l in 0..str.len() {
+					if l >= 64 { break }
+					CORE.window.dropped_filepaths[l][i] = str[l];
+				}
+			}
+		}
+	}
+}
+
+
+
 /// Set window state: minimized
+// NOTE: Following function launches callback that sets appropriate flag!
 pub fn minimize_window() {
-	// NOTE: Following function launches callback that sets appropriate flag!
 	unsafe { WINDOW.as_mut().unwrap().iconify() }
 }
 
@@ -468,11 +570,6 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
 	}
 }
 
-
-/// GLFW3 Error Callback, runs on GLFW3 error
-pub fn error_callback(error: glfw::Error, description: String) {
-	unsafe {tracelog!(TraceLogLevel::LogWarning, "GLFW: Error: {} Description: {}", error, description);}
-}
 
 // TODO: Temporary location
 // TODO: Go back through this

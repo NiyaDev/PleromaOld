@@ -50,7 +50,8 @@ pub struct Window {
 	pub scren_max: Size,			// Screen maximum width and height (for resizable window)
 	pub screen_scale: Matrix,		// Matrix to scale screen (framebuffer rendering)
 
-	pub dropped_filepaths: [&'static str; 100], // Dropped files strings
+	pub dropped_filepaths: [[u8; 64]; 100], // Store dropped files paths pointers (provided by GLFW)
+	pub dropped_file_count: u32,	// Count dropped files strings
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -110,8 +111,8 @@ pub struct Gamepad {
 	pub axis_count: [i32; MAX_GAMEPADS],
 	pub ready: [bool; MAX_GAMEPADS],
 	pub name: [[u8; 64]; MAX_GAMEPADS],
-	pub current_button_state: [[i8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
-	pub previous_button_states: [[i8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+	pub current_button_state: [[u8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+	pub previous_button_states: [[u8; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
 	pub axis_state: [[f32; MAX_GAMEPAD_AXIS]; MAX_GAMEPADS],
 }
 
