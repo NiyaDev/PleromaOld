@@ -6,11 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sdl2 = "0.36.0"
+#sdl2 = "0.36.0"
 
-#glfw = "0.54.0"
+glfw = "0.54.0"
+asi_opengl = "0.6.2"
 #image = "0.24.8"
 
-#raylib-ffi = "5.0.1"
-#platforms = "3.3.0"
-#current_platform = "0.2.0"
+raylib-ffi = "5.0.1"
+platforms = "3.3.0"
+current_platform = "0.2.0"

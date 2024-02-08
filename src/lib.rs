@@ -1,85 +1,112 @@
 
 
 //= Imports
-//use glfw::{fail_on_errors, Context, Glfw, GlfwReceiver, PWindow, WindowEvent, WindowHint};
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color};
+pub mod window;
+pub mod logging;
+pub mod vectors;
+pub mod matrix;
+pub mod platform;
+pub mod flags;
+pub mod gl;
+
+use {flags::Flag, matrix::*, vectors::*, window::{core::*, structures::*, *}};
 
 
-//= Structs and Enums
+//= Constants
+pub const RAYLIB_VERSION_MAJOR: i32 = 5;
+pub const RAYLIB_VERSION_MINOR: i32 = 1;
+pub const RAYLIB_VERSION_PATCH: i32 = 0;
+pub const RAYLIB_VERSION: &str = "5.1.0";
 
-//pub struct Navia {
-//	pub glfw_context: Glfw,
-//	pub glfw_window: PWindow,
-//	pub glfw_events: GlfwReceiver<(f64, WindowEvent)>,
-//}
-pub struct Navia {
 
-}
+//= Static
+pub static mut CORE: CoreData = CoreData {
+	platform: Platform::Desktop,
+	rshapes:	false,
+	rtextures:	false,
+	rtext:		false,
+	rmodels:	false,
+	raudio:		false,
+
+	window: Window {
+		title: "",
+		flags: Flag::new(),
+		ready: false,
+		fullscreen: false,
+		should_close: false,
+		resized_last_frame: false,
+		event_waiting: false,
+		using_fbo: false,
+		position: Point{x: 0, y: 0},
+		previous_position: Point{x: 0, y: 0},
+		display: Size{width: 0, height: 0},
+		screen: Size{width: 0, height: 0},
+		previous_screen: Size{width: 0, height: 0},
+		current_fbo: Size{width: 0, height: 0},
+		render: Size{width: 0, height: 0},
+		render_offset: Point{x: 0, y: 0},
+		screen_min: Size{width: 0, height: 0},
+		scren_max: Size{width: 0, height: 0},
+		screen_scale: Matrix{
+			m0:  0.0, m4:  0.0, m8:  0.0, m12: 0.0,
+			m1:  0.0, m5:  0.0, m9:  0.0, m13: 0.0,
+			m2:  0.0, m6:  0.0, m10: 0.0, m14: 0.0,
+			m3:  0.0, m7:  0.0, m11: 0.0, m15: 0.0,
+		},
+		dropped_filepaths: [[0;64]; 100],
+		dropped_file_count: 0,
+	},
+	storage: Storage{},
+	input: Input{
+		keyboard: Keyboard{
+			exit_key: KeyboardKey::Escape,
+			current_key_state: [Action::Release; MAX_KEYBOARD_KEYS],
+			previous_key_state: [Action::Release; MAX_KEYBOARD_KEYS],
+			key_repeat_in_frame: [0; MAX_KEYBOARD_KEYS],
+			key_press_queue: [0; MAX_KEY_PRESSED_QUEUE],
+			key_press_queue_count: 0,
+			char_press_queue: [0; MAX_CHAR_PRESSED_QUEUE],
+			char_press_queue_count: 0,
+		},
+		mouse: Mouse{
+			offset: Vector2{x: 0.0, y: 0.0},
+			scale: Vector2{x: 0.0, y: 0.0},
+			current_position: Vector2{x: 0.0, y: 0.0},
+			previous_position: Vector2{x: 0.0, y: 0.0},
+			cursor: MouseCursor::Arrow,
+			cursor_hidden: false,
+			cursor_on_screen: false,
+			current_button_state: [0; MAX_MOUSE_BUTTONS],
+			previous_button_state: [0; MAX_MOUSE_BUTTONS],
+			current_wheel_move: Vector2{x: 0.0, y: 0.0},
+			previous_wheel_move: Vector2{x: 0.0, y: 0.0},
+		},
+		touch: Touch{},
+		gamepad: Gamepad{
+			last_button_pressed: 0,
+			axis_count: [0; MAX_GAMEPADS],
+			ready: [false; MAX_GAMEPADS],
+			name: [[0; 64]; MAX_GAMEPADS],
+			current_button_state: [[0; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+			previous_button_states: [[0; MAX_GAMEPAD_BUTTONS]; MAX_GAMEPADS],
+			axis_state: [[0.0; MAX_GAMEPAD_AXIS]; MAX_GAMEPADS],
+		},
+	},
+	time: Time{
+		current: 0.0,
+		previous: 0.0,
+		update: 0.0,
+		draw: 0.0,
+		frame: 0.0,
+		target: 0.0,
+		base: 0,
+		frame_counter: 0,
+	},
+};
+
+
+//= Structures & Enumerations
 
 
 //= Procedures
 
-impl Navia {
-	pub fn init() -> Self {
-		let sdl_context = sdl2::init().unwrap();
-		let video_subsystem = sdl_context.video().unwrap();
-
-		let window = video_subsystem.window("Navia", 1280, 720)
-			.position_centered()
-			.build()
-			.unwrap();
-
-		let mut canvas = window.into_canvas().build().unwrap();
-
-		canvas.set_draw_color(Color::RGB(0,255,255));
-		canvas.clear();
-		canvas.present();
-		let mut event_pump = sdl_context.event_pump().unwrap();
-		let mut i = 0;
-		'running: loop {
-			i = (i + 1) % 255;
-			canvas.set_draw_color(Color::RGB(0,64,255 - i));
-			canvas.clear();
-			for event in event_pump.poll_iter() {
-				match event {
-					Event::Quit {..} => {
-						break 'running
-					}
-					Event::KeyDown { keycode: Some(Keycode::Escape), ..} => {
-						break 'running
-					}
-					_ => {}
-				}
-			}
-			canvas.present();
-		}
-
-		Self {}
-	}
-}
-
-//impl Navia {
-//	pub fn init(width: u32, height: u32, flags: u32) -> Self {
-//
-//		//* Create context */
-//		let mut context = glfw::init(fail_on_errors!()).unwrap();
-//
-//		//* Window hints */
-//		context.window_hint(WindowHint::Resizable(false));
-//		context.window_hint(WindowHint::ContextVersion(3, 3));
-//		
-//		//* Create window */
-//		let (mut window, events) = context.create_window(width, height, "Navia", glfw::WindowMode::Windowed)
-//			.expect("Failed to create GLFW window");
-//
-//		window.make_current();
-//		window.set_key_polling(true);
-//
-//
-//		Self {
-//			glfw_context: context,
-//			glfw_window:  window,
-//			glfw_events:  events,
-//		}
-//	}
-//}

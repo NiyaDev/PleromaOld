@@ -1,8 +1,5 @@
 
 
-//= Allows
-
-
 //= Imports
 use crate::{*};
 
@@ -12,6 +9,7 @@ use crate::{*};
 
 //= Structures & Enumerations
 
+/// Core data stucture
 #[derive(Debug, Clone)]
 pub struct CoreData {
 	pub platform: Platform,
@@ -27,6 +25,7 @@ pub struct CoreData {
 	pub time: Time,
 }
 
+/// Window data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Window {
 	pub title: &'static str,		// Window text title const pointer
@@ -54,11 +53,13 @@ pub struct Window {
 	pub dropped_file_count: u32,	// Count dropped files strings
 }
 
+/// File data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Storage {
 	// ???
 }
 
+/// Input data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Input {
 	pub keyboard: Keyboard,
@@ -67,11 +68,12 @@ pub struct Input {
 	pub gamepad: Gamepad,
 }
 
+/// Keyboard data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Keyboard {
 	pub exit_key: KeyboardKey,
-	pub current_key_state: [i8; MAX_KEYBOARD_KEYS],	// Registers current frame key state
-	pub previous_key_state: [i8; MAX_KEYBOARD_KEYS],	// Registers previous frame key state
+	pub current_key_state: [Action; MAX_KEYBOARD_KEYS],	// Registers current frame key state
+	pub previous_key_state: [Action; MAX_KEYBOARD_KEYS],	// Registers previous frame key state
 
 	// NOTE: Since key press logic involves comparing prev vs cur key state, we need to handle key repeats specially
 	pub key_repeat_in_frame: [i8; MAX_KEYBOARD_KEYS],	// Registers key repeats for current frame.
@@ -83,6 +85,7 @@ pub struct Keyboard {
 	pub char_press_queue_count: i32,					// Input characters queue count
 }
 
+/// Mouse data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mouse {
 	pub offset: Vector2,				// Mouse offset
@@ -100,11 +103,13 @@ pub struct Mouse {
 	pub previous_wheel_move: Vector2,	// Registers previous mouse wheel variation
 }
 
+/// Touch data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Touch {
 	// TODO: Don't really care about this that much
 }
 
+/// Gamepad data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Gamepad {
 	pub last_button_pressed: i32,
@@ -116,6 +121,7 @@ pub struct Gamepad {
 	pub axis_state: [[f32; MAX_GAMEPAD_AXIS]; MAX_GAMEPADS],
 }
 
+/// Timing data
 #[derive(Debug, Clone, PartialEq)]
 pub struct Time {
 	pub current: f64,
@@ -127,3 +133,7 @@ pub struct Time {
 	pub base: u64,
 	pub frame_counter: u32,
 }
+
+
+//= Procedures
+

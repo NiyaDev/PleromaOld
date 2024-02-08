@@ -10,7 +10,7 @@ use current_platform::CURRENT_PLATFORM;
 
 pub mod callback;
 
-use crate::{flags::WindowFlags::*, logging::TraceLogLevel, *};
+use crate::{flags::WindowFlags::*, logging::TraceLogLevel, structures::MAX_GAMEPADS, *};
 use callback::*;
 
 
@@ -99,8 +99,9 @@ pub fn init_platform() -> i32 {
 		//* For example, if using OpenGL 1.1, driver can provide a 4.3 backwards compatible context. */
 		
 		//* Check selection OpenGL version */
-		if rl_get_version() == GlVersion::RlOpengl21 { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(2, 1)) }
-		else if rl_get_version() == GlVersion::RlOpengl33 {
+		let version = gl::rl_get_version();
+		if version == gl::GlVersion::RlOpengl21 { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(2, 1)) }
+		else if version == gl::GlVersion::RlOpengl33 {
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(3, 3));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
@@ -108,15 +109,15 @@ pub fn init_platform() -> i32 {
 			else { CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false)) }
 
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
-		} else if rl_get_version() == GlVersion::RlOpengl43 {
+		} else if version == gl::GlVersion::RlOpengl43 {
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(4, 3));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::OpenGlForwardCompat(false));
-		} else if rl_get_version() == GlVersion::RlOpenglEs20 {
+		} else if version == gl::GlVersion::RlOpenglEs20 {
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(2, 0));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));
-		} else if rl_get_version() == GlVersion::RlOpenglEs30 {
+		} else if version == gl::GlVersion::RlOpenglEs30 {
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextVersion(3, 0));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ClientApi(glfw::ClientApiHint::OpenGlEs));
 			CONTEXT.as_mut().unwrap().window_hint(glfw::WindowHint::ContextCreationApi(glfw::ContextCreationApi::Egl));	
@@ -266,13 +267,13 @@ pub fn init_platform() -> i32 {
 			return -1;
 		}
 
-		if CORE.window.flags.contains(Minimized.into()) { WINDOW.as_mut().unwrap().iconify() }
+		if CORE.window.flags.contains(Minimized.into()) { minimize_window() }
 
 		//* If graphic device is not properly initialized, we end program */
 		if !CORE.window.ready { tracelog!(TraceLogLevel::LogFatal, "PLATFORM: Failed to initialize graphics device") }
 		else {
 			let current_monitor = get_current_monitor(WINDOW.as_mut().unwrap());
-			WINDOW.as_mut().unwrap().set_pos(
+			set_window_position(
 				get_monitor_width(current_monitor) / 2 - CORE.window.screen.width as i32 / 2,
 				get_monitor_height(current_monitor) / 2 - CORE.window.screen.height as i32 / 2,
 			)
@@ -346,14 +347,14 @@ pub fn close_platform() {
 
 /// Set window state: minimized
 // NOTE: Following function launches callback that sets appropriate flag!
-//pub fn minimize_window() {
-//	unsafe { window.iconify() }
-//}
+pub fn minimize_window() {
+	unsafe { WINDOW.as_mut().unwrap().iconify() }
+}
 
 /// Set window position on screen (windowed mode)
-//pub fn set_window_position(x: i32, y: i32) {
-//	unsafe { window.set_pos(x, y) }
-//}
+pub fn set_window_position(x: i32, y: i32) {
+	unsafe { WINDOW.as_mut().unwrap().set_pos(x, y) }
+}
 
 /// Get number of monitors
 pub fn get_monitor_count() -> i32 {
@@ -488,20 +489,4 @@ pub fn get_monitor_height(monitor: i32) -> i32 {
 
 		return height;
 	}
-}
-
-
-// TODO: Temporary location
-// TODO: Go back through this
-#[derive(PartialEq)]
-pub enum GlVersion {
-	RlOpengl11 = 1,	// OpenGL 1.1
-	RlOpengl21,		// OpenGL 2.1 (GLSL 120)
-	RlOpengl33,		// OpenGL 3.3 (GLSL 330)
-	RlOpengl43,		// OpenGL 4.3 (using GLSL 330)
-	RlOpenglEs20,	// OpenGL ES 2.0 (GLSL 100)
-	RlOpenglEs30,	// OpenGL ES 3.0 (GLSL 300 es)
-}
-pub fn rl_get_version() -> GlVersion {
-	GlVersion::RlOpengl43
 }
