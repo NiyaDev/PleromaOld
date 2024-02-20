@@ -2,12 +2,12 @@
 
 //use std::time::Instant;
 
-use navia::{self, window::init_window};
+//use navia::{self, window::init_window};
 
 
 fn main() {
 
-	init_window(1280, 720, "Navia")
+//	init_window(1280, 720, "Navia")
 
 
 }

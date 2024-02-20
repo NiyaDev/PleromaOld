@@ -3,7 +3,7 @@
 //= Imports
 
 
-//= Structure and Enumerations
+//= Structures and Enumerations
 
 /// Matrix type (OpenGL style 4x4 - right handed, column major)
 #[derive(Debug, PartialEq)]
@@ -13,15 +13,8 @@ pub struct Matrix {
 	pub m2: f32, pub m6: f32, pub m10: f32, pub m14: f32,
 	pub m3: f32, pub m7: f32, pub m11: f32, pub m15: f32,
 }
-
-
-//= Procedures
-
-impl Matrix {
-	
-	//= Conversion
-	/// Converting to FFI version
-	pub fn into_ffi(&self) -> raylib_ffi::Matrix {
+impl Into<raylib_ffi::Matrix> for Matrix {
+	fn into(self) -> raylib_ffi::Matrix {
 		raylib_ffi::Matrix {
 			m0: self.m0, m4: self.m4,  m8: self.m8,  m12: self.m12,
 			m1: self.m1, m5: self.m5,  m9: self.m9,  m13: self.m13,
@@ -29,8 +22,9 @@ impl Matrix {
 			m3: self.m3, m7: self.m7, m11: self.m11, m15: self.m15,
 		}
 	}
-	/// Converting from FFI version
-	pub fn from_ffi(value: raylib_ffi::Matrix) -> Self {
+}
+impl From<raylib_ffi::Matrix> for Matrix {
+	fn from(value: raylib_ffi::Matrix) -> Self {
 		Self {
 			m0: value.m0, m4: value.m4,  m8: value.m8,  m12: value.m12,
 			m1: value.m1, m5: value.m5,  m9: value.m9,  m13: value.m13,
@@ -38,5 +32,13 @@ impl Matrix {
 			m3: value.m3, m7: value.m7, m11: value.m11, m15: value.m15,
 		}
 	}
-
 }
+
+
+//= Constants
+
+
+//= Implementations
+
+
+//= Porcedures

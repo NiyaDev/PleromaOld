@@ -1,6 +1,8 @@
 
 
+
 //= Imports
+use std::mem;
 use crate::{color::Color, vector::*};
 
 
@@ -187,86 +189,97 @@ impl Mesh {
 	/// Converting to FFI version
 	// TODO
 	pub fn into_ffi(&self) -> raylib_ffi::Mesh {
-		////* Grabbing Vertices */
+		//* Grabbing Vertices */
 		let mut ffi_vertices = Vec::new();
-		//for i in 0..self.vertices.len() {
-		//	ffi_vertices.push(self.vertices.get(i).unwrap().x);
-		//	ffi_vertices.push(self.vertices.get(i).unwrap().y);
-		//	ffi_vertices.push(self.vertices.get(i).unwrap().z);
-		//}
+		for i in 0..self.vertices.len() {
+			ffi_vertices.push(self.vertices.get(i).unwrap().x);
+			ffi_vertices.push(self.vertices.get(i).unwrap().y);
+			ffi_vertices.push(self.vertices.get(i).unwrap().z);
+		}
+		let vertices = ffi_vertices.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing TexCoords */
+		//* Grabbing TexCoords */
 		let mut ffi_texcoords = Vec::new();
-		//for i in 0..self.texcoords.len() {
-		//	ffi_texcoords.push(self.texcoords.get(i).unwrap().x);
-		//	ffi_texcoords.push(self.texcoords.get(i).unwrap().y);
-		//}
-		//ffi_texcoords.shrink_to_fit();
-		////* Grabbing TexCoords 2 */
+		for i in 0..self.texcoords.len() {
+			ffi_texcoords.push(self.texcoords.get(i).unwrap().x);
+			ffi_texcoords.push(self.texcoords.get(i).unwrap().y);
+		}
+		let texcoords = ffi_texcoords.as_mut_slice().as_mut_ptr();
+		//* Grabbing TexCoords 2 */
 		let mut ffi_texcoords2 = Vec::new();
-		//for i in 0..self.texcoords2.len() {
-		//	ffi_texcoords2.push(self.texcoords2.get(i).unwrap().x);
-		//	ffi_texcoords2.push(self.texcoords2.get(i).unwrap().y);
-		//}
-		//ffi_texcoords2.shrink_to_fit();
+		for i in 0..self.texcoords2.len() {
+			ffi_texcoords2.push(self.texcoords2.get(i).unwrap().x);
+			ffi_texcoords2.push(self.texcoords2.get(i).unwrap().y);
+		}
+		let texcoords2 = ffi_texcoords2.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing Normals */
+		//* Grabbing Normals */
 		let mut ffi_normals = Vec::new();
-		//for i in 0..self.normals.len() {
-		//	ffi_normals.push(self.normals.get(i).unwrap().x);
-		//	ffi_normals.push(self.normals.get(i).unwrap().y);
-		//	ffi_normals.push(self.normals.get(i).unwrap().z);
-		//}
-		//ffi_normals.shrink_to_fit();
+		for i in 0..self.normals.len() {
+			ffi_normals.push(self.normals.get(i).unwrap().x);
+			ffi_normals.push(self.normals.get(i).unwrap().y);
+			ffi_normals.push(self.normals.get(i).unwrap().z);
+		}
+		let normals = ffi_normals.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing Tangents */
+		//* Grabbing Tangents */
 		let mut ffi_tangents = Vec::new();
-		//for i in 0..self.tangents.len() {
-		//	ffi_tangents.push(*self.tangents.get(i).unwrap());
-		//}
-		//ffi_tangents.shrink_to_fit();
+		for i in 0..self.tangents.len() {
+			ffi_tangents.push(*self.tangents.get(i).unwrap());
+		}
+		let tangents = ffi_tangents.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing Colors */
+		//* Grabbing Colors */
 		let mut ffi_colors = Vec::new();
-		//for i in 0..self.colors.len() {
-		//	ffi_colors.push(self.colors.get(i).unwrap().r);
-		//	ffi_colors.push(self.colors.get(i).unwrap().g);
-		//	ffi_colors.push(self.colors.get(i).unwrap().b);
-		//	ffi_colors.push(self.colors.get(i).unwrap().a);
-		//}
-		//ffi_colors.shrink_to_fit();
+		for i in 0..self.colors.len() {
+			ffi_colors.push(self.colors.get(i).unwrap().r);
+			ffi_colors.push(self.colors.get(i).unwrap().g);
+			ffi_colors.push(self.colors.get(i).unwrap().b);
+			ffi_colors.push(self.colors.get(i).unwrap().a);
+		}
+		let colors = ffi_colors.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing Indices */
+		//* Grabbing Indices */
 		let mut ffi_indices = Vec::new();
-		//for i in 0..self.indices.len() {
-		//	ffi_indices.push(*self.indices.get(i).unwrap());
-		//}
-		//ffi_indices.shrink_to_fit();
+		for i in 0..self.indices.len() {
+			ffi_indices.push(*self.indices.get(i).unwrap());
+		}
+		let indices = ffi_indices.as_mut_slice().as_mut_ptr();
 
-		////* Grabbing VBO IDs */
+		//* Grabbing VBO IDs */
 		let mut ffi_vbo = Vec::new();
-		//for i in 0..self.vbo_id.len() {
-		//	ffi_vbo.push(*self.vbo_id.get(i).unwrap());
-		//}
-		//ffi_vbo.shrink_to_fit();
+		for i in 0..self.vbo_id.len() {
+			ffi_vbo.push(*self.vbo_id.get(i).unwrap());
+		}
+		let vbo_id = ffi_vbo.as_mut_slice().as_mut_ptr();
 
-		raylib_ffi::Mesh {
+		let mesh = raylib_ffi::Mesh {
 			vertexCount:	self.vertices.len() as i32,
-			vertices:		ffi_vertices.as_mut_slice().as_mut_ptr(),
+			vertices:		vertices,
 			triangleCount:	self.triangle_count,
-			texcoords:		ffi_texcoords.as_mut_slice().as_mut_ptr(),
-			texcoords2:		ffi_texcoords2.as_mut_slice().as_mut_ptr(),
-			normals:		ffi_normals.as_mut_slice().as_mut_ptr(),
-			tangents:		ffi_tangents.as_mut_slice().as_mut_ptr(),
-			colors:			ffi_colors.as_mut_slice().as_mut_ptr(),
-			indices:		ffi_indices.as_mut_slice().as_mut_ptr(),
+			texcoords:		texcoords,
+			texcoords2:		texcoords2,
+			normals:		normals,
+			tangents:		tangents,
+			colors:			colors,
+			indices:		indices,
 			animVertices:	self.anim_vertices,
 			animNormals:	self.anim_normals,
 			boneIds:		self.bone_ids,
 			boneWeights:	self.bone_weights,
 			vaoId:			self.vao_id,
-			vboId:			ffi_vbo.as_mut_slice().as_mut_ptr(),
-		}
+			vboId:			vbo_id,
+		};
+		//mem::forget(vertices);
+		//mem::forget(texcoords);
+		//mem::forget(texcoords2);
+		//mem::forget(normals);
+		//mem::forget(tangents);
+		//mem::forget(colors);
+		//mem::forget(indices);
+		//mem::forget(vbo_id);
+
+		mesh
 	}
 
 }
