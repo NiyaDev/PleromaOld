@@ -156,6 +156,19 @@ fn matrix() {
 
 }
 
+/// Rectangle
+#[test]
+fn rectangle() {
+
+}
+
+/// Image
+#[test]
+fn image() {
+
+}
+
+
 //* Mesh */
 //#[test]
 //fn mesh_conversion() {
