@@ -4,7 +4,7 @@
 use std::f32::consts::PI;
 
 //= Imports
-use navia::{color::{Color, *}, vectors::*};
+use navia::{color::{Color, *}, rectangle::Rectangle, vectors::*};
 
 
 //= Tests
@@ -54,6 +54,42 @@ fn color() {
 	assert_eq!(MAGENTA, Color::from(raylib_ffi::colors::MAGENTA), "Magenta not the same.");
 	assert_eq!(RAYWHITE, Color::from(raylib_ffi::colors::RAYWHITE), "Raywhite not the same.");
 }
+
+/// Font
+#[test]
+fn font() {}
+
+/// Image
+#[test]
+fn image() {}
+
+/// Matrix
+#[test]
+fn matrix() {}
+
+/// Rectangle
+#[test]
+fn rectangle() {
+	//* Conversion from ffi */
+	let rect_from_ffi = Rectangle::from(raylib_ffi::Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0});
+	let rect_default = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0};
+	assert_eq!(rect_default, rect_from_ffi, "Error in conversion from FFI.");
+
+	//* Conversion into ffi */
+	let ffi_from_struct: raylib_ffi::Rectangle = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0}.into();
+	let ffi_default = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0};
+	let ffi_into_result = ffi_default.x == ffi_from_struct.x && ffi_default.y == ffi_from_struct.y
+		&& ffi_default.width == ffi_from_struct.width && ffi_default.height == ffi_from_struct.height;
+	assert!(ffi_into_result, "Error in conversion into FFI.");
+}
+
+/// RenderTexture
+#[test]
+fn render_texture() {}
+
+/// Texture
+#[test]
+fn texture() {}
 
 /// Vector2
 #[test]
@@ -150,23 +186,6 @@ fn vector_4() {
 
 }
 
-/// Matrix
-#[test]
-fn matrix() {
-
-}
-
-/// Rectangle
-#[test]
-fn rectangle() {
-
-}
-
-/// Image
-#[test]
-fn image() {
-
-}
 
 
 //* Mesh */

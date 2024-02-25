@@ -6,6 +6,7 @@
 //= Structure and Enumerations
 
 /// Rectangle
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rectangle {
 	pub x: f32,
 	pub y: f32,

@@ -1,6 +1,7 @@
 
 
 //= Imports
+use crate::vectors::*;
 
 
 //= Structures and Enumerations
@@ -31,6 +32,16 @@ impl Into<raylib_ffi::Color> for Color {
 		}
 	}
 }
+impl Into<Vector4> for Color{
+	fn into(self) -> Vector4 {
+		unsafe { Vector4::from(raylib_ffi::ColorNormalize(self.into())) }
+	}
+}
+impl Into<Vector3> for Color{
+	fn into(self) -> Vector3 {
+		unsafe { Vector3::from(raylib_ffi::ColorToHSV(self.into())) }
+	}
+}
 impl From<raylib_ffi::Color> for Color {
 	fn from(value: raylib_ffi::Color) -> Self {
 		Self{
@@ -39,6 +50,16 @@ impl From<raylib_ffi::Color> for Color {
 			b: value.b,
 			a: value.a,
 		}
+	}
+}
+impl From<Vector4> for Color {
+	fn from(value: Vector4) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorFromNormalized(value.into())) }
+	}
+}
+impl From<Vector3> for Color {
+	fn from(value: Vector3) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorFromHSV(value.x, value.y, value.z)) }
 	}
 }
 
@@ -72,3 +93,60 @@ pub const BLANK: Color = Color {r: 0,g: 0,b: 0,a: 0};
 pub const MAGENTA: Color = Color {r: 255,g: 0,b: 255,a: 255};
 pub const RAYWHITE: Color = Color {r: 245,g: 245,b: 245,a: 255};
 pub const PALETTE_30: Color = Color {r: 48,g: 56,b: 67,a: 255};
+
+
+//= Implementations
+
+impl Color {
+	
+	//= Manipulations
+	/// Wrapper for Fade
+	///
+	/// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+	pub fn fade(self, alpha: f32) -> Self {
+		unsafe { Self::from(raylib_ffi::Fade(self.into(), alpha)) }
+	}
+	/// Wrapper for ColorToInt
+	///
+	/// Get hexadecimal value for a Color
+	pub fn to_int(self) -> i32 {
+		unsafe { raylib_ffi::ColorToInt(self.into()) }
+	}
+	/// Wrapper for ColorTint
+	///
+	/// Get color multiplied with another color
+	pub fn tint(self, tint: Color) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorTint(self.into(), tint.into())) }
+	}
+	/// Wrapper for ColorBrightness
+	///
+	/// Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
+	pub fn brightness(self, factor: f32) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorBrightness(self.into(), factor)) }
+	}
+	/// Wrapper for ColorContrast
+	///
+	/// Get color with contrast correction, contrast values between -1.0f and 1.0fGet color with contrast correction, contrast values between -1.0f and 1.0f
+	pub fn contrast(self, contrast: f32) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorContrast(self.into(), contrast)) }
+	}
+	/// Wrapper for ColorAlpha
+	///
+	/// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+	pub fn alpha(self, alpha: f32) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorAlpha(self.into(), alpha)) }
+	}
+	/// Wrapper for ColorAlphaBlend
+	///
+	/// Get src alpha-blended into dst color with tint
+	pub fn alpha_blend(self, src: Color, tint: Color) -> Self {
+		unsafe { Self::from(raylib_ffi::ColorAlphaBlend(self.into(), src.into(), tint.into())) }
+	}
+	/// Wrapper for GetColor
+	///
+	/// Get Color structure from hexadecimal value
+	pub fn hex(hex_value: u32) -> Self {
+		unsafe { Self::from(raylib_ffi::GetColor(hex_value)) }
+	}
+
+}

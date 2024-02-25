@@ -254,6 +254,26 @@ pub struct Vector4 {
 	pub z: f32,
 	pub w: f32,
 }
+impl Into<raylib_ffi::Vector4> for Vector4 {
+	fn into(self) -> raylib_ffi::Vector4 {
+		raylib_ffi::Vector4 {
+			x: self.x,
+			y: self.y,
+			z: self.z,
+			w: self.w,
+		}
+	}
+}
+impl From<raylib_ffi::Vector4> for Vector4 {
+	fn from(value: raylib_ffi::Vector4) -> Self {
+		Self {
+			x: value.x,
+			y: value.y,
+			z: value.z,
+			w: value.w,
+		}
+	}
+}
 
 
 //= Constants

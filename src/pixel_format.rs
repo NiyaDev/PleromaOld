@@ -67,5 +67,17 @@ impl From<i32> for PixelFormat {
 }
 
 
-//= Procedures
+//= Implementations
+
+impl PixelFormat {
+	
+	//= Manipulations
+	/// Wrapper for GetPixelDataSize
+	///
+	/// Get pixel data size in bytes for certain format
+	pub fn fade(self, width: i32, height: i32) -> i32 {
+		unsafe { raylib_ffi::GetPixelDataSize(width, height, self as i32) }
+	}
+
+}
 
