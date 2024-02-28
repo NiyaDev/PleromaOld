@@ -30,7 +30,7 @@ impl RenderTexture {
 
 	/// Wrapper for LoadRenderTexture
 	///
-	/// Load texture from file into GPU memory (VRAM)
+	/// Load texture for rendering (framebuffer)
 	pub fn load(width: i32, height: i32) -> Self {
 		unsafe { RenderTexture::from(raylib_ffi::LoadRenderTexture(width, height)) }
 	}
