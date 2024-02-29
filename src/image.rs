@@ -8,6 +8,7 @@ use crate::{color::Color, font::Font, pixel_format::PixelFormat, rectangle::Rect
 //= Structure and Enumerations
 
 /// Texture stored on CPU
+#[derive(Debug)]
 pub struct Image(pub raylib_ffi::Image);
 impl Into<raylib_ffi::Image> for Image {
 	fn into(self) -> raylib_ffi::Image {
@@ -17,6 +18,29 @@ impl Into<raylib_ffi::Image> for Image {
 impl From<raylib_ffi::Image> for Image {
 	fn from(value: raylib_ffi::Image) -> Self {
 		Self { 0: value }
+	}
+}
+impl PartialEq for Image {
+	fn eq(&self, other: &Self) -> bool {
+		let mut result;
+
+		result = self.0.width == other.0.width &&
+			self.0.height == other.0.height &&
+			self.0.mipmaps == other.0.mipmaps &&
+			self.0.format == other.0.format;
+
+		if result {
+			for i in 0..(self.0.width*self.0.height) {
+				let self_color = self.get_color(i/self.0.width, i%self.0.width);
+				let other_color = other.get_color(i/self.0.width, i%self.0.width);
+				if self_color != other_color {
+					result = false;
+					break;
+				}
+			}
+		}
+
+		result
 	}
 }
 

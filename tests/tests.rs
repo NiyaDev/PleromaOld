@@ -4,7 +4,8 @@
 use std::f32::consts::PI;
 
 //= Imports
-use navia::{color::{Color, *}, rectangle::Rectangle, vectors::*};
+use navia::{color::*, image::*, rectangle::*, vectors::*};
+use raylib_ffi::rl_str;
 
 
 //= Tests
@@ -56,18 +57,245 @@ fn color() {
 }
 
 /// Font
+// TODO
 #[test]
 fn font() {}
 
 /// Image
+// TODO
 #[test]
-fn image() {}
+fn image() {
+	unsafe {
+		raylib_ffi::SetTraceLogLevel(raylib_ffi::enums::TraceLogLevel::None as i32);
+
+		//* Testing PartialEq */
+		let partial_1 = Image::load("data/test_1.png");
+		let partial_2 = Image::load("data/test_2.png");
+		assert_eq!(partial_1, partial_1, "PartialEq is not working. (The same file is not equal to itself)");
+		assert_ne!(partial_1, partial_2, "PartialEq is not working. (Two different files are equal)");
+		partial_1.unload();
+		partial_2.unload();
+
+		//* Conversion from ffi */
+		let from_ffi = Image::from(raylib_ffi::LoadImage(rl_str!("data/test_1.png")));
+		let default = Image::load("data/test_1.png");
+		assert_eq!(default, from_ffi, "Error in conversion from FFI.");
+		from_ffi.unload();
+		default.unload();
+
+		//* Load Raw */
+		// TODO
+
+		//* Load SVG */
+		// TODO
+
+		//* Load Animation */
+		// TODO
+
+		//* Load from memory */
+		// TODO
+
+		//* Load from texture */
+		// TODO
+
+		//* Load from screen */
+		// TODO
+
+		//* Is image ready */
+		// TODO
+
+		//* Export to file */
+		// TODO
+
+		//* Export to memory */
+		// TODO
+
+		//* Export as code */
+		// TODO
+
+		//* Generate plain color */
+		// TODO
+
+		//* Generate linear gradient */
+		// TODO
+
+		//* Generate radial gradient */
+		// TODO
+
+		//* Generate square grandient */
+		// TODO
+
+		//* Generate checked */
+		// TODO
+
+		//* Generate white noise */
+		// TODO
+
+		//* Generate perlin noise */
+		// TODO
+
+		//* Generate celluar algorithm */
+		// TODO
+
+		//* Generate grayscale text */
+		// TODO
+
+		//* Copy image */
+		// TODO
+
+		//* Image subset */
+		// TODO
+
+		//* Image Text */
+		// TODO
+
+		//* Image text ex */
+		// TODO
+
+		//* Change format */
+		// TODO
+
+		//* Convert to power of 2 */
+		// TODO
+
+		//* Crop image */
+		// TODO
+
+		//* Crop image based on alpha */
+		// TODO
+
+		//* Clear alpha to specified color */
+		// TODO
+
+		//* Apply alpha mask */
+		// TODO
+
+		//* Premultiply alpha channel */
+		// TODO
+
+		//* Apply gaussian blur */
+		// TODO
+
+		//* Resize image bicubic */
+		// TODO
+
+		//* Resize image nearest-neighbor */
+		// TODO
+
+		//* Resize canvas */
+		// TODO
+
+		//* Compute mipmaps */
+		// TODO
+
+		//* Dither */
+		// TODO
+
+		//* Flip vertical */
+		// TODO
+
+		//* Flip horizontal */
+		// TODO
+
+		//* Rotate */
+		// TODO
+
+		//* Rotate 90 degrees clockwise */
+		// TODO
+
+		//* Rotate 90 degrees counter clockwise */
+		// TODO
+
+		//* Tint color */
+		// TODO
+
+		//* Invert color */
+		// TODO
+
+		//* Grayscale */
+		// TODO
+
+		//* Set contrast */
+		// TODO
+
+		//* Set brightness */
+		// TODO
+
+		//* Replace color */
+		// TODO
+
+		//* Load palette */
+		// TODO
+
+		//* Get alpha border rectangle */
+		// TODO
+
+		//* Get image color at position */
+		// TODO
+
+		//* Clear background */
+		// TODO
+
+		//* Draw pixel */
+		// TODO
+
+		//* Draw pixel using vector */
+		// TODO
+
+		//* Draw line */
+		// TODO
+
+		//* Draw line using vectors */
+		// TODO
+
+		//* Draw circle */
+		// TODO
+
+		//* Draw circle using vector */
+		// TODO
+
+		//* Draw circle outline */
+		// TODO
+
+		//* Draw circle outline using vector */
+		// TODO
+
+		//* Draw rectangle */
+		// TODO
+
+		//* Draw rectangle using vector */
+		// TODO
+
+		//* Draw rectangle using rectangle */
+		// TODO
+
+		//* Draw rectangle lines */
+		// TODO
+
+		//* Draw image */
+		// TODO
+
+		//* Draw image text */
+		// TODO
+
+		//* Draw image text ex */
+		// TODO
+
+		//* To texture */
+		// TODO
+
+		//* Tu cubemap */
+		// TODO
+	}
+}
 
 /// Matrix
+// TODO
 #[test]
 fn matrix() {}
 
 /// Rectangle
+// TODO
 #[test]
 fn rectangle() {
 	//* Conversion from ffi */
@@ -84,10 +312,12 @@ fn rectangle() {
 }
 
 /// RenderTexture
+// TODO
 #[test]
 fn render_texture() {}
 
 /// Texture
+// TODO
 #[test]
 fn texture() {}
 
@@ -176,11 +406,13 @@ fn vector_2() {
 
 }
 /// Vector3
+// TODO
 #[test]
 fn vector_3() {
 
 }
 /// Vector4
+// TODO
 #[test]
 fn vector_4() {
 
