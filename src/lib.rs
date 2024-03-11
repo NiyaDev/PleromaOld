@@ -13,3 +13,4 @@ pub mod font;
 pub mod misc;
 
 pub mod screen;
+pub mod keybindings;
