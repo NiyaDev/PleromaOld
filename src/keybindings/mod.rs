@@ -50,15 +50,40 @@ impl Keybindings {
 		Self(HashMap::new())
 	}
 
+	/// Load from file
+	/* TODO When i have access to a mouse and i can do From<i64> for Keybord keys a lot smoother
+	pub fn load_from_file(&mut self, filename: &str) {
+		let file = fs::read_to_string(filename);
+		if file.is_err() {
+			// TODO Error
+			return;
+		}
+		let file_string = file.unwrap();
+
+		let json: serde_json::Value = serde_json::from_str(&file_string).unwrap();
+		for i in json.as_array() {
+			let key_type = i[1].as_str().unwrap();
+			let mut key: Keybind;
+			match key_type {
+				"keyboard" => {}
+				"mouse" => {}
+				"gamepad_button" => {}
+				"gamepad_axis" => {}
+			}
+			self.insert(i[0].as_str().unwrap(), key);
+		}
+	}
+	*/
+
 	/// Inserting a new keybinding
-	pub fn insert(&mut self, name: String, key: Keybind) {
-		self.0.insert(name, key);
+	pub fn insert(&mut self, name: &str, key: Keybind) {
+		self.0.insert(name.to_string(), key);
 	}
 
 	/// Key pressed
-	pub fn key_pressed(&self, key: String) -> Result<bool, KeybindingErrors> {
-		if self.0.contains_key(&key) {
-			let keybind = self.0[&key].clone();
+	pub fn key_pressed(&self, key: &str) -> Result<bool, KeybindingErrors> {
+		if self.0.contains_key(&key.to_string()) {
+			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
 					unsafe { Ok(raylib_ffi::IsKeyPressed(key as i32)) }
@@ -75,8 +100,8 @@ impl Keybindings {
 	}
 	/// Key down
 	pub fn key_down(&self, key: String) -> Result<bool, KeybindingErrors> {
-		if self.0.contains_key(&key) {
-			let keybind = self.0[&key].clone();
+		if self.0.contains_key(&key.to_string()) {
+			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
 					unsafe { Ok(raylib_ffi::IsKeyDown(key as i32)) }
@@ -93,8 +118,8 @@ impl Keybindings {
 	}
 	/// Key released
 	pub fn key_released(&self, key: String) -> Result<bool, KeybindingErrors> {
-		if self.0.contains_key(&key) {
-			let keybind = self.0[&key].clone();
+		if self.0.contains_key(&key.to_string()) {
+			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
 					unsafe { Ok(raylib_ffi::IsKeyReleased(key as i32)) }
@@ -111,8 +136,8 @@ impl Keybindings {
 	}
 	/// Key up
 	pub fn key_up(&self, key: String) -> Result<bool, KeybindingErrors> {
-		if self.0.contains_key(&key) {
-			let keybind = self.0[&key].clone();
+		if self.0.contains_key(&key.to_string()) {
+			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
 					unsafe { Ok(raylib_ffi::IsKeyUp(key as i32)) }
@@ -129,8 +154,8 @@ impl Keybindings {
 	}
 	/// Get Axis
 	pub fn get_axis(&self, key: String) -> Result<f32, KeybindingErrors> {
-		if self.0.contains_key(&key) {
-			let keybind = self.0[&key].clone();
+		if self.0.contains_key(&key.to_string()) {
+			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::GamepadAxis { pad_number, key } => {
 					unsafe { Ok(raylib_ffi::GetGamepadAxisMovement(pad_number, key as i32)) }
