@@ -1,12 +1,8 @@
 
 
-//= Imports
 use std::{f32::EPSILON, ops::{Add, Div, Mul, Not, Sub}};
 
 use super::matrix::Matrix;
-
-
-//= Structures and Enumerations
 
 /// Vector2
 #[derive(Debug, Clone, Copy)]
@@ -276,8 +272,6 @@ impl From<raylib_ffi::Vector4> for Vector4 {
 }
 
 
-//= Constants
-
 pub const ZERO_2: Vector2 = Vector2{x: 0.0, y: 0.0};
 pub const ZERO_3: Vector3 = Vector3{x: 0.0, y: 0.0, z: 0.0};
 pub const ZERO_4: Vector4 = Vector4{x: 0.0, y: 0.0, z: 0.0, w: 0.0};
@@ -286,8 +280,6 @@ pub const ONE_2: Vector2 = Vector2{x: 1.0, y: 1.0};
 pub const ONE_3: Vector3 = Vector3{x: 1.0, y: 1.0, z: 1.0};
 pub const ONE_4: Vector4 = Vector4{x: 1.0, y: 1.0, z: 1.0, w: 1.0};
 
-
-//= Implementations
 
 impl Vector2 {
 	

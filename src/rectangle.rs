@@ -1,10 +1,5 @@
 
 
-//= Imports
-
-
-//= Structure and Enumerations
-
 /// Rectangle
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rectangle {
@@ -34,18 +29,9 @@ impl From<raylib_ffi::Rectangle> for Rectangle {
 	}
 }
 
-
-//= Constants
-
-
-//= Implementations
-
 impl Rectangle {
 
 	//
 
 
 }
-
-
-//= Procedures

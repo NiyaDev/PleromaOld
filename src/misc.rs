@@ -1,10 +1,7 @@
 
 
-//= Imports
 use crate::{color::*, image::*};
 
-
-//= Procedures
 
 //= General
 /// Wrapper for WindowShouldClose

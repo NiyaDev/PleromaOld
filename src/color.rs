@@ -1,10 +1,7 @@
 
 
-//= Imports
 use crate::vectors::*;
 
-
-//= Structures and Enumerations
 
 /// Color wrapper
 #[derive(Debug, Copy, Clone)]
@@ -64,8 +61,6 @@ impl From<Vector3> for Color {
 }
 
 
-//= Constants
-
 pub const LIGHTGRAY: Color = Color {r: 200,g: 200,b: 200,a: 255};
 pub const GRAY: Color = Color {r: 130,g: 130,b: 130,a: 255};
 pub const DARKGRAY: Color = Color {r: 80,g: 80,b: 80,a: 255};
@@ -94,8 +89,6 @@ pub const MAGENTA: Color = Color {r: 255,g: 0,b: 255,a: 255};
 pub const RAYWHITE: Color = Color {r: 245,g: 245,b: 245,a: 255};
 pub const PALETTE_30: Color = Color {r: 48,g: 56,b: 67,a: 255};
 
-
-//= Implementations
 
 impl Color {
 	

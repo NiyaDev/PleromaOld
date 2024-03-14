@@ -5,7 +5,9 @@ pub mod keyboard_keys;
 pub mod mouse_keys;
 pub mod gamepad_keys;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
+
+use self::keyboard_keys::KeyboardKey;
 
 
 //= Structures and Enumerations
@@ -51,7 +53,6 @@ impl Keybindings {
 	}
 
 	/// Load from file
-	/* TODO When i have access to a mouse and i can do From<i64> for Keybord keys a lot smoother
 	pub fn load_from_file(&mut self, filename: &str) {
 		let file = fs::read_to_string(filename);
 		if file.is_err() {
@@ -61,19 +62,19 @@ impl Keybindings {
 		let file_string = file.unwrap();
 
 		let json: serde_json::Value = serde_json::from_str(&file_string).unwrap();
-		for i in json.as_array() {
+		for i in json.as_array().unwrap() {
 			let key_type = i[1].as_str().unwrap();
-			let mut key: Keybind;
+			let mut key = Keybind::Keyboard { key: KeyboardKey::Null };
 			match key_type {
-				"keyboard" => {}
+				"keyboard" => { key = Keybind::Keyboard { key: KeyboardKey::from(i[2].as_i64().unwrap()) }}
 				"mouse" => {}
 				"gamepad_button" => {}
 				"gamepad_axis" => {}
+				_ => {}
 			}
 			self.insert(i[0].as_str().unwrap(), key);
 		}
 	}
-	*/
 
 	/// Inserting a new keybinding
 	pub fn insert(&mut self, name: &str, key: Keybind) {

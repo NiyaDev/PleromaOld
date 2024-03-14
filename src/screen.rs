@@ -1,12 +1,9 @@
 
 
-//= Imports
 use raylib_ffi::{rl_str, Rectangle, Vector2};
 
 use crate::{color::{self, *}, misc::clear_background, render_texture::RenderTexture};
 
-
-//= Structures and Enumerations
 
 /// WindowState
 #[derive(Debug, PartialEq)]
@@ -37,15 +34,11 @@ pub struct Screen {
 }
 
 
-//= Constants
-
 /// Default: screen_width
 pub const DEF_SCREEN_WIDTH: i32 = 1280;
 /// Default: screen_height
 pub const DEF_SCREEN_HEIGHT: i32 = 720;
 
-
-//= Implementations
 
 impl Screen {
 	

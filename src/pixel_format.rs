@@ -1,10 +1,5 @@
 
 
-//= Imports
-
-
-//= Structure and Enumerations
-
 /// Pixel format wrapper
 #[derive(Debug, Clone, Copy)]
 pub enum PixelFormat {
@@ -66,8 +61,6 @@ impl From<i32> for PixelFormat {
 	}
 }
 
-
-//= Implementations
 
 impl PixelFormat {
 	

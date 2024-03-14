@@ -1,12 +1,9 @@
 
 
-//= Imports
 use raylib_ffi::rl_str;
 
 use crate::{color::Color, rectangle::Rectangle, vectors::Vector2};
 
-
-//= Structure and Enumerations
 
 /// Wrapper for Texture
 pub struct Texture(pub raylib_ffi::Texture);
@@ -54,11 +51,6 @@ impl From<raylib_ffi::NPatchInfo> for NPatchInfo {
 	}
 }
 
-
-//= Constants
-
-
-//= Implementations
 
 impl Texture {
 	
@@ -156,6 +148,3 @@ impl Texture {
 	//= Conversions
 
 }
-
-
-//= Procedures

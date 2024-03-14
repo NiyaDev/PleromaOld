@@ -1,11 +1,6 @@
 
 
-//= Imports
-
-
-//= Structure and Enumerations
-
-/// Wrapper for Texture
+/// Texture wrapper
 pub struct RenderTexture(pub raylib_ffi::RenderTexture);
 impl Into<raylib_ffi::RenderTexture> for RenderTexture {
 	fn into(self) -> raylib_ffi::RenderTexture {
@@ -17,12 +12,6 @@ impl From<raylib_ffi::RenderTexture> for RenderTexture {
 		Self { 0: value }
 	}
 }
-
-
-//= Constants
-
-
-//= Implementations
 
 impl RenderTexture {
 	
@@ -64,6 +53,3 @@ impl RenderTexture {
 	//= Conversions
 
 }
-
-
-//= Procedures

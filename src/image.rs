@@ -1,13 +1,10 @@
 
 
-//= Imports
 use raylib_ffi::rl_str;
 use crate::{color::Color, font::Font, pixel_format::PixelFormat, rectangle::Rectangle, texture::Texture, vectors::Vector2};
 
 
-//= Structure and Enumerations
-
-/// Texture stored on CPU
+/// Texture wrapper
 #[derive(Debug)]
 pub struct Image(pub raylib_ffi::Image);
 impl Into<raylib_ffi::Image> for Image {
@@ -44,11 +41,6 @@ impl PartialEq for Image {
 	}
 }
 
-
-//= Constants
-
-
-//= Implementations
 
 impl Image {
 	
@@ -515,6 +507,3 @@ impl Image {
 	}
 
 }
-
-
-//= Procedures

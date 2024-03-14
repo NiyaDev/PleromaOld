@@ -1,10 +1,5 @@
 
 
-//= Imports
-
-
-//= Structures and Enumerations
-
 /// Matrix type (OpenGL style 4x4 - right handed, column major)
 #[derive(Debug, PartialEq)]
 pub struct Matrix {
@@ -34,11 +29,3 @@ impl From<raylib_ffi::Matrix> for Matrix {
 	}
 }
 
-
-//= Constants
-
-
-//= Implementations
-
-
-//= Porcedures
