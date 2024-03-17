@@ -4,11 +4,43 @@
 use std::f32::consts::PI;
 
 //= Imports
-use navia::{color::*, image::*, rectangle::*, vectors::*};
+use navia::{color::*, files::compression::CompressionType, image::*, rectangle::*, vectors::*};
 use raylib_ffi::rl_str;
 
 
 //= Tests
+
+///Temp
+#[test]
+fn compression() {
+	let data = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_vec();
+	let no_comp = CompressionType::None;
+	let deflate = CompressionType::Deflate;
+	let zlib = CompressionType::ZLib;
+	let gz = CompressionType::GZ;
+
+	println!("Before compression: [{:?}]",data.len());
+
+	let no_comp_comp = no_comp.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let no_comp_decomp = no_comp.decompress(no_comp_comp.clone());
+	println!(" No compression: [{:?}] : [{:?}]",no_comp_comp.len(),no_comp_decomp.len());
+	assert_eq!(data, no_comp_decomp);
+
+	let deflate_comp = deflate.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let deflate_decomp = deflate.decompress(deflate_comp.clone());
+	println!(" Deflate: [{:?}] : [{:?}]",deflate_comp.len(),deflate_decomp.len());
+	assert_eq!(data, deflate_decomp);
+
+	let zlib_comp = zlib.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let zlib_decomp = zlib.decompress(zlib_comp.clone());
+	println!(" Zlib: [{:?}] : [{:?}]",zlib_comp.len(),zlib_decomp.len());
+	assert_eq!(data, zlib_decomp);
+
+	let gz_comp = gz.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let gz_decomp = gz.decompress(gz_comp.clone());
+	println!(" Gz: [{:?}] : [{:?}]",gz_comp.len(),gz_decomp.len());
+	assert_eq!(data, gz_decomp);
+}
 
 /// Color
 #[test]

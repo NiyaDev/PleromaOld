@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 raylib-ffi = "5.0.1"
 serde_json = "1.0.114"
+flate2 = "1.0.28"
