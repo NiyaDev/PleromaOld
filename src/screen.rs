@@ -1,8 +1,6 @@
 
 
-use raylib_ffi::{rl_str, Rectangle, Vector2};
-
-use crate::{color::{self, *}, misc::clear_background, render_texture::RenderTexture};
+use crate::{color::{self, *}, misc::clear_background, rectangle::*, vectors::*, render_texture::*, rl_str, texture::*};
 
 
 /// WindowState
@@ -68,21 +66,21 @@ impl Screen {
 	//= Manipulation
 	/// Wrapper for InitWindow telling the screen that raylib is now on and update render.
 	pub fn init(&mut self, title: &str) {
-		unsafe { raylib_ffi::InitWindow(self.screen.width, self.screen.height, rl_str!(title)) }
+		unsafe { InitWindow(self.screen.width, self.screen.height, rl_str!(title)) }
 		self.raylib_init = true;
 
 		self.update_render();
 	}
 	/// Wrapper for CloseWindow that tells the screen that raylib is off
 	pub fn close(&mut self) {
-		unsafe { raylib_ffi::CloseWindow() }
+		unsafe { CloseWindow() }
 
 		if self.render_texture.is_some() { self.render_texture.as_mut().unwrap().unload() }
 		self.raylib_init = false;
 	}
 	/// Wrapper for IsWindowReady
 	pub fn window_ready(&self) -> bool {
-		if self.raylib_init { unsafe { raylib_ffi::IsWindowReady() } }
+		if self.raylib_init { unsafe { IsWindowReady() } }
 		else { false }
 	}
 	/// Wrapper for ToggleFullscreen
@@ -91,10 +89,10 @@ impl Screen {
 			self.window_state = WindowState::Fullscreen
 		} else { self.window_state = WindowState::Windowed }
 		unsafe {
-			raylib_ffi::ToggleFullscreen();
+			ToggleFullscreen();
 			self.window_state = WindowState::Fullscreen;
-			self.screen.width = raylib_ffi::GetScreenWidth();
-			self.screen.height = raylib_ffi::GetScreenHeight();
+			self.screen.width = GetScreenWidth();
+			self.screen.height = GetScreenHeight();
 			self.update_render();
 		}
 	}
@@ -104,10 +102,10 @@ impl Screen {
 			self.window_state = WindowState::Borderless
 		} else { self.window_state = WindowState::Windowed }
 		unsafe {
-			raylib_ffi::ToggleBorderlessWindowed();
+			ToggleBorderlessWindowed();
 			self.window_state = WindowState::Borderless;
-			self.screen.width = raylib_ffi::GetScreenWidth();
-			self.screen.height = raylib_ffi::GetScreenHeight();
+			self.screen.width = GetScreenWidth();
+			self.screen.height = GetScreenHeight();
 			self.update_render();
 		}
 	}
@@ -119,7 +117,7 @@ impl Screen {
 		self.render.width = ((width as f32) * self.render_ratio) as i32;
 		self.render.height = ((height as f32) * self.render_ratio) as i32;
 
-		if self.raylib_init { unsafe { raylib_ffi::SetWindowSize(width, height) } }
+		if self.raylib_init { unsafe { SetWindowSize(width, height) } }
 
 		self.update_render();
 	}
@@ -151,9 +149,9 @@ impl Screen {
 		self.render_texture.as_mut().unwrap().end_texture_mode();
 
 		unsafe {
-			raylib_ffi::BeginDrawing();
-			raylib_ffi::DrawTexturePro(
-				self.render_texture.as_mut().unwrap().0.texture,
+			BeginDrawing();
+
+			Texture(self.render_texture.as_mut().unwrap().0.texture).draw_pro(
 				Rectangle{
 					x: 0.0,
 					y: 0.0,
@@ -168,9 +166,10 @@ impl Screen {
 				},
 				Vector2{x: 0.0, y: 0.0},
 				0.0,
-				raylib_ffi::colors::WHITE,
+				WHITE,
 			);
-			raylib_ffi::EndDrawing();
+			
+			EndDrawing();
 		}
 	}
 	/// Unloads previous texture if it exists and ends the drawing cycle
@@ -180,3 +179,15 @@ impl Screen {
 	}
 
 }
+
+
+extern "C" { fn InitWindow(width: i32, height: i32, title: *const i8); }
+extern "C" { fn CloseWindow(); }
+extern "C" { fn IsWindowReady() -> bool; }
+extern "C" { fn ToggleFullscreen(); }
+extern "C" { fn ToggleBorderlessWindowed(); }
+extern "C" { fn GetScreenWidth() -> i32; }
+extern "C" { fn GetScreenHeight() -> i32; }
+extern "C" { fn SetWindowSize(width: i32, height: i32); }
+extern "C" { fn BeginDrawing(); }
+extern "C" { fn EndDrawing(); }

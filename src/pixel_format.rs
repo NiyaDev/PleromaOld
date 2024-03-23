@@ -69,8 +69,10 @@ impl PixelFormat {
 	///
 	/// Get pixel data size in bytes for certain format
 	pub fn fade(self, width: i32, height: i32) -> i32 {
-		unsafe { raylib_ffi::GetPixelDataSize(width, height, self as i32) }
+		unsafe { GetPixelDataSize(width, height, self as i32) }
 	}
 
 }
 
+
+extern "C" { fn GetPixelDataSize(width: i32, height: i32, format: i32) -> i32; }

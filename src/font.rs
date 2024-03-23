@@ -1,10 +1,13 @@
 
 
-use crate::{rectangle::*, image::*};
+use crate::{image::*, rectangle::*, texture::*};
 
 
 /// Font
 pub struct Font(pub FontRl);
+
+/// Raw raylib structure
+#[repr(C)]
 pub struct FontRl {
 	pub base_size:		i32,
     pub glyph_count:	i32,
@@ -15,6 +18,7 @@ pub struct FontRl {
 }
 
 /// Info on each symbol
+#[repr(C)]
 pub struct GlyphInfo {
 	pub value:		i32,
     pub offset_x:	i32,

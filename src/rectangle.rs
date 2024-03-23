@@ -1,6 +1,7 @@
 
 
 /// Rectangle
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rectangle {
 	pub x: f32,

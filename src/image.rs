@@ -4,7 +4,7 @@ use crate::{rl_str, color::*, font::*, pixel_format::*, rectangle::*, texture::*
 
 
 /// Texture wrapper
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Image(pub ImageRl);
 impl PartialEq for Image {
 	fn eq(&self, other: &Self) -> bool {
@@ -30,7 +30,9 @@ impl PartialEq for Image {
 	}
 }
 
-#[derive(Debug)]
+/// Raw raylib structure
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
 pub struct ImageRl {
 	pub data: *mut std::os::raw::c_void,
     pub width: i32,
@@ -304,7 +306,7 @@ impl Image {
 	///
 	/// Flip image horizontally
 	pub fn flip_horizontal(&mut self) {
-		unsafe { ImageFlipVertical(&mut self.0) }
+		unsafe { ImageFlipHorizontal(&mut self.0) }
 	}
 	/// Wrapper for ImageRotate
 	///
@@ -493,14 +495,14 @@ impl Image {
 	///
 	/// Load texture from image data
 	pub fn texture(&self) -> Texture {
-		unsafe { Texture::from(LoadTextureFromImage(self.0)) }
+		unsafe { Texture(LoadTextureFromImage(self.0)) }
 	}
 	/// Wrapper for LoadTextureCubemap
 	///
 	/// Load cubemap from image, multiple image cubemap layouts supported
 	// TODO: fix layout enum
 	pub fn cubemap(&self, layout: i32) -> Texture {
-		unsafe { Texture::from(LoadTextureCubemap(self.0, layout)) }
+		unsafe { Texture(LoadTextureCubemap(self.0, layout)) }
 	}
 
 }
@@ -555,9 +557,7 @@ extern "C" { fn ImageColorGrayscale(image: *mut ImageRl); }
 extern "C" { fn ImageColorContrast(image: *mut ImageRl, contrast: f32); }
 extern "C" { fn ImageColorBrightness(image: *mut ImageRl, brightness: i32); }
 extern "C" { fn ImageColorReplace(image: *mut ImageRl, color: Color, replace: Color); }
-extern "C" { fn LoadImageColors(image: ImageRl) -> *mut Color; }
 extern "C" { fn LoadImagePalette(image: ImageRl, maxPaletteSize: i32, colorCount: *mut i32) -> *mut Color; }
-extern "C" { fn UnloadImageColors(colors: *mut Color); }
 extern "C" { fn UnloadImagePalette(colors: *mut Color); }
 extern "C" { fn GetImageAlphaBorder(image: ImageRl, threshold: f32) -> Rectangle; }
 extern "C" { fn GetImageColor(image: ImageRl, x: i32, y: i32) -> Color; }
