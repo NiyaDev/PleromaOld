@@ -1,14 +1,24 @@
 
 
-// Font wrapper
-pub struct Font(pub raylib_ffi::Font);
-impl Into<raylib_ffi::Font> for Font {
-	fn into(self) -> raylib_ffi::Font {
-		self.0
-	}
+use crate::{rectangle::*, image::*};
+
+
+/// Font
+pub struct Font(pub FontRl);
+pub struct FontRl {
+	pub base_size:		i32,
+    pub glyph_count:	i32,
+    pub glyph_padding:	i32,
+    pub texture:		TextureRl,
+    pub recs:	   *mut Rectangle,
+    pub glyphs:	   *mut GlyphInfo,
 }
-impl From<raylib_ffi::Font> for Font {
-	fn from(value: raylib_ffi::Font) -> Self {
-		Self { 0: value }
-	}
+
+/// Info on each symbol
+pub struct GlyphInfo {
+	pub value:		i32,
+    pub offset_x:	i32,
+    pub offset_y:	i32,
+    pub advance_x:	i32,
+    pub image:		ImageRl,
 }

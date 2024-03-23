@@ -5,6 +5,7 @@ pub mod color;
 pub mod vectors;
 pub mod matrix;
 pub mod rectangle;
+pub mod strings;
 
 /// Types
 pub mod pixel_format;

@@ -1,21 +1,29 @@
 
 
-use raylib_ffi::rl_str;
-
-use crate::{color::Color, rectangle::Rectangle, vectors::Vector2};
+use crate::{rl_str, color::*, rectangle::*, vectors::*};
 
 
 /// Wrapper for Texture
-pub struct Texture(pub raylib_ffi::Texture);
-impl Into<raylib_ffi::Texture> for Texture {
+#[derive(Debug)]
+pub struct Texture(pub TextureRl);
+impl Into<TextureRl> for Texture {
 	fn into(self) -> raylib_ffi::Texture {
 		self.0
 	}
 }
-impl From<raylib_ffi::Texture> for Texture {
+impl From<TextureRl> for Texture {
 	fn from(value: raylib_ffi::Texture) -> Self {
 		Self { 0: value }
 	}
+}
+
+#[derive(Debug)]
+pub struct TextureRl {
+	pub id:		u32,
+    pub width:	i32,
+    pub height:	i32,
+    pub mipmaps: i32,
+    pub format:	i32,
 }
 
 pub struct NPatchInfo {
@@ -55,7 +63,6 @@ impl From<raylib_ffi::NPatchInfo> for NPatchInfo {
 impl Texture {
 	
 	//=Loading
-
 	/// Wrapper for LoadTexture
 	///
 	/// Load texture from file into GPU memory (VRAM)

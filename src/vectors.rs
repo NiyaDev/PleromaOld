@@ -5,6 +5,7 @@ use std::{f32::EPSILON, ops::{Add, Div, Mul, Not, Sub}};
 use super::matrix::Matrix;
 
 /// Vector2
+#[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct Vector2 {
 	pub x: f32,
@@ -123,6 +124,7 @@ impl Not for Vector2 {
 }
 
 /// Vector3
+#[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct Vector3 {
 	pub x: f32,
@@ -244,6 +246,8 @@ impl From<raylib_ffi::Vector3> for Vector3 {
 }
 
 /// Vector4
+#[repr(C)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector4 {
 	pub x: f32,
 	pub y: f32,

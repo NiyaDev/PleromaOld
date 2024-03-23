@@ -86,6 +86,32 @@ fn color() {
 	assert_eq!(BLANK, Color::from(raylib_ffi::colors::BLANK), "Blank not the same.");
 	assert_eq!(MAGENTA, Color::from(raylib_ffi::colors::MAGENTA), "Magenta not the same.");
 	assert_eq!(RAYWHITE, Color::from(raylib_ffi::colors::RAYWHITE), "Raywhite not the same.");
+
+	//* Into: Vector3 */
+	assert_eq!(Vector3{x: 300.0, y: 1.0, z: 1.0}, MAGENTA.into(), "Conversion to HSV not accurate.");
+	//* Into: Vector4 */
+	assert_eq!(Vector4{x: 1.0, y: 0.0, z: 1.0, w: 1.0}, MAGENTA.into(), "Color normalization innaccurate.");
+	//* From: Vector3 */
+	assert_eq!(Color::from(Vector3{x: 300.0, y: 1.0, z: 1.0}), MAGENTA, "Conversion from HSV not accurate.");
+	//* From: Vector4 */
+	assert_eq!(Color::from(Vector4{x: 1.0, y: 0.0, z: 1.0, w: 1.0}), MAGENTA, "Color from normalization innaccurate.");
+
+	//* Fade */
+	assert_eq!(BLANK, BLACK.fade(0.0), "Failed to fade color.");
+	//* To Int */
+	assert_eq!(WHITE.to_int(), -1, "Failed to convert to int.");
+	//* Tint */
+	assert_eq!(WHITE.tint(BLACK), BLACK, "Failed to properly tint.");
+	//* Brightness */
+	assert_eq!(BLACK.brightness(0.509804), GRAY, "Failed to properly apply brightness.");
+	//* Contrast */
+	assert_eq!(RED.contrast(0.5), Color{r: 255, g: 0, b: 0, a: 255}, "Failed to properly apply contrast.");
+	//* Alpha */
+	assert_eq!(BLACK.alpha(0.0), BLANK, "Failed to properly alpha.");
+	//* Alpha blend */
+	assert_eq!(WHITE.alpha_blend(RED, WHITE), RED, "Failed to properly tint.");
+	//* Hex */
+	assert_eq!(WHITE, Color::hex(4294967295), "Failed to convert from Hex.");
 }
 
 /// Font
