@@ -81,7 +81,7 @@ impl Image {
 	pub fn load_from_memory(file_type: &str, file_data: &mut Vec<u8>) -> Self {
 		unsafe {
 			let array = file_data.as_mut_ptr();
-			Self(LoadImageFromMemory(raylib_ffi::rl_str!(file_type), array, file_data.len() as i32))
+			Self(LoadImageFromMemory(rl_str!(file_type), array, file_data.len() as i32))
 		}
 	}
 	/// Wrapper for LoadImageFromTexture

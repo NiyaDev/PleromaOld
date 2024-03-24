@@ -1,7 +1,7 @@
 
 
 /// Mouse Keys stolen from raylib
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum MouseButton {
 	Left	= 0,	// Mouse button left
 	Right	= 1,	// Mouse button right
@@ -13,7 +13,7 @@ pub enum MouseButton {
 }
 
 // Mouse axis
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum MouseAxis {
 	X,
 	Y,

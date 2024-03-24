@@ -96,22 +96,6 @@ impl PartialEq for Vector2 {
 		(self.x - other.x).abs() <= (EPSILON * 1.0_f32.max(self.x.abs().max(other.x.abs()))) && (self.y - other.y).abs() <= (EPSILON * 1.0_f32.max(self.y.abs().max(other.y.abs())))
 	}
 }
-impl Into<raylib_ffi::Vector2> for Vector2 {
-	fn into(self) -> raylib_ffi::Vector2 {
-		raylib_ffi::Vector2 {
-			x: self.x,
-			y: self.y,
-		}
-	}
-}
-impl From<raylib_ffi::Vector2> for Vector2 {
-	fn from(value: raylib_ffi::Vector2) -> Self {
-		Self {
-			x: value.x,
-			y: value.y,
-		}
-	}
-}
 impl Not for Vector2 {
 	type Output = Self;
 
@@ -226,24 +210,6 @@ impl PartialEq for Vector3 {
 			&& (self.z - other.z).abs() <= (EPSILON * 1.0_f32.max(self.z.abs().max(other.z.abs())))
 	}
 }
-impl Into<raylib_ffi::Vector3> for Vector3 {
-	fn into(self) -> raylib_ffi::Vector3 {
-		raylib_ffi::Vector3 {
-			x: self.x,
-			y: self.y,
-			z: self.z,
-		}
-	}
-}
-impl From<raylib_ffi::Vector3> for Vector3 {
-	fn from(value: raylib_ffi::Vector3) -> Self {
-		Self {
-			x: value.x,
-			y: value.y,
-			z: value.z,
-		}
-	}
-}
 
 /// Vector4
 #[repr(C)]
@@ -253,26 +219,6 @@ pub struct Vector4 {
 	pub y: f32,
 	pub z: f32,
 	pub w: f32,
-}
-impl Into<raylib_ffi::Vector4> for Vector4 {
-	fn into(self) -> raylib_ffi::Vector4 {
-		raylib_ffi::Vector4 {
-			x: self.x,
-			y: self.y,
-			z: self.z,
-			w: self.w,
-		}
-	}
-}
-impl From<raylib_ffi::Vector4> for Vector4 {
-	fn from(value: raylib_ffi::Vector4) -> Self {
-		Self {
-			x: value.x,
-			y: value.y,
-			z: value.z,
-			w: value.w,
-		}
-	}
 }
 
 

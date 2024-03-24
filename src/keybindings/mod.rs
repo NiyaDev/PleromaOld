@@ -6,11 +6,8 @@ pub mod mouse_keys;
 pub mod gamepad_keys;
 
 use std::{collections::HashMap, fs};
-
 use self::keyboard_keys::KeyboardKey;
 
-
-//= Structures and Enumerations
 
 /// Keybind
 #[derive(Debug, Clone)]
@@ -21,6 +18,9 @@ pub enum Keybind {
 	},
 	MouseButton{
 		key: mouse_keys::MouseButton,
+	},
+	MouseAxis{
+		key: mouse_keys::MouseAxis,
 	},
 	GamepadButtons{
 		pad_number: i32,
@@ -87,13 +87,13 @@ impl Keybindings {
 			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
-					unsafe { Ok(raylib_ffi::IsKeyPressed(key as i32)) }
+					unsafe { Ok(IsKeyPressed(key as i32)) }
 				}
 				Keybind::MouseButton { key } => {
-					unsafe { Ok(raylib_ffi::IsMouseButtonPressed(key as i32)) }
+					unsafe { Ok(IsMouseButtonPressed(key as i32)) }
 				}
 				Keybind::GamepadButtons { pad_number, key } => {
-					unsafe { Ok(raylib_ffi::IsGamepadButtonPressed(pad_number, key as i32)) }
+					unsafe { Ok(IsGamepadButtonPressed(pad_number, key as i32)) }
 				}
 				_ => { Err(KeybindingErrors::AxisWhileTestingButtons) }
 			}
@@ -105,13 +105,13 @@ impl Keybindings {
 			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
-					unsafe { Ok(raylib_ffi::IsKeyDown(key as i32)) }
+					unsafe { Ok(IsKeyDown(key as i32)) }
 				}
 				Keybind::MouseButton { key } => {
-					unsafe { Ok(raylib_ffi::IsMouseButtonDown(key as i32)) }
+					unsafe { Ok(IsMouseButtonDown(key as i32)) }
 				}
 				Keybind::GamepadButtons { pad_number, key } => {
-					unsafe { Ok(raylib_ffi::IsGamepadButtonDown(pad_number, key as i32)) }
+					unsafe { Ok(IsGamepadButtonDown(pad_number, key as i32)) }
 				}
 				_ => { Err(KeybindingErrors::AxisWhileTestingButtons) }
 			}
@@ -123,13 +123,13 @@ impl Keybindings {
 			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
-					unsafe { Ok(raylib_ffi::IsKeyReleased(key as i32)) }
+					unsafe { Ok(IsKeyReleased(key as i32)) }
 				}
 				Keybind::MouseButton { key } => {
-					unsafe { Ok(raylib_ffi::IsMouseButtonReleased(key as i32)) }
+					unsafe { Ok(IsMouseButtonReleased(key as i32)) }
 				}
 				Keybind::GamepadButtons { pad_number, key } => {
-					unsafe { Ok(raylib_ffi::IsGamepadButtonReleased(pad_number, key as i32)) }
+					unsafe { Ok(IsGamepadButtonReleased(pad_number, key as i32)) }
 				}
 				_ => { Err(KeybindingErrors::AxisWhileTestingButtons) }
 			}
@@ -141,13 +141,13 @@ impl Keybindings {
 			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::Keyboard { key } => {
-					unsafe { Ok(raylib_ffi::IsKeyUp(key as i32)) }
+					unsafe { Ok(IsKeyUp(key as i32)) }
 				}
 				Keybind::MouseButton { key } => {
-					unsafe { Ok(raylib_ffi::IsMouseButtonUp(key as i32)) }
+					unsafe { Ok(IsMouseButtonUp(key as i32)) }
 				}
 				Keybind::GamepadButtons { pad_number, key } => {
-					unsafe { Ok(raylib_ffi::IsGamepadButtonUp(pad_number, key as i32)) }
+					unsafe { Ok(IsGamepadButtonUp(pad_number, key as i32)) }
 				}
 				_ => { Err(KeybindingErrors::AxisWhileTestingButtons) }
 			}
@@ -159,7 +159,15 @@ impl Keybindings {
 			let keybind = self.0[&key.to_string()].clone();
 			match keybind {
 				Keybind::GamepadAxis { pad_number, key } => {
-					unsafe { Ok(raylib_ffi::GetGamepadAxisMovement(pad_number, key as i32)) }
+					unsafe { Ok(GetGamepadAxisMovement(pad_number, key as i32)) }
+				}
+				Keybind::MouseAxis { key } => {
+					unsafe {
+						match key {
+								mouse_keys::MouseAxis::X => Ok(GetMouseX()),
+								mouse_keys::MouseAxis::Y => Ok(GetMouseY()),
+						}
+					}
 				}
 				_ => { Err(KeybindingErrors::ButtonsWhileTestingAxis) }
 			}
@@ -167,3 +175,20 @@ impl Keybindings {
 	}
 
 }
+
+
+extern "C" { fn IsKeyPressed(key: i32) -> bool; }
+extern "C" { fn IsKeyDown(key: i32) -> bool; }
+extern "C" { fn IsKeyReleased(key: i32) -> bool; }
+extern "C" { fn IsKeyUp(key: i32) -> bool; }
+extern "C" { fn IsMouseButtonPressed(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonDown(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonReleased(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonUp(button: i32) -> bool; }
+extern "C" { fn GetMouseX() -> f32; }
+extern "C" { fn GetMouseY() -> f32; }
+extern "C" { fn IsGamepadButtonPressed(gamepad: i32, button: i32) -> bool; }
+extern "C" { fn IsGamepadButtonDown(gamepad: i32, button: i32) -> bool; }
+extern "C" { fn IsGamepadButtonReleased(gamepad: i32, button: i32) -> bool; }
+extern "C" { fn IsGamepadButtonUp(gamepad: i32, button: i32) -> bool; }
+extern "C" { fn GetGamepadAxisMovement(gamepad: i32, axis: i32) -> f32; }

@@ -5,7 +5,6 @@ use std::f32::consts::PI;
 
 //= Imports
 use navia::{color::*, files::compression::CompressionType, image::*, rectangle::*, vectors::*};
-use raylib_ffi::rl_str;
 
 
 //= Tests
@@ -45,47 +44,33 @@ fn compression() {
 /// Color
 #[test]
 fn color() {
-	//* Conversion from ffi */
-	let color_from_ffi = Color::from(raylib_ffi::colors::BLACK);
-	let color_default = BLACK;
-	assert_eq!(color_default, color_from_ffi, "Error in conversion from FFI.");
-
-	//* Conversion into ffi */
-	let ffi_from_struct: raylib_ffi::Color = BLACK.into();
-	let ffi_default = raylib_ffi::colors::BLACK;
-	let ffi_into_result = ffi_default.r == ffi_from_struct.r &&
-		ffi_default.g == ffi_from_struct.g &&
-		ffi_default.b == ffi_from_struct.b &&
-		ffi_default.a == ffi_from_struct.a;
-	assert!(ffi_into_result, "Error in conversion into FFI.");
-
 	//* Compare each const to constructors */
-	assert_eq!(LIGHTGRAY, Color::from(raylib_ffi::colors::LIGHTGRAY), "Lightgray not the same.");
-	assert_eq!(GRAY, Color::from(raylib_ffi::colors::GRAY), "Gray not the same.");
-	assert_eq!(DARKGRAY, Color::from(raylib_ffi::colors::DARKGRAY), "Darkgray not the same.");
-	assert_eq!(YELLOW, Color::from(raylib_ffi::colors::YELLOW), "Yellow not the same.");
-	assert_eq!(GOLD, Color::from(raylib_ffi::colors::GOLD), "Gold not the same.");
-	assert_eq!(ORANGE, Color::from(raylib_ffi::colors::ORANGE), "Orange not the same.");
-	assert_eq!(PINK, Color::from(raylib_ffi::colors::PINK), "Pink not the same.");
-	assert_eq!(RED, Color::from(raylib_ffi::colors::RED), "Red not the same.");
-	assert_eq!(MAROON, Color::from(raylib_ffi::colors::MAROON), "Maroon not the same.");
-	assert_eq!(GREEN, Color::from(raylib_ffi::colors::GREEN), "Green not the same.");
-	assert_eq!(LIME, Color::from(raylib_ffi::colors::LIME), "Lime not the same.");
-	assert_eq!(DARKGREEN, Color::from(raylib_ffi::colors::DARKGREEN), "Darkgreen not the same.");
-	assert_eq!(SKYBLUE, Color::from(raylib_ffi::colors::SKYBLUE), "Skyblue not the same.");
-	assert_eq!(BLUE, Color::from(raylib_ffi::colors::BLUE), "Blue not the same.");
-	assert_eq!(DARKBLUE, Color::from(raylib_ffi::colors::DARKBLUE), "Darkblue not the same.");
-	assert_eq!(PURPLE, Color::from(raylib_ffi::colors::PURPLE), "Purple not the same.");
-	assert_eq!(VIOLET, Color::from(raylib_ffi::colors::VIOLET), "Violet not the same.");
-	assert_eq!(DARKPURPLE, Color::from(raylib_ffi::colors::DARKPURPLE), "Darkpurple not the same.");
-	assert_eq!(BEIGE, Color::from(raylib_ffi::colors::BEIGE), "Beige not the same.");
-	assert_eq!(BROWN, Color::from(raylib_ffi::colors::BROWN), "Brown not the same.");
-	assert_eq!(DARKBROWN, Color::from(raylib_ffi::colors::DARKBROWN), "Darkbrown not the same.");
-	assert_eq!(WHITE, Color::from(raylib_ffi::colors::WHITE), "White not the same.");
-	assert_eq!(BLACK, Color::from(raylib_ffi::colors::BLACK), "Black not the same.");
-	assert_eq!(BLANK, Color::from(raylib_ffi::colors::BLANK), "Blank not the same.");
-	assert_eq!(MAGENTA, Color::from(raylib_ffi::colors::MAGENTA), "Magenta not the same.");
-	assert_eq!(RAYWHITE, Color::from(raylib_ffi::colors::RAYWHITE), "Raywhite not the same.");
+	//assert_eq!(LIGHTGRAY, Color { r: 200, g: 200, b: 200, a: 255 }, "Lightgray not the same.");
+	//assert_eq!(GRAY, Color::from(raylib_ffi::colors::GRAY), "Gray not the same.");
+	//assert_eq!(DARKGRAY, Color::from(raylib_ffi::colors::DARKGRAY), "Darkgray not the same.");
+	//assert_eq!(YELLOW, Color::from(raylib_ffi::colors::YELLOW), "Yellow not the same.");
+	//assert_eq!(GOLD, Color::from(raylib_ffi::colors::GOLD), "Gold not the same.");
+	//assert_eq!(ORANGE, Color::from(raylib_ffi::colors::ORANGE), "Orange not the same.");
+	//assert_eq!(PINK, Color::from(raylib_ffi::colors::PINK), "Pink not the same.");
+	//assert_eq!(RED, Color::from(raylib_ffi::colors::RED), "Red not the same.");
+	//assert_eq!(MAROON, Color::from(raylib_ffi::colors::MAROON), "Maroon not the same.");
+	//assert_eq!(GREEN, Color::from(raylib_ffi::colors::GREEN), "Green not the same.");
+	//assert_eq!(LIME, Color::from(raylib_ffi::colors::LIME), "Lime not the same.");
+	//assert_eq!(DARKGREEN, Color::from(raylib_ffi::colors::DARKGREEN), "Darkgreen not the same.");
+	//assert_eq!(SKYBLUE, Color::from(raylib_ffi::colors::SKYBLUE), "Skyblue not the same.");
+	//assert_eq!(BLUE, Color::from(raylib_ffi::colors::BLUE), "Blue not the same.");
+	//assert_eq!(DARKBLUE, Color::from(raylib_ffi::colors::DARKBLUE), "Darkblue not the same.");
+	//assert_eq!(PURPLE, Color::from(raylib_ffi::colors::PURPLE), "Purple not the same.");
+	//assert_eq!(VIOLET, Color::from(raylib_ffi::colors::VIOLET), "Violet not the same.");
+	//assert_eq!(DARKPURPLE, Color::from(raylib_ffi::colors::DARKPURPLE), "Darkpurple not the same.");
+	//assert_eq!(BEIGE, Color::from(raylib_ffi::colors::BEIGE), "Beige not the same.");
+	//assert_eq!(BROWN, Color::from(raylib_ffi::colors::BROWN), "Brown not the same.");
+	//assert_eq!(DARKBROWN, Color::from(raylib_ffi::colors::DARKBROWN), "Darkbrown not the same.");
+	//assert_eq!(WHITE, Color::from(raylib_ffi::colors::WHITE), "White not the same.");
+	//assert_eq!(BLACK, Color::from(raylib_ffi::colors::BLACK), "Black not the same.");
+	//assert_eq!(BLANK, Color::from(raylib_ffi::colors::BLANK), "Blank not the same.");
+	//assert_eq!(MAGENTA, Color::from(raylib_ffi::colors::MAGENTA), "Magenta not the same.");
+	//assert_eq!(RAYWHITE, Color::from(raylib_ffi::colors::RAYWHITE), "Raywhite not the same.");
 
 	//* Into: Vector3 */
 	assert_eq!(Vector3{x: 300.0, y: 1.0, z: 1.0}, MAGENTA.into(), "Conversion to HSV not accurate.");
@@ -133,13 +118,6 @@ fn image() {
 		assert_ne!(partial_1, partial_2, "PartialEq is not working. (Two different files are equal)");
 		partial_1.unload();
 		partial_2.unload();
-
-		//* Conversion from ffi */
-		let from_ffi = Image::from(raylib_ffi::LoadImage(rl_str!("data/test_1.png")));
-		let default = Image::load("data/test_1.png");
-		assert_eq!(default, from_ffi, "Error in conversion from FFI.");
-		from_ffi.unload();
-		default.unload();
 
 		//* Load Raw */
 		// TODO
