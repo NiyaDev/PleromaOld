@@ -2,7 +2,7 @@
 
 /// Matrix type (OpenGL style 4x4 - right handed, column major)
 #[repr(C)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Matrix {
 	pub m0: f32, pub m4: f32, pub  m8: f32, pub m12: f32,
 	pub m1: f32, pub m5: f32, pub  m9: f32, pub m13: f32,

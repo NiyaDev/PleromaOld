@@ -2,27 +2,25 @@
 
 //use std::time::Instant;
 
-use navia::{color, image::Image, keybindings2::{keyboard::*, *}, misc::*, screen::Screen};
+use navia::{color, image::Image, keybindings::{keyboard::*, *}, misc::*, pleroma::Pleroma, screen::Screen};
 
 
 fn main() {
-	let mut screen = Screen::new();
-	screen.set_resolution(800, 600);
-	screen.init("Testing");
-	screen.set_render_scale(0.5);
+	let mut pleroma: Pleroma = Pleroma::new();
+	pleroma.screen
+		.init("Testing")
+		.set_resolution(800, 600)
+		.set_render_scale(0.5);
 
-	//let mut keybindings = Keybindings::new();
-	// TODO cleaner adding
-	//keybindings.insert("up", Keybind::Keyboard { key: KeyboardKey::Up });
-	let mut keybindings = Keybindings::new();
-	keybindings.insert("normal", vec![Binding::KeyboardKey(KeyboardKey::A)]);
-	keybindings.insert(
-		"mod",
-		vec![
-			Binding::KeyboardKey(KeyboardKey::LeftShift),
-			Binding::KeyboardKey(KeyboardKey::S),
-		],
-	);
+	pleroma.keys
+		.insert("normal", vec![Binding::KeyboardKey(KeyboardKey::A)])
+		.insert(
+			"mod",
+			vec![
+				Binding::KeyboardKey(KeyboardKey::LeftShift),
+				Binding::KeyboardKey(KeyboardKey::S),
+			],
+		);
 
 
 	let texture = Image::gen_linear_gradient(64, 64, 1, color::BLACK, color::DARKPURPLE).texture();
@@ -30,8 +28,8 @@ fn main() {
 	while !should_window_close() {
 
 		//if keybindings.key_pressed("up").ok().unwrap() { screen.toggle_fullscreen() }
-		if keybindings.key_pressed("normal") { println!("Normal down") }
-		if keybindings.key_pressed("mod") { println!("Mod down") }
+		if pleroma.keys.key_pressed("normal") { println!("Normal down") }
+		if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 		/*
 		unsafe {
 			if raylib_ffi::IsKeyPressed(raylib_ffi::enums::KeyboardKey::F as i32) {
@@ -43,8 +41,8 @@ fn main() {
 		}
 		*/
 
-		screen.start_draw();
+		pleroma.screen.start_draw();
 		texture.draw(10, 10, color::WHITE);
-		screen.end_draw();
+		pleroma.screen.end_draw();
 	}
 }

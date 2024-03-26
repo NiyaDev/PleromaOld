@@ -1,5 +1,8 @@
 
 
+/// Main system
+pub mod pleroma;
+
 /// Generics
 pub mod color;
 pub mod vectors;
@@ -23,5 +26,4 @@ pub mod misc;
 /// Custom systems
 pub mod screen;
 pub mod keybindings;
-pub mod keybindings2;
 pub mod files;

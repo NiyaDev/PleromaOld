@@ -4,7 +4,7 @@ use crate::{rl_str, color::*, rectangle::*, vectors::*};
 
 
 /// Wrapper for Texture
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Texture(pub TextureRl);
 
 /// Raw raylib structure
@@ -20,6 +20,7 @@ pub struct TextureRl {
 
 /// Npatch
 #[repr(C)]
+#[derive(Debug, Clone, Copy)]
 pub struct NPatchInfo {
 	pub source:	Rectangle,
     pub left:	i32,

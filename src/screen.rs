@@ -65,11 +65,13 @@ impl Screen {
 
 	//= Manipulation
 	/// Wrapper for InitWindow telling the screen that raylib is now on and update render.
-	pub fn init(&mut self, title: &str) {
+	pub fn init(&mut self, title: &str) -> &mut Self {
 		unsafe { InitWindow(self.screen.width, self.screen.height, rl_str!(title)) }
 		self.raylib_init = true;
 
 		self.update_render();
+
+		self
 	}
 	/// Wrapper for CloseWindow that tells the screen that raylib is off
 	pub fn close(&mut self) {
@@ -110,7 +112,7 @@ impl Screen {
 		}
 	}
 	/// Wrapper for SetWindowSize
-	pub fn set_resolution(&mut self, width: i32, height: i32) {
+	pub fn set_resolution(&mut self, width: i32, height: i32) -> &mut Self {
 		self.screen.width = width;
 		self.screen.height = height;
 
@@ -120,14 +122,18 @@ impl Screen {
 		if self.raylib_init { unsafe { SetWindowSize(width, height) } }
 
 		self.update_render();
+
+		self
 	}
 	/// Sets the render scale and creates a new render texture for that resolution.
-	pub fn set_render_scale(&mut self, scale: f32) {
+	pub fn set_render_scale(&mut self, scale: f32) -> &mut Self {
 		self.render_ratio = scale;
 		self.render.width = ((self.screen.width as f32) * self.render_ratio) as i32;
 		self.render.height = ((self.screen.height as f32) * self.render_ratio) as i32;
 
 		self.update_render();
+
+		self
 	}
 	/// Starts rendering to texture if it exists
 	pub fn start_draw(&mut self) {
