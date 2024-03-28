@@ -49,7 +49,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "navia"
+name = "pleroma"
 version = "0.1.0"
 dependencies = [
  "flate2",

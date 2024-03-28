@@ -69,9 +69,7 @@ impl Screen {
 		unsafe { InitWindow(self.screen.width, self.screen.height, rl_str!(title)) }
 		self.raylib_init = true;
 
-		self.update_render();
-
-		self
+		self.update_render()
 	}
 	/// Wrapper for CloseWindow that tells the screen that raylib is off
 	pub fn close(&mut self) {
@@ -121,9 +119,7 @@ impl Screen {
 
 		if self.raylib_init { unsafe { SetWindowSize(width, height) } }
 
-		self.update_render();
-
-		self
+		self.update_render()
 	}
 	/// Sets the render scale and creates a new render texture for that resolution.
 	pub fn set_render_scale(&mut self, scale: f32) -> &mut Self {
@@ -179,9 +175,11 @@ impl Screen {
 		}
 	}
 	/// Unloads previous texture if it exists and ends the drawing cycle
-	fn update_render(&mut self) {
+	fn update_render(&mut self) -> &mut Self {
 		if self.render_texture.is_some() { self.render_texture.as_mut().unwrap().unload() }
 		if self.raylib_init { self.render_texture = Some(RenderTexture::load(self.render.width, self.render.height)) }
+		
+		self
 	}
 
 }
