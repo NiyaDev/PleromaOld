@@ -1,7 +1,11 @@
 
 
 use std::collections::HashMap;
-use crate::{screen::*, keybindings::*, texture::*};
+use crate::{
+	screen::*,
+	keybindings::*,
+	structures::texture::*,
+};
 
 
 //

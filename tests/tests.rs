@@ -4,7 +4,15 @@
 use std::f32::consts::PI;
 
 //= Imports
-use navia::{color::*, files::compression::CompressionType, image::*, rectangle::*, vectors::*};
+use pleroma::{
+	files::compression::CompressionType,
+	structures::{
+		color::*,
+		image::*,
+		rectangle,
+		vectors::*,
+	},
+};
 
 
 //= Tests
@@ -20,22 +28,22 @@ fn compression() {
 
 	println!("Before compression: [{:?}]",data.len());
 
-	let no_comp_comp = no_comp.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let no_comp_comp = no_comp.compress(data.clone(), pleroma::files::compression::CompressionLevel::Best);
 	let no_comp_decomp = no_comp.decompress(no_comp_comp.clone());
 	println!(" No compression: [{:?}] : [{:?}]",no_comp_comp.len(),no_comp_decomp.len());
 	assert_eq!(data, no_comp_decomp);
 
-	let deflate_comp = deflate.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let deflate_comp = deflate.compress(data.clone(), pleroma::files::compression::CompressionLevel::Best);
 	let deflate_decomp = deflate.decompress(deflate_comp.clone());
 	println!(" Deflate: [{:?}] : [{:?}]",deflate_comp.len(),deflate_decomp.len());
 	assert_eq!(data, deflate_decomp);
 
-	let zlib_comp = zlib.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let zlib_comp = zlib.compress(data.clone(), pleroma::files::compression::CompressionLevel::Best);
 	let zlib_decomp = zlib.decompress(zlib_comp.clone());
 	println!(" Zlib: [{:?}] : [{:?}]",zlib_comp.len(),zlib_decomp.len());
 	assert_eq!(data, zlib_decomp);
 
-	let gz_comp = gz.compress(data.clone(), navia::files::compression::CompressionLevel::Best);
+	let gz_comp = gz.compress(data.clone(), pleroma::files::compression::CompressionLevel::Best);
 	let gz_decomp = gz.decompress(gz_comp.clone());
 	println!(" Gz: [{:?}] : [{:?}]",gz_comp.len(),gz_decomp.len());
 	assert_eq!(data, gz_decomp);
@@ -44,41 +52,12 @@ fn compression() {
 /// Color
 #[test]
 fn color() {
-	//* Compare each const to constructors */
-	//assert_eq!(LIGHTGRAY, Color { r: 200, g: 200, b: 200, a: 255 }, "Lightgray not the same.");
-	//assert_eq!(GRAY, Color::from(raylib_ffi::colors::GRAY), "Gray not the same.");
-	//assert_eq!(DARKGRAY, Color::from(raylib_ffi::colors::DARKGRAY), "Darkgray not the same.");
-	//assert_eq!(YELLOW, Color::from(raylib_ffi::colors::YELLOW), "Yellow not the same.");
-	//assert_eq!(GOLD, Color::from(raylib_ffi::colors::GOLD), "Gold not the same.");
-	//assert_eq!(ORANGE, Color::from(raylib_ffi::colors::ORANGE), "Orange not the same.");
-	//assert_eq!(PINK, Color::from(raylib_ffi::colors::PINK), "Pink not the same.");
-	//assert_eq!(RED, Color::from(raylib_ffi::colors::RED), "Red not the same.");
-	//assert_eq!(MAROON, Color::from(raylib_ffi::colors::MAROON), "Maroon not the same.");
-	//assert_eq!(GREEN, Color::from(raylib_ffi::colors::GREEN), "Green not the same.");
-	//assert_eq!(LIME, Color::from(raylib_ffi::colors::LIME), "Lime not the same.");
-	//assert_eq!(DARKGREEN, Color::from(raylib_ffi::colors::DARKGREEN), "Darkgreen not the same.");
-	//assert_eq!(SKYBLUE, Color::from(raylib_ffi::colors::SKYBLUE), "Skyblue not the same.");
-	//assert_eq!(BLUE, Color::from(raylib_ffi::colors::BLUE), "Blue not the same.");
-	//assert_eq!(DARKBLUE, Color::from(raylib_ffi::colors::DARKBLUE), "Darkblue not the same.");
-	//assert_eq!(PURPLE, Color::from(raylib_ffi::colors::PURPLE), "Purple not the same.");
-	//assert_eq!(VIOLET, Color::from(raylib_ffi::colors::VIOLET), "Violet not the same.");
-	//assert_eq!(DARKPURPLE, Color::from(raylib_ffi::colors::DARKPURPLE), "Darkpurple not the same.");
-	//assert_eq!(BEIGE, Color::from(raylib_ffi::colors::BEIGE), "Beige not the same.");
-	//assert_eq!(BROWN, Color::from(raylib_ffi::colors::BROWN), "Brown not the same.");
-	//assert_eq!(DARKBROWN, Color::from(raylib_ffi::colors::DARKBROWN), "Darkbrown not the same.");
-	//assert_eq!(WHITE, Color::from(raylib_ffi::colors::WHITE), "White not the same.");
-	//assert_eq!(BLACK, Color::from(raylib_ffi::colors::BLACK), "Black not the same.");
-	//assert_eq!(BLANK, Color::from(raylib_ffi::colors::BLANK), "Blank not the same.");
-	//assert_eq!(MAGENTA, Color::from(raylib_ffi::colors::MAGENTA), "Magenta not the same.");
-	//assert_eq!(RAYWHITE, Color::from(raylib_ffi::colors::RAYWHITE), "Raywhite not the same.");
 
-	//* Into: Vector3 */
+	//* Into / From: Vector3 */
 	assert_eq!(Vector3{x: 300.0, y: 1.0, z: 1.0}, MAGENTA.into(), "Conversion to HSV not accurate.");
-	//* Into: Vector4 */
-	assert_eq!(Vector4{x: 1.0, y: 0.0, z: 1.0, w: 1.0}, MAGENTA.into(), "Color normalization innaccurate.");
-	//* From: Vector3 */
 	assert_eq!(Color::from(Vector3{x: 300.0, y: 1.0, z: 1.0}), MAGENTA, "Conversion from HSV not accurate.");
-	//* From: Vector4 */
+	//* Into / From: Vector4 */
+	assert_eq!(Vector4{x: 1.0, y: 0.0, z: 1.0, w: 1.0}, MAGENTA.into(), "Color normalization innaccurate.");
 	assert_eq!(Color::from(Vector4{x: 1.0, y: 0.0, z: 1.0, w: 1.0}), MAGENTA, "Color from normalization innaccurate.");
 
 	//* Fade */
@@ -97,6 +76,94 @@ fn color() {
 	assert_eq!(WHITE.alpha_blend(RED, WHITE), RED, "Failed to properly tint.");
 	//* Hex */
 	assert_eq!(WHITE, Color::hex(4294967295), "Failed to convert from Hex.");
+	
+}
+
+/// Rectangle
+// TODO
+#[test]
+fn rectangle() {
+	//* Zero */
+	assert_eq!(rectangle::ZERO, rectangle::Rectangle{ x: 0.0, y: 0.0, width: 0.0, height: 0.0 });
+}
+
+/// Vector2
+#[test]
+fn vector_2() {
+
+	//* Negate */
+	assert_eq!(!ONE_2, Vector2{x: -1.0, y: -1.0}, "Negate failed.");
+	//* Length */
+	assert_eq!(ONE_2.length(), 1.4142135, "Length failed.");
+	//* Square length */
+	assert_eq!(ONE_2.length_sqr(), 2.0, "Length squared failed.");
+	//* Dot Product */
+	assert_eq!(ONE_2.dot_product(ONE_2), 2.0, "Dot product failed.");
+	//* Distance */
+	assert_eq!(ZERO_2.distance(ONE_2), 1.4142135, "Distance failed.");
+	//* Square distance */
+	assert_eq!(ZERO_2.distance_sqr(ONE_2), 2.0, "Distance squared failed.");
+	//* Angle */
+	assert_eq!((!ONE_2).angle(ONE_2) * -(360.0 / PI), 180.0, "Angle failed.");
+	//* Angle line */
+	// TODO
+	//* Normalize */
+	assert_eq!(ONE_2.normalize(), Vector2{x: 0.70710677, y: 0.70710677}, "Normalize failed.");
+	//* Transform */
+	// TODO
+	//* Lerp */
+	assert_eq!(ZERO_2.lerp(ONE_2, 0.5), Vector2{x: 0.5, y: 0.5}, "Lerp failed.");
+	//* Reflect */
+	// TODO
+	//* Rotate */
+	assert_eq!(ONE_2.rotate(180.0_f32.to_radians()), Vector2{x: -1.0, y: -1.0}, "Rotate failed.");
+	//* Move towards */
+	assert_eq!(ZERO_2.move_towards(ONE_2, 0.5), Vector2{x: 0.35355338, y: 0.35355338}, "Move towards failed.");
+	//* Invert */
+	assert_eq!(TEN_2.invert(), Vector2{x: 0.1, y: 0.1}, "Invert failed.");
+	//* Clamp */
+	assert_eq!((!TEN_2).clamp(ZERO_2, ONE_2), ZERO_2, "Minimum clamp failed.");
+	assert_eq!(TEN_2.clamp(ZERO_2, ONE_2), ONE_2, "Maximum clamp failed.");
+	//* Clamp magnitude */
+	assert_eq!((!TEN_2).clamp_mag(0.0, 1.0), !Vector2{x: 0.70710678, y: 0.70710678}, "Minimum clamp magnitude failed.");
+	assert_eq!(TEN_2.clamp_mag(0.0, 1.0), Vector2{x: 0.70710678, y: 0.70710678}, "Maximum clamp magnitude failed.");
+
+}
+/// Vector3
+#[test]
+fn vector_3() {
+
+	//* Cross product */
+	assert_eq!(ONE_3.cross_product(TEN_3), ZERO_3, "Cross product failed.");
+	//* Perpendicular */
+	assert_eq!(ONE_3.perpendicular(), Vector3{ x: 0.0, y: 1.0, z: -1.0 }, "Perpendicular failed.");
+	//* Length */
+	assert_eq!(TEN_3.length(), 17.32050807, "Length failed.");
+	//* Length square */
+	assert_eq!(TEN_3.length_sqr(), 300.0, "Length square failed.");
+	//* Dot product */
+	assert_eq!(TEN_3.dot_product(ONE_3), 30.0, "Dot product failed.");
+	//* Distance */
+	assert_eq!(TEN_3.distance(ONE_3), 15.588457268, "Distance failed.");
+	//* Distance square */
+	assert_eq!(TEN_3.distance_sqr(ONE_3), 243.0, "Distance square failed.");
+	//* Angle */
+	assert_eq!(ONE_3.angle(TEN_3), 0.0, "Angle failed.");
+	//* Negate */
+	assert_eq!(!TEN_3, Vector3{ x: -10.0, y: -10.0, z: -10.0 }, "Negate failed.");
+	//* Normalize */
+	assert_eq!(ONE_3.normalize(), Vector3{x: 0.57735026, y: 0.57735026, z: 0.57735026}, "Normalize failed.");
+	//* Orthonormalize */
+	// TODO What even is this for?
+	//* Transform */
+	// TODO
+
+}
+/// Vector4
+// TODO
+#[test]
+fn vector_4() {
+
 }
 
 /// Font
@@ -108,8 +175,8 @@ fn font() {}
 // TODO
 #[test]
 fn image() {
-	unsafe {
-		raylib_ffi::SetTraceLogLevel(raylib_ffi::enums::TraceLogLevel::None as i32);
+	//unsafe {
+		unsafe { SetTraceLogLevel(7) }
 
 		//* Testing PartialEq */
 		let partial_1 = Image::load("data/test_1.png");
@@ -322,30 +389,13 @@ fn image() {
 
 		//* Tu cubemap */
 		// TODO
-	}
+	//}
 }
 
 /// Matrix
 // TODO
 #[test]
 fn matrix() {}
-
-/// Rectangle
-// TODO
-#[test]
-fn rectangle() {
-	//* Conversion from ffi */
-	let rect_from_ffi = Rectangle::from(raylib_ffi::Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0});
-	let rect_default = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0};
-	assert_eq!(rect_default, rect_from_ffi, "Error in conversion from FFI.");
-
-	//* Conversion into ffi */
-	let ffi_from_struct: raylib_ffi::Rectangle = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0}.into();
-	let ffi_default = Rectangle{x: 0.0, y: 0.0, width: 0.0, height: 0.0};
-	let ffi_into_result = ffi_default.x == ffi_from_struct.x && ffi_default.y == ffi_from_struct.y
-		&& ffi_default.width == ffi_from_struct.width && ffi_default.height == ffi_from_struct.height;
-	assert!(ffi_into_result, "Error in conversion into FFI.");
-}
 
 /// RenderTexture
 // TODO
@@ -357,132 +407,5 @@ fn render_texture() {}
 #[test]
 fn texture() {}
 
-/// Vector2
-#[test]
-fn vector_2() {
-	//* Conversion from ffi */
-	let vector_from_ffi = Vector2::from(raylib_ffi::Vector2{x: 0.0, y: 0.0});
-	let vector_default = ZERO_2;
-	assert_eq!(vector_default, vector_from_ffi, "Error in conversion from FFI.");
 
-	//* Conversion into ffi */
-	let ffi_from_struct: raylib_ffi::Vector2 = ZERO_2.into();
-	let ffi_default = raylib_ffi::Vector2{x: 0.0, y: 0.0};
-	let ffi_into_result = ffi_default.x == ffi_from_struct.x && ffi_default.y == ffi_from_struct.y;
-	assert!(ffi_into_result, "Error in conversion into FFI.");
-	
-	//* Negate */
-	let navia_distance_sqr = !ONE_2;
-	assert_eq!(navia_distance_sqr, Vector2{x: -1.0, y: -1.0}, "Failed to negate.");
-
-	//* Length */
-	let navia_length = ONE_2.length();
-	assert_eq!(navia_length, 1.4142135, "Failed to calculate proper length.");
-
-	//* Square length */
-	let navia_length_sqr = ONE_2.length_sqr();
-	assert_eq!(navia_length_sqr, 2.0, "Failed to calculate proper square length.");
-
-	//* Dot Product */
-	let navia_dot = ONE_2.dot_product(ONE_2);
-	assert_eq!(navia_dot, 2.0, "Failed to calculate proper dot product.");
-
-	//* Distance */
-	let navia_distance = ZERO_2.distance(ONE_2);
-	assert_eq!(navia_distance, 1.4142135, "Failed to calculate proper distance.");
-
-	//* Square distance */
-	let navia_distance_sqr = ZERO_2.distance_sqr(ONE_2);
-	assert_eq!(navia_distance_sqr, 2.0, "Failed to calculate proper square distance.");
-
-	//* Angle */
-	let navia_angle = (!ONE_2).angle(ONE_2) * -(360.0 / PI);
-	assert_eq!(navia_angle, 180.0, "Failed to calculate proper angle.");
-
-	//* Angle line */
-	// TODO
-
-	//* Normalize */
-	let navia_normalize = ONE_2.normalize();
-	assert_eq!(navia_normalize, Vector2{x: 0.70710677, y: 0.70710677}, "Failed to normalize.");
-
-	//* Transform */
-	// TODO
-
-	//* Lerp */
-	let navia_lerp = ZERO_2.lerp(ONE_2, 0.5);
-	assert_eq!(navia_lerp, Vector2{x: 0.5, y: 0.5}, "Failed to properly lerp.");
-
-	//* Reflect */
-	// TODO
-
-	//* Rotate */
-	let navia_rotate = ONE_2.rotate(180.0_f32.to_radians());
-	assert_eq!(navia_rotate, Vector2{x: -1.0, y: -1.0}, "Failed to properly rotate.");
-
-	//* Move towards */
-	let navia_move = ZERO_2.move_towards(ONE_2, 0.5);
-	assert_eq!(navia_move, Vector2{x: 0.35355338, y: 0.35355338}, "Failed to properly move towards.");
-
-	//* Invert */
-	let navia_invert = Vector2{x: 10.0, y: 10.0}.invert();
-	assert_eq!(navia_invert, Vector2{x: 0.1, y: 0.1}, "Failed to properly invert.");
-
-	//* Clamp */
-	let navia_clamp_min = Vector2{x: -10.0, y: -10.0}.clamp(ZERO_2, ONE_2);
-	assert_eq!(navia_clamp_min, ZERO_2, "Failed to properly clamp minimum value.");
-	let navia_clamp_max = Vector2{x: 10.0, y: 10.0}.clamp(ZERO_2, ONE_2);
-	assert_eq!(navia_clamp_max, ONE_2, "Failed to properly clamp maximum value.");
-
-	//* Clamp magnitude */
-	let navia_clamp_mag_min = Vector2{x: -10.0, y: -10.0}.clamp_mag(0.0, 1.0);
-	assert_eq!(navia_clamp_mag_min, !Vector2{x: 0.70710678, y: 0.70710678}, "Failed to properly clamp minimum value.");
-	let navia_clamp_mag_max = Vector2{x: 10.0, y: 10.0}.clamp_mag(0.0, 1.0);
-	assert_eq!(navia_clamp_mag_max, Vector2{x: 0.70710678, y: 0.70710678}, "Failed to properly clamp maximum value.");
-
-}
-/// Vector3
-// TODO
-#[test]
-fn vector_3() {
-
-}
-/// Vector4
-// TODO
-#[test]
-fn vector_4() {
-
-}
-
-
-
-//* Mesh */
-//#[test]
-//fn mesh_conversion() {
-//	unsafe {
-//		raylib_ffi::SetTraceLogLevel(raylib_ffi::enums::TraceLogLevel::None as i32);
-//		raylib_ffi::InitWindow(1280, 720, raylib_ffi::rl_str!("mesh_conversion"));
-//
-//		let non_ffi_mesh = Mesh::gen_cube(1.0,1.0,1.0);
-//		//let ffi_mesh = raylib_ffi::GenMeshCube(1.0, 1.0, 1.0);
-//		let conv_ffi = Mesh::from_ffi(non_ffi_mesh.into_ffi());
-//
-//		assert_eq!(non_ffi_mesh.vertices, conv_ffi.vertices, "\n\tThe Vertices are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.texcoords, conv_ffi.texcoords, "\n\tThe Texcoords are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.texcoords2, conv_ffi.texcoords2, "\n\tThe Texcoord2s are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.normals, conv_ffi.normals, "\n\tThe Normals are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.tangents, conv_ffi.tangents, "\n\tThe Tangents are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.colors, conv_ffi.colors, "\n\tThe Colors are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.indices, conv_ffi.indices, "\n\tThe Indices are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.anim_vertices, conv_ffi.anim_vertices, "\n\tThe AnimVertices are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.anim_normals, conv_ffi.anim_normals, "\n\tThe AnimNormals are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.bone_ids, conv_ffi.bone_ids, "\n\tThe BoneIds are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.bone_weights, conv_ffi.bone_weights, "\n\tThe BoneWeights are dissimilar\n");
-//		assert_eq!(non_ffi_mesh.vbo_id, conv_ffi.vbo_id, "\n\tThe VBO IDs are dissimilar\n");
-//
-//
-//		raylib_ffi::CloseWindow();
-//
-//		assert!(true);
-//	}
-//}
+extern "C" { fn SetTraceLogLevel(logLevel: i32); }

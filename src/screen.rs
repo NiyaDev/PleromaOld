@@ -1,6 +1,16 @@
 
 
-use crate::{color::{self, *}, misc::clear_background, rectangle::*, vectors::*, render_texture::*, rl_str, texture::*};
+use crate::{
+	rl_str,
+	structures::{
+		color::{self, *},
+		misc::clear_background,
+		rectangle::*,
+		vectors::*,
+		render_texture::*,
+		texture::*,
+	}
+};
 
 
 /// WindowState

@@ -2,7 +2,15 @@
 
 //use std::time::Instant;
 
-use pleroma::{color, image::Image, keybindings::{keyboard::*, *}, misc::*, pleroma::*};
+use pleroma::{
+	pleroma::*,
+	keybindings::{keyboard::*, *},
+	structures::{
+		color,
+		image::Image,
+		misc::*,
+	}
+};
 
 
 fn main() {
