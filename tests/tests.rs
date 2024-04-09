@@ -9,6 +9,7 @@ use pleroma::{
 	structures::{
 		color::*,
 		image::*,
+		matrix::*,
 		rectangle,
 		vectors::*,
 	},
@@ -106,15 +107,17 @@ fn vector_2() {
 	//* Angle */
 	assert_eq!((!ONE_2).angle(ONE_2) * -(360.0 / PI), 180.0, "Angle failed.");
 	//* Angle line */
-	// TODO
+	assert_eq!((ONE_2).angle_line(TEN_2) * -(360.0 / PI), 90.0, "Angle line failed.");
 	//* Normalize */
 	assert_eq!(ONE_2.normalize(), Vector2{x: 0.70710677, y: 0.70710677}, "Normalize failed.");
 	//* Transform */
-	// TODO
+	// TODO Check
+	assert_eq!((ONE_2).transform(IDENTITY), ONE_2, "Transform failed.");
 	//* Lerp */
 	assert_eq!(ZERO_2.lerp(ONE_2, 0.5), Vector2{x: 0.5, y: 0.5}, "Lerp failed.");
 	//* Reflect */
-	// TODO
+	// TODO Check
+	assert_eq!((TEN_2).reflect(ONE_2), Vector2{ x: -30.0, y: -30.0 }, "Reflect failed.");
 	//* Rotate */
 	assert_eq!(ONE_2.rotate(180.0_f32.to_radians()), Vector2{x: -1.0, y: -1.0}, "Rotate failed.");
 	//* Move towards */
@@ -125,8 +128,8 @@ fn vector_2() {
 	assert_eq!((!TEN_2).clamp(ZERO_2, ONE_2), ZERO_2, "Minimum clamp failed.");
 	assert_eq!(TEN_2.clamp(ZERO_2, ONE_2), ONE_2, "Maximum clamp failed.");
 	//* Clamp magnitude */
-	assert_eq!((!TEN_2).clamp_mag(0.0, 1.0), !Vector2{x: 0.70710678, y: 0.70710678}, "Minimum clamp magnitude failed.");
-	assert_eq!(TEN_2.clamp_mag(0.0, 1.0), Vector2{x: 0.70710678, y: 0.70710678}, "Maximum clamp magnitude failed.");
+	assert_eq!((!TEN_2).clamp_mag(0.0, 1.0), !Vector2{x: 0.7071068, y: 0.7071068}, "Minimum clamp magnitude failed.");
+	assert_eq!(TEN_2.clamp_mag(0.0, 1.0), Vector2{x: 0.7071068, y: 0.7071068}, "Maximum clamp magnitude failed.");
 
 }
 /// Vector3
@@ -154,8 +157,44 @@ fn vector_3() {
 	//* Normalize */
 	assert_eq!(ONE_3.normalize(), Vector3{x: 0.57735026, y: 0.57735026, z: 0.57735026}, "Normalize failed.");
 	//* Orthonormalize */
+	// TODO Check
 	// TODO What even is this for?
 	//* Transform */
+	// TODO Check
+	// TODO
+	//* Rotate by quaternion */
+	// TODO Check
+	// TODO
+	//* Rotate by axis */
+	// TODO Check
+	// TODO
+	//* Move towards */
+	assert_eq!(ZERO_3.move_towards(TEN_3, 2.0), Vector3{ x: 1.1547005, y: 1.1547005, z: 1.1547005 }, "Move towards failed.");
+	//* Lerp */
+	assert_eq!(ZERO_3.lerp(TEN_3, 0.1), ONE_3, "Lerp failed.");
+	//* Reflect */
+	// TODO Check
+	// TODO
+	//* Min */
+	assert_eq!(ONE_3.min(ZERO_3), ZERO_3, "Minimum failed.");
+	//* Max */
+	assert_eq!(ONE_3.max(ZERO_3), ONE_3, "Maximum failed.");
+	//* Barycenter */
+	// TODO Check
+	// TODO
+	//* Unproject */
+	// TODO Check
+	// TODO
+	//* Invert */
+	assert_eq!(TEN_3.invert(), Vector3{ x: 0.1, y: 0.1, z: 0.1 }, "Inversion failed.");
+	//* Clamp */
+	assert_eq!((!TEN_3).clamp(ZERO_3, ONE_3), ZERO_3, "Minimum clamp failed.");
+	assert_eq!(TEN_3.clamp(ZERO_3, ONE_3), ONE_3, "Maximum clamp failed.");
+	//* Clamp Value */
+	assert_eq!((!TEN_3).clamp_value(0.0, 1.0), !Vector3{x: 0.5773502, y: 0.5773502, z: 0.5773502}, "Minimum clamp magnitude failed.");
+	assert_eq!(TEN_3.clamp_value(0.0, 1.0), Vector3{x: 0.5773502, y: 0.5773502, z: 0.5773502}, "Maximum clamp magnitude failed.");
+	//* Refract */
+	// TODO Check
 	// TODO
 
 }
@@ -163,6 +202,29 @@ fn vector_3() {
 // TODO
 #[test]
 fn vector_4() {
+
+	//* Length */
+	assert_eq!(TEN_4.length(), 20.0, "Length failed.");
+	//* Length square */
+	assert_eq!(TEN_4.length_square(), 400.0, "Length square failed.");
+	//* Dot product */
+	assert_eq!(ONE_4.dot_product(ONE_4), 4.0, "Dot product failed.");
+	//* Distance */
+	assert_eq!(ONE_4.distance(ZERO_4), 2.0, "Distance failed.");
+	//* Distance square */
+	assert_eq!(ONE_4.distance_square(ZERO_4), 4.0, "Distance square failed.");
+	//* Normalize */
+	assert_eq!(ONE_4.normalize(), Vector4{ x: 0.5, y: 0.5, z: 0.5, w: 0.5 }, "Normalize failed.");
+	//* Min */
+	assert_eq!(ONE_4.min(ZERO_4), ZERO_4, "Minimum failed.");
+	//* Max */
+	assert_eq!(ONE_4.max(ZERO_4), ONE_4, "Maximum failed.");
+	//* Lerp */
+	assert_eq!(ZERO_4.lerp(TEN_4, 0.1), ONE_4, "Lerp failed.");
+	//* Move towards */
+	assert_eq!(ZERO_4.move_towards(TEN_4, 2.0), ONE_4, "Move towards failed.");
+	//* Invert */
+	assert_eq!(TEN_4.invert(), Vector4{ x: 0.1, y: 0.1, z: 0.1, w: 0.1 }, "Inversion failed.");
 
 }
 

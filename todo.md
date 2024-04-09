@@ -1,6 +1,5 @@
 Add:
 - Raylib
-	- Matrix
 	- Fonts
 	- Meshes
 	- Models
@@ -19,20 +18,29 @@ Add:
 	- Sound / Music
 		- Midi
 		- Standard
+	- Camera
 - Multiplayer
 	- Peer-to-Peer
 	- Client-to-server
 
 Changes:
-- ~~Go through and re-implement color functions without using Raylib~~ 4/7/24
-- Finish keybindings
-- ~~Add rectangle functions~~ 4/7/24
-- Finish Vectors 3-4
+- TODO:
+	- Finish keybindings
+	- Finish Matrix
+- Finished:
+	- ~~Go through and re-implement color functions without using Raylib~~ 4/7/24
+	- ~~Add rectangle functions~~ 4/7/24
+	- ~~Finish Vector3~~ 4/9/24
+	- ~~Finish Vector4~~ 4/9/24
 
 Eventually:
 - Tests:
-	- Image
-	- ~~Rectangle~~ 4/7/24
-	- RenderTexture
-	- Texture
-	- Vectors 2-4
+	- TODO: 
+		- Image
+		- RenderTexture
+		- Texture
+		- Vector3
+	- Finished:
+		- ~~Rectangle~~ 4/7/24
+		- ~~Vector2~~ 4/9/24
+		- ~~Vector4~~ 4/9/24
