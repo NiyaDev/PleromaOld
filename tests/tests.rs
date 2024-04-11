@@ -9,7 +9,7 @@ use pleroma::{
 	structures::{
 		color::*,
 		image::*,
-		matrix::*,
+		matrix,
 		rectangle,
 		vectors::*,
 	},
@@ -112,7 +112,7 @@ fn vector_2() {
 	assert_eq!(ONE_2.normalize(), Vector2{x: 0.70710677, y: 0.70710677}, "Normalize failed.");
 	//* Transform */
 	// TODO Check
-	assert_eq!((ONE_2).transform(IDENTITY), ONE_2, "Transform failed.");
+	assert_eq!((ONE_2).transform(matrix::IDENTITY), ONE_2, "Transform failed.");
 	//* Lerp */
 	assert_eq!(ZERO_2.lerp(ONE_2, 0.5), Vector2{x: 0.5, y: 0.5}, "Lerp failed.");
 	//* Reflect */

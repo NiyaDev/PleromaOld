@@ -26,12 +26,12 @@ Add:
 Changes:
 - TODO:
 	- Finish keybindings
-	- Finish Matrix
 - Finished:
 	- ~~Go through and re-implement color functions without using Raylib~~ 4/7/24
 	- ~~Add rectangle functions~~ 4/7/24
 	- ~~Finish Vector3~~ 4/9/24
 	- ~~Finish Vector4~~ 4/9/24
+	- ~~Finish Matrix~~ 4/10/24
 
 Eventually:
 - Tests:

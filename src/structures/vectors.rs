@@ -9,7 +9,7 @@ use std::{
 	}
 };
 
-use super::matrix::Matrix;
+use super::matrix::{self, Matrix};
 
 /// Vector2
 #[repr(C)]
@@ -480,25 +480,121 @@ impl Not for Quaternion {
 		}
 	}
 }
-impl From<Matrix> for Quaternion {}
-impl Into<Matrix> for Quaternion {}
+impl From<Matrix> for Quaternion {
+	fn from(mat: Matrix) -> Self {
+		let result;
+
+		let four_w_squ_minus1 = mat.m0  + mat.m5 + mat.m10;
+		let four_x_squ_minus1 = mat.m0  + mat.m5 + mat.m10;
+		let four_y_squ_minus1 = mat.m5  + mat.m0 + mat.m10;
+		let four_z_squ_minus1 = mat.m10 + mat.m0 + mat.m5;
+
+		let mut biggest_index = 0;
+		let mut four_biggest_squ_minus1 = four_w_squ_minus1;
+		if four_x_squ_minus1 > four_biggest_squ_minus1 {
+			four_biggest_squ_minus1 = four_x_squ_minus1;
+			biggest_index = 1;
+		}
+		if four_y_squ_minus1 > four_biggest_squ_minus1 {
+			four_biggest_squ_minus1 = four_y_squ_minus1;
+			biggest_index = 2;
+		}
+		if four_z_squ_minus1 > four_biggest_squ_minus1 {
+			four_biggest_squ_minus1 = four_z_squ_minus1;
+			biggest_index = 3;
+		}
+
+		let biggest_val = (four_biggest_squ_minus1 + 1.0).sqrt() * 0.5;
+		let mult = 0.25 / biggest_val;
+
+		match biggest_index {
+			1 => {
+				result = Self {
+					x: biggest_val,
+					y: (mat.m1 - mat.m4) * mult,
+					z: (mat.m8 - mat.m2) * mult,
+					w: (mat.m6 - mat.m9) * mult,
+				}
+			}
+			2 => {
+				result = Self {
+					x: (mat.m1 - mat.m4) * mult,
+					y: biggest_val,
+					z: (mat.m6 - mat.m9) * mult,
+					w: (mat.m8 - mat.m2) * mult,
+				}
+			}
+			3 => {
+				result = Self {
+					x: (mat.m8 - mat.m2) * mult,
+					y: (mat.m6 - mat.m9) * mult,
+					z: biggest_val,
+					w: (mat.m1 - mat.m4) * mult,
+				}
+			}
+			_ => {
+				result = Self {
+					x: (mat.m6 - mat.m9) * mult,
+					y: (mat.m8 - mat.m2) * mult,
+					z: (mat.m1 - mat.m4) * mult,
+					w: biggest_val,
+				}
+			}
+		}
+
+		result
+	}
+}
+impl Into<Matrix> for Quaternion {
+	fn into(self) -> Matrix {
+		let mut result = matrix::IDENTITY;
+
+		let a2 = self.x.powi(2);
+		let b2 = self.y.powi(2);
+		let c2 = self.z.powi(2);
+		let ac = self.x * self.z;
+		let ab = self.x * self.y;
+		let bc = self.y * self.z;
+		let ad = self.w * self.x;
+		let bd = self.w * self.y;
+		let cd = self.w * self.z;
+
+		result.m0 = 1.0 - 2.0 * (b2 + c2);
+		result.m1 = 2.0 * (ab + cd);
+		result.m2 = 2.0 * (ac + bd);
+		
+		result.m4 = 2.0 * (ab + cd);
+		result.m5 = 1.0 - 2.0 * (a2 + c2);
+		result.m6 = 2.0 * (bc + ad);
+		
+		result.m8  = 2.0 * (ac + bd);
+		result.m9  = 2.0 * (bc + ad);
+		result.m10 = 1.0 - 2.0 * (a2 + b2);
+
+		result
+	}
+}
 
 
 pub const ZERO_2: Vector2 = Vector2{x: 0.0, y: 0.0};
 pub const ZERO_3: Vector3 = Vector3{x: 0.0, y: 0.0, z: 0.0};
 pub const ZERO_4: Vector4 = Vector4{x: 0.0, y: 0.0, z: 0.0, w: 0.0};
+pub const ZERO_Q: Quaternion = Quaternion{x: 0.0, y: 0.0, z: 0.0, w: 0.0};
 
 pub const ONE_2: Vector2 = Vector2{x: 1.0, y: 1.0};
 pub const ONE_3: Vector3 = Vector3{x: 1.0, y: 1.0, z: 1.0};
 pub const ONE_4: Vector4 = Vector4{x: 1.0, y: 1.0, z: 1.0, w: 1.0};
+pub const ONE_Q: Quaternion = Quaternion{x: 1.0, y: 1.0, z: 1.0, w: 1.0};
 
 pub const NEG_ONE_2: Vector2 = Vector2{x: -1.0, y: -1.0};
 pub const NEG_ONE_3: Vector3 = Vector3{x: -1.0, y: -1.0, z: -1.0};
 pub const NEG_ONE_4: Vector4 = Vector4{x: -1.0, y: -1.0, z: -1.0, w: -1.0};
+pub const NEG_ONE_Q: Quaternion = Quaternion{x: -1.0, y: -1.0, z: -1.0, w: -1.0};
 
 pub const TEN_2: Vector2 = Vector2{x: 10.0, y: 10.0};
 pub const TEN_3: Vector3 = Vector3{x: 10.0, y: 10.0, z: 10.0};
 pub const TEN_4: Vector4 = Vector4{x: 10.0, y: 10.0, z: 10.0, w: 10.0};
+pub const TEN_Q: Quaternion = Quaternion{x: 10.0, y: 10.0, z: 10.0, w: 10.0};
 
 pub const IDENTITY: Quaternion = Quaternion{ x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 
@@ -1134,34 +1230,259 @@ impl Vector4 {
 impl Quaternion {
 
 	/// Computes the length of a quaternion
-	pub fn length(&self) -> Self {}
+	pub fn length(&self) -> f32 {
+		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
+	}
+	/// Calculate two quaternions dot product
+	pub fn dot_product(&self, v2: Self) -> f32 {
+		self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w
+	}
 	/// Normalize provided quaternion
-	pub fn normalize(&self) -> Self {}
+	pub fn normalize(&self) -> Self {
+		let mut result = ZERO_Q;
+
+		let len = self.length();
+		if len > 0.0 {
+			let ilen = 1.0 / len;
+			result = Self {
+				x: self.x * ilen,
+				y: self.y * ilen,
+				z: self.z * ilen,
+				w: self.w * ilen,
+			}
+		}
+
+		result
+	}
 	/// Invert provided quaternion
-	pub fn invert(&self) -> Self {}
+	pub fn invert(&self) -> Self {
+		Self {
+			x: 1.0 / self.x,
+			y: 1.0 / self.y,
+			z: 1.0 / self.z,
+			w: 1.0 / self.w,
+		}
+	}
 	/// Calculate linear interpolation between two quaternions
-	pub fn lerp(&self, target: Self, amount: f32) -> Self {}
+	pub fn lerp(&self, target: Self, amount: f32) -> Self {
+		Self {
+			x: self.x + amount * (target.x - self.x),
+			y: self.y + amount * (target.y - self.y),
+			z: self.z + amount * (target.z - self.z),
+			w: self.w + amount * (target.w - self.w),
+		}
+	}
 	/// Calculate slerp-optimized interpolation between two quaternions
-	pub fn n_lerp(&self, target: Self, amount: f32) -> Self {}
+	pub fn n_lerp(&self, target: Self, amount: f32) -> Self {
+		let result = Self {
+			x: self.x + amount * (target.x - self.x),
+			y: self.y + amount * (target.y - self.y),
+			z: self.z + amount * (target.z - self.z),
+			w: self.w + amount * (target.w - self.w),
+		};
+
+		let mut len = result.length();
+		len = if len == 0.0 { 1.0 } else { len };
+		let ilen = 1.0 / len;
+
+		Self {
+			x: result.x * ilen,
+			y: result.y * ilen,
+			z: result.z * ilen,
+			w: result.w * ilen,
+		}
+	}
 	/// Calculates spherical linear interpolation between two quaternions
-	pub fn slerp(&self, target: Self, amount: f32) -> Self {}
+	pub fn slerp(&self, target: Self, amount: f32) -> Self {
+		let result;
+
+		let mut cos_half_theta = self.dot_product(target);
+		let mut new_target = target;
+		if cos_half_theta < 0.0 {
+			new_target.x = -target.x;
+			new_target.y = -target.y;
+			new_target.z = -target.z;
+			new_target.w = -target.w;
+			cos_half_theta = -cos_half_theta;
+		}
+
+		if cos_half_theta.abs() >= 1.0 { result = *self; }
+		else if cos_half_theta > 0.95 { result = self.n_lerp(target, amount); }
+		else {
+			let half_theta = cos_half_theta.acos();
+			let sin_half_theta = (1.0 - cos_half_theta.powi(2)).sqrt();
+
+			if sin_half_theta.abs() < EPSILON {
+				result = Self {
+					x: (self.x * 0.5 + target.x * 0.5),
+					y: (self.y * 0.5 + target.y * 0.5),
+					z: (self.z * 0.5 + target.z * 0.5),
+					w: (self.w * 0.5 + target.w * 0.5),
+				};
+			} else {
+				let ratio_a = ((1.0 - amount) * half_theta).sin() / sin_half_theta;
+				let ratio_b = (amount * half_theta).sin() / sin_half_theta;
+
+				result = Self {
+					x: (self.x * ratio_a + target.x * ratio_b),
+					y: (self.y * ratio_a + target.y * ratio_b),
+					z: (self.z * ratio_a + target.z * ratio_b),
+					w: (self.w * ratio_a + target.w * ratio_b),
+				};
+			}
+		}
+
+		result
+	}
 	/// Calculate quaternion based on the rotation from one vector to another
-	pub fn from_v3_to_v3(from: Vector3, to: Vector3) -> Self {}
+	pub fn from_v3_to_v3(from: Vector3, to: Vector3) -> Self {
+		let result;
+
+		let cos2_theta = from.dot_product(to);
+		let cross = from.cross_product(to);
+
+		result = Self {
+			x: cross.x,
+			y: cross.y,
+			z: cross.z,
+			w: 1.0 + cos2_theta,
+		};
+
+		let mut len = result.length();
+		len = if len == 0.0 { 1.0 } else { len };
+		let ilen = 1.0 / len;
+
+		Self {
+			x: result.x * ilen,
+			y: result.y * ilen,
+			z: result.z * ilen,
+			w: result.w * ilen,
+		}
+	}
 	/// Get rotation quaternion for an angle and axis
 	/// 
 	/// NOTE: Angle must be provided in radians
-	pub fn from_axis_angle(axis: Vector3, angle: f32) -> Self {}
+	pub fn from_axis_angle(axis: Vector3, angle: f32) -> Self {
+		let mut result = IDENTITY;
+
+		let axis_len = axis.length();
+
+		if axis_len != 0.0 {
+			let new_angle = angle * 0.5;
+
+			let mut len = axis_len;
+			len = if len == 0.0 { 1.0 } else { len };
+			let mut ilen = 1.0 / len;
+
+			let new_axis = Vector3{
+				x: axis.x * ilen,
+				y: axis.y * ilen,
+				z: axis.z * ilen,
+			};
+			
+			let sinres = new_angle.sin();
+			let cosres = new_angle.cos();
+
+			result.x = new_axis.x * sinres;
+			result.y = new_axis.y * sinres;
+			result.z = new_axis.z * sinres;
+			result.w = cosres;
+
+			len = result.length();
+			len = if len == 0.0 { 1.0 } else { len };
+			ilen = 1.0 / len;
+
+			result.x = result.x * ilen;
+			result.y = result.y * ilen;
+			result.z = result.z * ilen;
+			result.w = result.w * ilen;
+		}
+
+		result
+	}
 	/// Get the rotation angle and axis for a given quaternion
-	pub fn to_axis_angle(&self) -> (Vector3, f32) {}
+	pub fn to_axis_angle(&self) -> (Vector3, f32) {
+		let mut new_quat = *self;
+
+		if self.w.abs() > 1.0 {
+			let mut len = self.length();
+			len = if len == 0.0 { 1.0 } else { len };
+			let ilen = 1.0 / len;
+
+			new_quat.x = self.x * ilen;
+			new_quat.y = self.y * ilen;
+			new_quat.z = self.z * ilen;
+			new_quat.w = self.w * ilen;
+		}
+
+		let mut res_axis = ZERO_3;
+		let res_angle = 2.0 * self.w.acos();
+		let den = (1.0 - self.w.powi(2)).sqrt();
+
+		if den > EPSILON {
+			res_axis.x = self.x / den;
+			res_axis.y = self.y / den;
+			res_axis.z = self.z / den;
+		} else {
+			res_axis.x = 1.0;
+		}
+
+		(res_axis, res_angle)
+	}
 	/// Get the quaternion equivalent to Euler angles
 	/// 
 	/// NOTE: Rotation order is ZYX
-	pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Self {}
+	pub fn from_euler(pitch: f32, yaw: f32, roll: f32) -> Self {
+		let mut result = ZERO_Q;
+
+		let x0 = (pitch * 0.5).cos();
+		let x1 = (pitch * 0.5).sin();
+		let y0 = (yaw   * 0.5).cos();
+		let y1 = (yaw   * 0.5).sin();
+		let z0 = (roll  * 0.5).cos();
+		let z1 = (roll  * 0.5).sin();
+
+		result.x = x1 * y0 * z0 - x0 * y1 * z1;
+		result.y = x0 * y1 * z0 - x1 * y0 * z1;
+		result.z = x0 * y0 * z1 - x1 * y1 * z0;
+		result.w = x0 * y0 * z0 - x1 * y1 * z1;
+
+		result
+	}
 	/// Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
 	/// 
 	/// NOTE: Angles are returned in a Vector3 struct in radians
-	pub fn to_euler(&self) -> (f32, f32, f32) {}
+	pub fn to_euler(&self) -> (f32, f32, f32) {
+		let pitch;
+		let yaw;
+		let roll;
+
+		//* Roll */
+		let x0 = 2.0 * (self.w * self.x + self.y * self.z);
+		let x1 = 1.0 - (2.0 * (self.x.powi(2) + self.y.powi(2)));
+		roll = x0.atan2(x1);
+
+		//* Pitch */
+		let mut y0 = 2.0 * (self.w * self.y - self.z * self.x);
+		y0 = if y0 > 1.0 { 1.0 } else { y0 };
+		y0 = if y0 < -1.0 { -1.0 } else { y0 };
+		pitch = y0.asin();
+
+		//* Yaw */
+		let z0 = 2.0 * (self.w * self.z + self.x * self.y);
+		let z1 = 1.0 - 2.0 * (self.y.powi(2) + self.z.powi(2));
+		yaw = z0.atan2(z1);
+
+		(pitch, yaw, roll)
+	}
 	/// Transform a quaternion given a transformation matrix
-	pub fn transform(&self, mat: Matrix) -> Self {}
+	pub fn transform(&self, mat: Matrix) -> Self {
+		Self {
+			x: mat.m0 * self.x + mat.m4 * self.y + mat.m8  * self.z + mat.m12 * self.w,
+			y: mat.m1 * self.x + mat.m5 * self.y + mat.m9  * self.z + mat.m13 * self.w,
+			z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14 * self.w,
+			w: mat.m3 * self.x + mat.m7 * self.y + mat.m11 * self.z + mat.m15 * self.w,
+		}
+	}
 
 }
