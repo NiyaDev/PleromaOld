@@ -34,6 +34,7 @@ Changes:
 	- ~~Finish Matrix~~ 4/10/24
 
 Eventually:
+- Go over matrix math
 - Tests:
 	- TODO: 
 		- Image

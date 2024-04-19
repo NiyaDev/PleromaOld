@@ -163,7 +163,7 @@ impl Screen {
 		unsafe {
 			BeginDrawing();
 
-			Texture(self.render_texture.as_mut().unwrap().0.texture).draw_pro(
+			Texture(self.render_texture.as_mut().unwrap().0.texture, WHITE).draw_pro(
 				Rectangle{
 					x: 0.0,
 					y: 0.0,
@@ -178,7 +178,6 @@ impl Screen {
 				},
 				Vector2{x: 0.0, y: 0.0},
 				0.0,
-				WHITE,
 			);
 			
 			EndDrawing();

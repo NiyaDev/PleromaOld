@@ -505,14 +505,14 @@ impl Image {
 	///
 	/// Load texture from image data
 	pub fn texture(&self) -> Texture {
-		unsafe { Texture(LoadTextureFromImage(self.0)) }
+		unsafe { Texture(LoadTextureFromImage(self.0), WHITE) }
 	}
 	/// Wrapper for LoadTextureCubemap
 	///
 	/// Load cubemap from image, multiple image cubemap layouts supported
 	// TODO: fix layout enum
 	pub fn cubemap(&self, layout: i32) -> Texture {
-		unsafe { Texture(LoadTextureCubemap(self.0, layout)) }
+		unsafe { Texture(LoadTextureCubemap(self.0, layout), WHITE) }
 	}
 
 }

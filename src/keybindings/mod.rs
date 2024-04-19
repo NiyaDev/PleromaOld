@@ -6,7 +6,6 @@ pub mod gamepad;
 pub mod raylib;
 
 use std::collections::HashMap;
-
 use self::keyboard::KeyboardKey;
 
 

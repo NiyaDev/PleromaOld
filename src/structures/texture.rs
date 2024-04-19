@@ -12,7 +12,7 @@ use crate::{
 
 /// Wrapper for Texture
 #[derive(Debug, Clone, Copy)]
-pub struct Texture(pub TextureRl);
+pub struct Texture(pub TextureRl, pub Color);
 
 /// Raw raylib structure
 #[repr(C)]
@@ -45,7 +45,7 @@ impl Texture {
 	///
 	/// Load texture from file into GPU memory (VRAM)
 	pub fn load(filename: &str) -> Self {
-		unsafe { Self(LoadTexture(rl_str!(filename))) }
+		unsafe { Self(LoadTexture(rl_str!(filename)), WHITE) }
 	}
 	/// Wrapper for UnloadTexture
 	///
@@ -73,6 +73,10 @@ impl Texture {
 	pub fn update_rec(&self, rec: Rectangle, pixels: &mut Vec<Color>) {
 		unsafe { UpdateTextureRec(self.0, rec, pixels.as_mut_slice().as_mut_ptr().cast()) }
 	}
+	/// Set texture tint
+	pub fn set_tint(&mut self, tint: Color) {
+		self.1 = tint;
+	}
 
 	//= Manipulations
 	/// Wrapper for GenTextureMipmaps
@@ -96,38 +100,38 @@ impl Texture {
 	/// Wrapper for DrawTexture
 	///
 	/// Draw a Texture2D
-	pub fn draw(&self, pos_x: i32, pos_y: i32, tint: Color) {
-		unsafe { DrawTexture(self.0, pos_x, pos_y, tint) }
+	pub fn draw(&self, pos_x: i32, pos_y: i32) {
+		unsafe { DrawTexture(self.0, pos_x, pos_y, self.1) }
 	}
 	/// Wrapper for DrawTextureV
 	///
 	/// Draw a Texture2D with position defined as Vector2
-	pub fn draw_v(&self, position: Vector2, tint: Color) {
-		unsafe { DrawTextureV(self.0, position, tint) }
+	pub fn draw_v(&self, position: Vector2) {
+		unsafe { DrawTextureV(self.0, position, self.1) }
 	}
 	/// Wrapper for DrawTextureEx
 	///
 	/// Draw a Texture2D with extended parameters
-	pub fn draw_ex(&self, position: Vector2, rotation: f32, scale: f32, tint: Color) {
-		unsafe { DrawTextureEx(self.0, position, rotation, scale, tint) }
+	pub fn draw_ex(&self, position: Vector2, rotation: f32, scale: f32) {
+		unsafe { DrawTextureEx(self.0, position, rotation, scale, self.1) }
 	}
 	/// Wrapper for DrawTextureRec
 	///
 	/// Draw a part of a texture defined by a rectangle
-	pub fn draw_rec(&self, source: Rectangle, position: Vector2, tint: Color) {
-		unsafe { DrawTextureRec(self.0, source, position, tint) }
+	pub fn draw_rec(&self, source: Rectangle, position: Vector2) {
+		unsafe { DrawTextureRec(self.0, source, position, self.1) }
 	}
 	/// Wrapper for DrawTexturePro
 	///
 	/// raw a part of a texture defined by a rectangle with 'pro' parameters
-	pub fn draw_pro(&self, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
-		unsafe { DrawTexturePro(self.0, source, dest, origin, rotation, tint) }
+	pub fn draw_pro(&self, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: f32) {
+		unsafe { DrawTexturePro(self.0, source, dest, origin, rotation, self.1) }
 	}
 	/// Wrapper for DrawTextureNPatch
 	///
 	/// Draws a texture (or part of it) that stretches or shrinks nicely
-	pub fn draw_npatch(&self, npatch_info: NPatchInfo, dest: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
-		unsafe { DrawTextureNPatch(self.0, npatch_info, dest, origin, rotation, tint) }
+	pub fn draw_npatch(&self, npatch_info: NPatchInfo, dest: Rectangle, origin: Vector2, rotation: f32) {
+		unsafe { DrawTextureNPatch(self.0, npatch_info, dest, origin, rotation, self.1) }
 	}
 
 	//= Conversions

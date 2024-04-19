@@ -7,4 +7,5 @@ pub mod pleroma;
 pub mod structures;
 pub mod screen;
 pub mod keybindings;
+pub mod keybindings2;
 pub mod files;

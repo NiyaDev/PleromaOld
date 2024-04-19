@@ -5,6 +5,7 @@
 use pleroma::{
 	pleroma::*,
 	keybindings::{keyboard::*, *},
+	keybindings2,
 	structures::{
 		color,
 		image::Image,
@@ -41,14 +42,14 @@ fn main() {
 
 	while !should_window_close() {
 
-		//if keybindings.key_pressed("up").ok().unwrap() { screen.toggle_fullscreen() }
+		keybindings2::Keybindings::test();
 		if pleroma.keys.key_pressed("normal") {
 			pleroma.screen.set_resolution(1000, 800);
 		}
 		if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 
 		pleroma.screen.start_draw();
-		pleroma.textures.get("perlin").unwrap().draw(10, 10, color::WHITE);
+		pleroma.textures.get("perlin").unwrap().draw(10, 10);
 		pleroma.screen.end_draw();
 	}
 }
