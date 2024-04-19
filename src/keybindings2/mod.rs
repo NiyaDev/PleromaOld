@@ -71,6 +71,7 @@ impl Keybindings {
 					queue.push(member)
 				} else { break }
 			}
+			
 			if queue.len() != 0 { println!("{:?}",queue) }
 		}
 	}
