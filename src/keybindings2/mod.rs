@@ -34,7 +34,7 @@ impl Keybindings {
 
 	//= Manipulation
 
-	//
+	///
 	pub fn insert_press(&mut self, key: String) -> Results {
 		//* Check if key already exists, delete it if it does. */
 		if self.0.contains_key(&key) {
