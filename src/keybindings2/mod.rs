@@ -60,7 +60,7 @@ impl Keybindings {
 		Results::None
 	}
 
-	//
+	///
 	pub fn test() {
 		unsafe {
 			let mut queue: Vec<keyboard::Key> = Vec::new();
