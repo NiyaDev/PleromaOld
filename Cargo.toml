@@ -9,3 +9,4 @@ build = "build/main.rs"
 [dependencies]
 serde_json = "1.0.114"
 flate2 = "1.0.28"
+chrono = "0.4.38"

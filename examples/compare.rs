@@ -3,13 +3,11 @@
 //use std::time::Instant;
 
 use pleroma::{
-	pleroma::*,
+	debug::*,
 	keybindings::{keyboard::*, *},
-	keybindings2,
+	pleroma::*,
 	structures::{
-		color,
-		image::Image,
-		misc::*,
+		color::*, font::Font, image::Image, misc::*, vectors::*
 	}
 };
 
@@ -20,6 +18,7 @@ fn main() {
 		.init("Pleroma Testing")
 		.set_resolution(800, 600)
 		.set_render_scale(0.5);
+	pleroma.fonts.insert("default".to_string(), Font::default());
 
 	pleroma.keys
 		.insert("normal", vec![Binding::KeyboardKey(KeyboardKey::A)])
@@ -30,10 +29,11 @@ fn main() {
 				Binding::KeyboardKey(KeyboardKey::S),
 			],
 		);
+	pleroma.log(Error::TestError);
 
 	pleroma.textures.insert(
 		"gradient".to_string(),
-		Image::gen_linear_gradient(64, 64, 1, color::BLACK, color::DARKPURPLE).texture(),
+		Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture(),
 	);
 	pleroma.textures.insert(
 		"perlin".to_string(),
@@ -42,14 +42,14 @@ fn main() {
 
 	while !should_window_close() {
 
-		keybindings2::Keybindings::test();
 		if pleroma.keys.key_pressed("normal") {
-			pleroma.screen.set_resolution(1000, 800);
+			pleroma.log(Error::TestError);
 		}
 		if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 
 		pleroma.screen.start_draw();
 		pleroma.textures.get("perlin").unwrap().draw(10, 10);
+		pleroma.fonts.get("default").unwrap().draw("Here you go fuck face", Vector2{x: 0.0, y: 20.0}, 20.0, 1.0, BLACK);
 		pleroma.screen.end_draw();
 	}
 }

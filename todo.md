@@ -1,47 +1,47 @@
-Add:
+TODO:
 - Raylib
 	- Fonts
+		- ~~Basics~~ 4/24/24
+		- Remaining functions
 	- Meshes
 	- Models
 	- Shader functions
-	- Blk File loading
-		- Converting Paks:
-			- Image / Texture
-			- Font
-			- Midi Sound / Music
-			- Standard Sound / Music
-			- Mesh
-			- Text / Json
-	- Debug system
-		- Error logging into File, Console, Screen
-		- On-screen debug info
 	- Sound / Music
 		- Midi
 		- Standard
 	- Camera
+- File loading
+	- .mnf: .blk number and pointers to data
+	- .blk: compressed data
+		- Image / Texture
+		- Font
+		- Midi Sound / Music
+		- Standard Sound / Music
+		- Mesh
+		- Text / Json
+- Debug system
+	- Error logging into File, Console, Screen
+	- On-screen debug info
 - Multiplayer
 	- Peer-to-Peer
 	- Client-to-server
+- Go over matrix math
+- Tests:
+	- Image
+	- RenderTexture
+	- Texture
+	- Vector3
+	- Font
 
 Changes:
-- TODO:
-	- Finish keybindings
 - Finished:
 	- ~~Go through and re-implement color functions without using Raylib~~ 4/7/24
 	- ~~Add rectangle functions~~ 4/7/24
 	- ~~Finish Vector3~~ 4/9/24
 	- ~~Finish Vector4~~ 4/9/24
 	- ~~Finish Matrix~~ 4/10/24
-
-Eventually:
-- Go over matrix math
-- Tests:
-	- TODO: 
-		- Image
-		- RenderTexture
-		- Texture
-		- Vector3
-	- Finished:
+	- ~~Finish keybindings~~ Good enough for now 4/24/24
+	- Tests
 		- ~~Rectangle~~ 4/7/24
 		- ~~Vector2~~ 4/9/24
 		- ~~Vector4~~ 4/9/24

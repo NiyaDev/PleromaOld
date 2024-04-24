@@ -4,21 +4,22 @@ use std::collections::HashMap;
 use crate::{
 	screen::*,
 	keybindings::*,
-	structures::texture::*,
+	structures::{
+		texture::*,
+		font::*,
+	},
 };
 
 
 //
 pub struct Pleroma {
-	//* Screen */
 	pub screen: Screen,
 	//* Sound */
-	//* Textures */
 	pub textures: HashMap<String, Texture>,
+	pub fonts: HashMap<String, Font>,
 	//* Models */
-	//* Keybindings */
 	pub keys: Keybindings,
-	//* Files Loading / Saving */
+	//* File Loading / Saving */
 }
 
 impl Pleroma {
@@ -28,6 +29,7 @@ impl Pleroma {
 		Self {
 			screen:		Screen::new(),
 			textures:	HashMap::new(),
+			fonts:		HashMap::new(),
 			keys:		Keybindings::new(),
 		}
 	}

@@ -9,6 +9,7 @@ use crate::{
 		vectors::*,
 		render_texture::*,
 		texture::*,
+		font::*,
 	}
 };
 
@@ -39,6 +40,10 @@ pub struct Screen {
 
 	pub raylib_init: bool,
 	pub background_color: Color,
+	
+	pub def_font: Font,
+
+	pub error_log: Vec<(String, i32)>,
 }
 
 
@@ -70,13 +75,20 @@ impl Screen {
 
 			raylib_init:	false,
 			background_color: color::DARKGRAY,
+
+			def_font: Font::default(),
+
+			error_log: Vec::new(),
 		}
 	}
 
 	//= Manipulation
 	/// Wrapper for InitWindow telling the screen that raylib is now on and update render.
 	pub fn init(&mut self, title: &str) -> &mut Self {
-		unsafe { InitWindow(self.screen.width, self.screen.height, rl_str!(title)) }
+		unsafe {
+			SetTraceLogLevel(7);
+			InitWindow(self.screen.width, self.screen.height, rl_str!(title));
+		}
 		self.raylib_init = true;
 
 		self.update_render()
@@ -153,13 +165,31 @@ impl Screen {
 	}
 	/// End rendering to texture if it exists and draws it to screen
 	pub fn end_draw(&mut self) {
+		//* Check if RenderTexture exists */
 		if self.render_texture.is_none() {
 			// TODO: Error reporting
 			return;
 		}
 
-		self.render_texture.as_mut().unwrap().end_texture_mode();
+		//* Draw error log */
+		let mut count = 0;
+		let mut list: Vec<i32> = Vec::new();
+		for i in self.error_log.as_mut_slice().into_iter() {
+			i.1 -= 1;
+			if i.1 <= 0 { list.push(count) }
+			else {
+				self.def_font.draw(&i.0, Vector2 { x: 0.0, y: 20.0 * count as f32 }, 20.0, 1.0, BLACK);
+				count += 1;
+			}
+		}
+		//list.reverse();
+		//for i in list {
+		//	self.error_log.remove(i as usize);
+		//}
 
+
+		//* Draw RenderTexture to screen */
+		self.render_texture.as_mut().unwrap().end_texture_mode();
 		unsafe {
 			BeginDrawing();
 
@@ -193,8 +223,8 @@ impl Screen {
 
 }
 
-
 extern "C" { fn InitWindow(width: i32, height: i32, title: *const i8); }
+extern "C" { fn SetTraceLogLevel(logLevel: i32); }
 extern "C" { fn CloseWindow(); }
 extern "C" { fn IsWindowReady() -> bool; }
 extern "C" { fn ToggleFullscreen(); }
