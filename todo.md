@@ -1,7 +1,6 @@
 TODO:
 - Raylib
 	- Fonts
-		- ~~Basics~~ 4/24/24
 		- Remaining functions
 	- Meshes
 	- Models
@@ -45,3 +44,5 @@ Changes:
 		- ~~Rectangle~~ 4/7/24
 		- ~~Vector2~~ 4/9/24
 		- ~~Vector4~~ 4/9/24
+	- Fonts
+		- ~~Basics~~ 4/24/24

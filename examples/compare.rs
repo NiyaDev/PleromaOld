@@ -7,7 +7,10 @@ use pleroma::{
 	keybindings::{keyboard::*, *},
 	pleroma::*,
 	structures::{
-		color::*, font::Font, image::Image, misc::*, vectors::*
+		color::*,
+		font::Font,
+		image::Image,
+		misc::*,
 	}
 };
 
@@ -29,7 +32,7 @@ fn main() {
 				Binding::KeyboardKey(KeyboardKey::S),
 			],
 		);
-	pleroma.log(Error::TestError);
+	Pleroma::debug_mode();
 
 	pleroma.textures.insert(
 		"gradient".to_string(),
@@ -43,13 +46,12 @@ fn main() {
 	while !should_window_close() {
 
 		if pleroma.keys.key_pressed("normal") {
-			pleroma.log(Error::TestError);
+			log(Error::TestError);
 		}
 		if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 
 		pleroma.screen.start_draw();
 		pleroma.textures.get("perlin").unwrap().draw(10, 10);
-		pleroma.fonts.get("default").unwrap().draw("Here you go fuck face", Vector2{x: 0.0, y: 20.0}, 20.0, 1.0, BLACK);
 		pleroma.screen.end_draw();
 	}
 }

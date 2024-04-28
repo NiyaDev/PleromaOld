@@ -1,16 +1,17 @@
 
 
 use crate::{
+	debug::*,
 	rl_str,
 	structures::{
 		color::{self, *},
+		font::*,
 		misc::clear_background,
 		rectangle::*,
-		vectors::*,
 		render_texture::*,
 		texture::*,
-		font::*,
-	}
+		vectors::*,
+	},
 };
 
 
@@ -42,8 +43,6 @@ pub struct Screen {
 	pub background_color: Color,
 	
 	pub def_font: Font,
-
-	pub error_log: Vec<(String, i32)>,
 }
 
 
@@ -77,8 +76,6 @@ impl Screen {
 			background_color: color::DARKGRAY,
 
 			def_font: Font::default(),
-
-			error_log: Vec::new(),
 		}
 	}
 
@@ -88,6 +85,7 @@ impl Screen {
 		unsafe {
 			SetTraceLogLevel(7);
 			InitWindow(self.screen.width, self.screen.height, rl_str!(title));
+			SetTargetFPS(60);
 		}
 		self.raylib_init = true;
 
@@ -166,26 +164,26 @@ impl Screen {
 	/// End rendering to texture if it exists and draws it to screen
 	pub fn end_draw(&mut self) {
 		//* Check if RenderTexture exists */
-		if self.render_texture.is_none() {
-			// TODO: Error reporting
-			return;
-		}
+		if self.render_texture.is_none() { log(Error::RenderTextureDoesntExist); return; }
 
 		//* Draw error log */
-		let mut count = 0;
-		let mut list: Vec<i32> = Vec::new();
-		for i in self.error_log.as_mut_slice().into_iter() {
-			i.1 -= 1;
-			if i.1 <= 0 { list.push(count) }
-			else {
-				self.def_font.draw(&i.0, Vector2 { x: 0.0, y: 20.0 * count as f32 }, 20.0, 1.0, BLACK);
-				count += 1;
+		unsafe {
+			if DEBUG_LOG.is_some() {
+				let mut count = 0;
+				let mut list: Vec<i32> = Vec::new();
+				for i in DEBUG_LOG.as_mut().unwrap().as_mut_slice().into_iter() {
+					i.1 -= 1;
+					if i.1 <= 0 { list.push(count) }
+					else {
+						let height = self.render.height as f32 - 8.0 - (10.0 * count as f32);
+						self.def_font.draw(&i.0, Vector2 { x: 0.0, y: height }, 8.0, 1.0, BLACK);
+						count += 1;
+					}
+				}
+				list.reverse();
+				for i in list { DEBUG_LOG.as_mut().unwrap().remove(i as usize); }
 			}
 		}
-		//list.reverse();
-		//for i in list {
-		//	self.error_log.remove(i as usize);
-		//}
 
 
 		//* Draw RenderTexture to screen */
@@ -234,3 +232,4 @@ extern "C" { fn GetScreenHeight() -> i32; }
 extern "C" { fn SetWindowSize(width: i32, height: i32); }
 extern "C" { fn BeginDrawing(); }
 extern "C" { fn EndDrawing(); }
+extern "C" { fn SetTargetFPS(fps: i32); }

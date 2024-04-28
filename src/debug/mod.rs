@@ -1,10 +1,14 @@
 
 
-use std::{fs::{self, File}, io::Write};
+use std::fs::OpenOptions;
+use std::io::prelude::*;
 
 use chrono::Utc;
 
 use crate::pleroma::Pleroma;
+
+
+pub static mut DEBUG_LOG: Option<Vec<(String, i32)>> = None;
 
 
 /// All of the possible errors
@@ -13,7 +17,7 @@ pub enum Error {
 
 	LogDoesntExist,
 
-	FileLoadingFailed(String),
+	RenderTextureDoesntExist,
 }
 impl ToString for Error {
 	fn to_string(&self) -> String {
@@ -22,7 +26,7 @@ impl ToString for Error {
 
 			Error::LogDoesntExist => "[WARNING] - Debugging log doesn't exist.".to_string(),
 
-			Error::FileLoadingFailed ( name ) => format!("[WARNING] - File ({}) failed to load.", name),
+			Error::RenderTextureDoesntExist => "[MAJOR] - RenderTexture not set up while drawing.".to_string(),
 		}
 	}
 }
@@ -33,43 +37,47 @@ impl Into<i32> for Error {
 
 			Error::LogDoesntExist => 2,
 
-			Error::FileLoadingFailed(..) => 3,
+			Error::RenderTextureDoesntExist => 0,
 		}
 	}
 }
 
 impl Pleroma {
-	/// Logs error to Console, log.txt, and screen depending on severity
-	pub fn log(&mut self, error: Error) {
-		let sys_time = Utc::now();
-		let error_text = error.to_string();
-		let severity: i32 = error.into();
 
-		let formatted_str = format!("{}{}", sys_time.format("[%Y-%m-%e][%T]"), error_text);
+	/// Starts debug mode and initializes all required variables
+	pub fn debug_mode() {
+		unsafe { DEBUG_LOG = Some(Vec::new()); }
+	}
 
-		//* Print to console */
-		println!("{formatted_str}");
+}
 
-		//* Print to log */
-		if severity >= 2 {
-			let mut file: File;
-			if fs::metadata("log.txt").is_ok() {
-				let result = File::open("log.txt");
-				if result.is_err() { self.log(Error::FileLoadingFailed("log.txt".to_string())) }
-				file = result.ok().unwrap();
-			} else {
-				let result = File::create("log.txt");
-				if result.is_err() { self.log(Error::FileLoadingFailed("log.txt".to_string())) }
-				self.log(Error::LogDoesntExist);
-				file = result.ok().unwrap();
-			}
-			let _ = file.write(formatted_str.as_bytes());
+
+/// Logs error to Console, log.txt, and screen depending on severity
+pub fn log(error: Error) {
+	let sys_time = Utc::now();
+	let error_text = error.to_string();
+	let severity: i32 = error.into();
+
+	let formatted_str = format!("{}{}", sys_time.format("[%Y-%m-%e][%T]"), error_text);
+
+	//* Print to console */
+	println!("{formatted_str}");
+
+	//* Print to log */
+	if severity >= 2 {
+		let file = OpenOptions::new()
+			.append(true)
+			.create(true)
+			.open("log.txt");
+		if let Err(e) = writeln!(file.unwrap(), "{}", formatted_str) {
+			eprintln!("Couldn't write to file: {}", e);
 		}
+	}
 
-		//* Print to screen */
-		// TODO Do this after fonts
-		if self.screen.raylib_init {
-			self.screen.error_log.push((formatted_str,100));
+	//* Print to screen */
+	unsafe {
+		if DEBUG_LOG.is_some() {
+			DEBUG_LOG.as_mut().unwrap().push((error_text,100));
 		}
-	}	
+	}
 }

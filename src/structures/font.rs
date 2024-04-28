@@ -75,7 +75,7 @@ impl Font {
 	//= Manipulation
 	pub fn draw(&self, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
 		unsafe {
-			DrawText(
+			DrawTextEx(
 				self.0,
 				rl_str!(text),
 				position,
@@ -96,7 +96,7 @@ extern "C" { fn LoadFontFromImage(image: ImageRl, key: Color, firstChar: i32) ->
 extern "C" { fn LoadFontFromMemory(fileType: *const i8, fileData: *const u8, dataSize: i32, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
 extern "C" { fn UnloadFont(font: FontRl); }
 
-extern "C" { fn DrawText(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color); }
+extern "C" { fn DrawTextEx(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color); }
 
 // Font loading/unloading functions
 //bool IsFontReady(Font font);                                                          // Check if a font is ready
