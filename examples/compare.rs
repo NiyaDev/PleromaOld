@@ -21,7 +21,8 @@ fn main() {
 		.init("Pleroma Testing")
 		.set_resolution(800, 600)
 		.set_render_scale(0.5);
-	pleroma.fonts.insert("default".to_string(), Font::default());
+	pleroma.fonts.insert("default".to_string(), Font::load_ex("data/EarlyGameBoy.ttf", 8, Vec::new()));
+	pleroma.screen.def_font = Font::load_ex("data/EarlyGameBoy.ttf", 8, Vec::new());
 
 	pleroma.keys
 		.insert("normal", vec![Binding::KeyboardKey(KeyboardKey::A)])

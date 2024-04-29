@@ -5,10 +5,18 @@ use std::io::prelude::*;
 
 use chrono::Utc;
 
-use crate::pleroma::Pleroma;
+use crate::{
+	pleroma::*,
+	screen::*,
+	structures::{
+		color::*,
+		vectors::*,
+	},
+};
 
 
 pub static mut DEBUG_LOG: Option<Vec<(String, i32)>> = None;
+pub static mut DEBUG_DISPLAY: bool = false;
 
 
 /// All of the possible errors
@@ -42,11 +50,28 @@ impl Into<i32> for Error {
 	}
 }
 
+
 impl Pleroma {
 
 	/// Starts debug mode and initializes all required variables
 	pub fn debug_mode() {
-		unsafe { DEBUG_LOG = Some(Vec::new()); }
+		unsafe {
+			DEBUG_DISPLAY = true;
+			DEBUG_LOG = Some(Vec::new());
+		}
+	}
+
+}
+
+impl Screen {
+	
+	///
+	pub fn draw_debug(&self) {
+		let str = format!(
+			"{:3}:{:3} - {:.4}",
+			get_fps(), self.framerate, get_delta(),
+		);
+		self.def_font.draw(&str, Vector2{x:1.0,y:1.0}, 8.0, 1.0, BLACK)
 	}
 
 }
@@ -81,3 +106,10 @@ pub fn log(error: Error) {
 		}
 	}
 }
+
+
+//= Wrappers
+pub fn get_delta() -> f32 { unsafe { GetFrameTime() } }
+extern "C" { fn GetFrameTime() -> f32; }
+pub fn get_fps() -> i32 { unsafe { GetFPS() } }
+extern "C" { fn GetFPS() -> i32; }

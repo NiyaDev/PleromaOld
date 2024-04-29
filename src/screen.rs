@@ -41,6 +41,7 @@ pub struct Screen {
 
 	pub raylib_init: bool,
 	pub background_color: Color,
+	pub framerate: i32,
 	
 	pub def_font: Font,
 }
@@ -74,6 +75,7 @@ impl Screen {
 
 			raylib_init:	false,
 			background_color: color::DARKGRAY,
+			framerate: 60,
 
 			def_font: Font::default(),
 		}
@@ -85,7 +87,8 @@ impl Screen {
 		unsafe {
 			SetTraceLogLevel(7);
 			InitWindow(self.screen.width, self.screen.height, rl_str!(title));
-			SetTargetFPS(60);
+			SetTargetFPS(self.framerate);
+			SetTextLineSpacing(9);
 		}
 		self.raylib_init = true;
 
@@ -165,9 +168,12 @@ impl Screen {
 	pub fn end_draw(&mut self) {
 		//* Check if RenderTexture exists */
 		if self.render_texture.is_none() { log(Error::RenderTextureDoesntExist); return; }
-
-		//* Draw error log */
+		
 		unsafe {
+			//* Draw debug display */
+			if DEBUG_DISPLAY { self.draw_debug(); }
+			
+			//* Draw error log */
 			if DEBUG_LOG.is_some() {
 				let mut count = 0;
 				let mut list: Vec<i32> = Vec::new();
@@ -218,6 +224,13 @@ impl Screen {
 		
 		self
 	}
+	/// Sets target FPS
+	pub fn set_fps(&mut self, fps: i32) {
+		unsafe{
+			self.framerate = fps;
+			SetTargetFPS(self.framerate);
+		}
+	}
 
 }
 
@@ -233,3 +246,4 @@ extern "C" { fn SetWindowSize(width: i32, height: i32); }
 extern "C" { fn BeginDrawing(); }
 extern "C" { fn EndDrawing(); }
 extern "C" { fn SetTargetFPS(fps: i32); }
+extern "C" { fn SetTextLineSpacing(spacing: i32); }

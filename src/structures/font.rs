@@ -1,5 +1,7 @@
 
 
+use std::ptr::null;
+
 use crate::{
 	rl_str,
 	structures::{
@@ -48,11 +50,37 @@ impl Font {
 	}
 	/// Wrapper for LoadFont
 	pub fn load(filename: &str) -> Self {
-		unsafe { Self(LoadFont(rl_str!(filename))) }
+		unsafe {
+			let result = Self(LoadFont(rl_str!(filename)));
+
+			SetTextureFilter(result.0.texture, 0);
+
+			result
+		}
 	}
 	/// Wrapper for LoadFontEx
 	pub fn load_ex(filename: &str, font_size: i32, codepoints: Vec<i32>) -> Self {
-		unsafe { Self(LoadFontEx(rl_str!(filename), font_size, codepoints.as_ptr(), codepoints.len() as i32)) }
+		unsafe {
+			let result = if codepoints.len() == 0 {
+				Self(LoadFontEx(
+					rl_str!(filename),
+					font_size,
+					null(),
+					0,
+				))
+			} else {
+				Self(LoadFontEx(
+					rl_str!(filename),
+					font_size,
+					codepoints.as_ptr(),
+					codepoints.len() as i32,
+				))
+			};
+
+			SetTextureFilter(result.0.texture, 0);
+
+			result
+		}
 	}
 	/// Wrapper for LoadFontFromImage
 	pub fn load_from_image(image: Image, key: Color, first_char: i32) -> Self {
@@ -67,12 +95,13 @@ impl Font {
 			codepoints.as_ptr(), codepoints.len() as i32,
 		)) }
 	}
-	/// Wrapper for 
+	/// Wrapper for UnloadFont
 	pub fn unload(&mut self) {
 		unsafe { UnloadFont(self.0) }
 	}
 
 	//= Manipulation
+	/// Wrapper for DrawFontEx
 	pub fn draw(&self, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
 		unsafe {
 			DrawTextEx(
@@ -85,30 +114,24 @@ impl Font {
 			)
 		}
 	}
+	//
 
 }
 
 
+//= Font loading/unloading functions
 extern "C" { fn GetFontDefault() -> FontRl; }
 extern "C" { fn LoadFont(fileName: *const i8) -> FontRl; }
 extern "C" { fn LoadFontEx(fileName: *const i8, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
 extern "C" { fn LoadFontFromImage(image: ImageRl, key: Color, firstChar: i32) -> FontRl; }
 extern "C" { fn LoadFontFromMemory(fileType: *const i8, fileData: *const u8, dataSize: i32, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
 extern "C" { fn UnloadFont(font: FontRl); }
-
+extern "C" { fn SetTextureFilter(texture: TextureRl, filter: i32); }
+//= Text drawing functions
 extern "C" { fn DrawTextEx(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color); }
 
-// Font loading/unloading functions
-//bool IsFontReady(Font font);                                                          // Check if a font is ready
-//GlyphInfo *LoadFontData(const unsigned char *fileData, int dataSize, int fontSize, int *codepoints, int codepointCount, int type); // Load font data for further use
-//Image GenImageFontAtlas(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCount, int fontSize, int padding, int packMethod); // Generate image font atlas using chars info
-//void UnloadFontData(GlyphInfo *glyphs, int glyphCount);                               // Unload font chars info data (RAM)
-//void UnloadFont(Font font);                                                           // Unload font from GPU memory (VRAM)
-//bool ExportFontAsCode(Font font, const char *fileName);
 
 // Text drawing functions
-//void DrawFPS(int posX, int posY);                                                     // Draw current FPS
-//void DrawTextEx(Font font, const char *text, Vector2 position, float fontSize, float spacing, Color tint); // Draw text using font and additional parameters
 //void DrawTextPro(Font font, const char *text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Draw text using Font and pro parameters (rotation)
 //void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint); // Draw one character (codepoint)
 //void DrawTextCodepoints(Font font, const int *codepoints, int codepointCount, Vector2 position, float fontSize, float spacing, Color tint); // Draw multiple character (codepoint)

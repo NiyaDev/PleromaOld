@@ -18,9 +18,6 @@ TODO:
 		- Standard Sound / Music
 		- Mesh
 		- Text / Json
-- Debug system
-	- Error logging into File, Console, Screen
-	- On-screen debug info
 - Multiplayer
 	- Peer-to-Peer
 	- Client-to-server
@@ -46,3 +43,6 @@ Changes:
 		- ~~Vector4~~ 4/9/24
 	- Fonts
 		- ~~Basics~~ 4/24/24
+	- Debug system
+		- Error logging into File, Console, Screen ~~4/27/24~~
+		- On-screen debug info ~~4/27/24~~
