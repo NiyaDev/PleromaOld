@@ -2,6 +2,7 @@
 
 /// Main system
 pub mod pleroma;
+pub mod pleromav2;
 
 /// Custom systems
 pub mod structures;
