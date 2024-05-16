@@ -55,9 +55,9 @@ impl Pleroma {
 		let message_level_value: u8 = message_level.into();
 		
 		let sys_time = Local::now();
-		let formatted_message = format!("{}{}", sys_time.format("[%Y-%m-%e][%T]"), message.to_string());
+		let formatted_message = format!("{}{}", sys_time.format("[%Y-%m-%e] [%T] "), message.to_string());
 		
-		if level_value >= message_level_value {
+		if level_value <= message_level_value {
 			//* Print to console */
 			println!("{}", formatted_message);
 			
@@ -74,7 +74,7 @@ impl Pleroma {
 			
 			//* Print to screen */
 			if self.get_debug_setting(DebugFlags::SCRN_ENABLE) {
-				self.push_message(formatted_message);
+				self.push_message(message_level, formatted_message);
 			}
 		}
 	}

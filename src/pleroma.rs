@@ -1,22 +1,24 @@
 
 
-use std::ops::BitXorAssign;
+use std::{collections::HashMap, ops::BitXorAssign};
 
 use bitflags::bitflags;
 
 use crate::{
 	debug::{
 		self,
-		errors::*, DebugFlags,
-	}, rl_str, structures::{
+		errors::*,
+		DebugFlags,
+		LogLevel,
+	}, keybinds::Keybind, rl_str, structures::{
 		color::*,
 		font::*,
+		misc::clear_background,
 		rectangle::*,
 		render_texture::*,
 		resolution::*,
 		texture::*,
 		vectors::*,
-		misc::clear_background,
 	}
 };
 
@@ -36,10 +38,13 @@ pub struct Pleroma {
 	is_rendering: bool,
 	background_color: Color,
 	
+	//* Input */
+	pub keybindings: HashMap<String, Keybind>,
+	
 	//* Debug */
 	db_level: debug::LogLevel,
 	db_settings: debug::DebugFlags,
-	db_list: Vec<(String, u32)>,
+	db_list: Vec<(LogLevel, String, u32)>,
 	db_font: Font,
 }
 impl Default for Pleroma {
@@ -66,6 +71,8 @@ impl Default for Pleroma {
 			render_texture: Some(RenderTexture::load(640, 360)),
 			is_rendering: false,
 			background_color: DARKGRAY,
+			
+			keybindings: HashMap::new(),
 			
 			db_level: debug::LogLevel::Info,
 			db_settings: debug::DebugFlags::all(),
@@ -175,6 +182,14 @@ impl Pleroma {
 		
 		self
 	}
+	/// ### set_font
+	/// Sets the font to use in the debug text
+	pub fn set_font(&mut self, font: Font) -> &mut Self {
+		self.db_font.unload();
+		self.db_font = font;
+		
+		self
+	}
 	
 	//= Rendering
 	/// ### update_render
@@ -215,11 +230,16 @@ impl Pleroma {
 			let mut count = 0;
 			let mut list: Vec<i32> = Vec::new();
 			for i in self.db_list.as_mut_slice().into_iter() {
-				i.1 -= 1;
-				if i.1 <= 0 { list.push(count) }
+				i.2 -= 1;
+				if i.2 <= 0 { list.push(count) }
 				else {
+					let col = match i.0 {
+							LogLevel::Error => GRAY,
+							LogLevel::Critical => RED,
+							_ => BLACK,
+						};
 					let height = self.render_size.height as f32 - 8.0 - (10.0 * count as f32);
-					self.db_font.draw(&i.0, Vector2{ x: 0.0, y: height }, 8.0, 1.0, BLACK);
+					self.db_font.draw(&i.1, Vector2{ x: 0.0, y: height }, 8.0, 1.0, col);
 					count += 1;
 				}
 			}
@@ -284,9 +304,9 @@ impl Pleroma {
 	/// ### push_message
 	/// Appends a message to the end of the debug message list.
 	/// 
-	/// The list is displayed on screen for 1 second, as the duration is set as the current frame rate and each frame it is decremented.
-	pub fn push_message(&mut self, message: String) {
-		self.db_list.push((message, self.framerate));
+	/// The list is displayed on screen for 1 second, as the duration is set as twice the current framerate and each frame it is decremented.
+	pub fn push_message(&mut self, level: LogLevel, message: String) {
+		self.db_list.push((level, message, self.framerate * 2));
 	}
 	
 }

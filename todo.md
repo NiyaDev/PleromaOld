@@ -46,3 +46,5 @@ Changes:
 	- Debug system
 		- Error logging into File, Console, Screen ~~4/27/24~~
 		- On-screen debug info ~~4/27/24~~
+	- Redid pleroma.rs and debugging features ~~5/15/24~~
+	- Fully redid keybindings. ~~5/16/24~~
