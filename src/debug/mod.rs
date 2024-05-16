@@ -1,115 +1,87 @@
 
 
+pub mod errors;
+use crate::pleroma::Pleroma;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-
-use chrono::Utc;
-
-use crate::{
-	pleroma::*,
-	screen::*,
-	structures::{
-		color::*,
-		vectors::*,
-	},
-};
+use bitflags::bitflags;
+use chrono::Local;
 
 
-pub static mut DEBUG_LOG: Option<Vec<(String, i32)>> = None;
-pub static mut DEBUG_DISPLAY: bool = false;
-
-
-/// All of the possible errors
-pub enum Error {
-	TestError,
-
-	LogDoesntExist,
-
-	RenderTextureDoesntExist,
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum LogLevel {
+	Info,
+	Error,
+	Critical,
+	None,
 }
-impl ToString for Error {
-	fn to_string(&self) -> String {
+impl Into<u8> for LogLevel {
+	fn into(self) -> u8 {
 		match self {
-			Error::TestError => "[WARNING] - Standard test for debugging system.".to_string(),
-
-			Error::LogDoesntExist => "[WARNING] - Debugging log doesn't exist.".to_string(),
-
-			Error::RenderTextureDoesntExist => "[MAJOR] - RenderTexture not set up while drawing.".to_string(),
-		}
-	}
-}
-impl Into<i32> for Error {
-	fn into(self) -> i32 {
-		match self {
-			Error::TestError => 2,
-
-			Error::LogDoesntExist => 2,
-
-			Error::RenderTextureDoesntExist => 0,
+			LogLevel::Info => 0,
+			LogLevel::Error => 1,
+			LogLevel::Critical => 2,
+			LogLevel::None => 3,
 		}
 	}
 }
 
+bitflags! {
+	/// ### DebugFlags
+	/// Flags designating what the debug system should do.
+	#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+	pub struct DebugFlags: u8 {
+		const LOG_ENABLE	= 0b00000001;
+		const SCRN_ENABLE	= 0b00000010;
+		const INFO_ENABLE	= 0b00000100;
+		const DEBUG_ENABLE	= 0b10000000;
+		
+		const _ = !0;
+	}
+}
 
 impl Pleroma {
-
-	/// Starts debug mode and initializes all required variables
-	pub fn debug_mode() {
-		unsafe {
-			DEBUG_DISPLAY = true;
-			DEBUG_LOG = Some(Vec::new());
-		}
-	}
-
-}
-
-impl Screen {
 	
-	///
-	pub fn draw_debug(&self) {
-		let str = format!(
-			"{:3}:{:3} - {:.4}",
-			get_fps(), self.framerate, get_delta(),
-		);
-		self.def_font.draw(&str, Vector2{x:1.0,y:1.0}, 8.0, 1.0, BLACK)
-	}
-
-}
-
-
-/// Logs error to Console, log.txt, and screen depending on severity
-pub fn log(error: Error) {
-	let sys_time = Utc::now();
-	let error_text = error.to_string();
-	let severity: i32 = error.into();
-
-	let formatted_str = format!("{}{}", sys_time.format("[%Y-%m-%e][%T]"), error_text);
-
-	//* Print to console */
-	println!("{formatted_str}");
-
-	//* Print to log */
-	if severity >= 2 {
-		let file = OpenOptions::new()
-			.append(true)
-			.create(true)
-			.open("log.txt");
-		if let Err(e) = writeln!(file.unwrap(), "{}", formatted_str) {
-			eprintln!("Couldn't write to file: {}", e);
+	/// ### log
+	/// Prints a message to Pleroma's log system.
+	/// 
+	/// ##### Includes:
+	/// - Console
+	/// - Log file (if enabled)
+	/// - Screen (if enabled)
+	pub fn log(&mut self, message: errors::PlError) {
+		let level_value: u8 = self.get_log_level().into();
+		let message_level: LogLevel = message.into();
+		let message_level_value: u8 = message_level.into();
+		
+		let sys_time = Local::now();
+		let formatted_message = format!("{}{}", sys_time.format("[%Y-%m-%e][%T]"), message.to_string());
+		
+		if level_value >= message_level_value {
+			//* Print to console */
+			println!("{}", formatted_message);
+			
+			//* Print to log */
+			if self.get_debug_setting(DebugFlags::LOG_ENABLE) {
+				let file = OpenOptions::new()
+					.append(true)
+					.create(true)
+					.open("log.txt");
+				if let Err(e) = writeln!(file.unwrap(), "{}", formatted_message) {
+					eprintln!("Couldn't write to file: {}", e);
+				}
+			}
+			
+			//* Print to screen */
+			if self.get_debug_setting(DebugFlags::SCRN_ENABLE) {
+				self.push_message(formatted_message);
+			}
 		}
 	}
-
-	//* Print to screen */
-	unsafe {
-		if DEBUG_LOG.is_some() {
-			DEBUG_LOG.as_mut().unwrap().push((error_text,100));
-		}
-	}
+	/// ### Draw_debug_info
+	/// Draws debug info, including current FPS / Target FPS, number of drawn models and textures, etc.
+	/// 
+	/// TODO
+	pub fn draw_debug_info(&self) {}
+	
 }
-
-
-//= Wrappers
-pub fn get_delta() -> f32 { unsafe { GetFrameTime() } }
-extern "C" { fn GetFrameTime() -> f32; }
-pub fn get_fps() -> i32 { unsafe { GetFPS() } }
-extern "C" { fn GetFPS() -> i32; }
