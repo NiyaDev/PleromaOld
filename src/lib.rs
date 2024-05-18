@@ -8,4 +8,5 @@ pub mod structures;
 //pub mod screen;
 pub mod keybinds;
 //pub mod files;
+pub mod audio;
 pub mod debug;

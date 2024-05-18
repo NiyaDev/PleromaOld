@@ -17,6 +17,7 @@ pub mod texture;
 pub mod render_texture;
 pub mod font;
 pub mod shader;
+pub mod audio;
 
 /// Generic functions
 pub mod misc;
