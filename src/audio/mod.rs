@@ -103,7 +103,7 @@ impl AudioHandler {
 	/// Load song from file into memory.
 	pub fn load_song(&mut self, filename: &str) -> &mut Self {
 		if self.music.is_some() {
-			if self.music.unwrap().is_playing() { self.music.unwrap().stop(); }
+			if self.music.unwrap().playing() { self.music.unwrap().stop(); }
 			self.music.unwrap().unload();
 		}
 		
