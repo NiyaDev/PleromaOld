@@ -5,9 +5,7 @@ use pleroma::{
 	keybinds::Device,
 	pleroma::*,
 	structures::{
-		color::*,
-		font::*,
-		image::*,
+		color::*, font::*, image::*
 	}
 };
 
@@ -22,6 +20,9 @@ fn main() {
 		.add_keybind("A", Device::Keyboard, [0,65])
 		.add_keybind("gp1-a", Device::Gamepad(0), [0,6]);
 	
+	//pleroma.audio.load_track("data/doom.json", 0);
+	pleroma.audio.load_song("data/sounds/new_bark_town.wav");
+	
 	let texture = Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture();
 	
 	while !pleroma.should_close() {
@@ -33,6 +34,7 @@ fn main() {
 		//unsafe {if IsKeyPressed(67) { pleroma.log(PlError::TestCitical) }}
 		//if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 		if pleroma.is_pressed("A") { pleroma.log(PlError::Default) }
+		pleroma.audio.update();
 		
 		pleroma.start_draw();
 		texture.draw(0, 0);

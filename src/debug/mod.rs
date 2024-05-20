@@ -82,6 +82,10 @@ impl Pleroma {
 	/// Draws debug info, including current FPS / Target FPS, number of drawn models and textures, etc.
 	/// 
 	/// TODO
-	pub fn draw_debug_info(&self) {}
+	pub fn draw_debug_info(&self) {
+		unsafe{ DrawFPS(0,0) }
+	}
 	
 }
+
+extern "C" { fn DrawFPS(PosX: i32, posY: i32); }
