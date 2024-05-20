@@ -1,6 +1,6 @@
 
 
-use std::{fs::File, io::Read};
+use std::{collections::HashMap, fs::File, io::Read};
 
 use crate::structures::audio::*;
 use self::midi::*;
@@ -25,7 +25,7 @@ pub struct AudioHandler {
 	tracks: [Midi; 5],
 	
 	//* Sfx */
-	// TODO
+	sfx: HashMap<String, Sound>,
 }
 impl Default for AudioHandler {
 	fn default() -> Self {
@@ -34,10 +34,11 @@ impl Default for AudioHandler {
 		Self {
 			mode: Default::default(),
 			master_volume:	0.8,
-			music_volume:	0.8,
+			music_volume:	0.6,
 			sfx_volume:		0.8,
 			music: None,
 			tracks: Default::default(),
+			sfx: HashMap::new(),
 		}
 	}
 }
@@ -114,6 +115,15 @@ impl AudioHandler {
 		
 		self
 	}
+	/// #### load_sfx
+	/// Loads sfx into hashmap for future use.
+	pub fn load_sfx(&mut self, filename: &str, name: &str) -> &mut Self {
+		let mut sound = Sound::load(filename);
+		sound.volume(self.master_volume * self.sfx_volume);
+		self.sfx.insert(name.to_string(), sound);
+		
+		self
+	}
 	
 	/// #### update
 	/// Update music process.
@@ -187,6 +197,16 @@ impl AudioHandler {
 		}
 		
 		// TODO SFX
+		
+		self
+	}
+	/// #### play_sfx
+	/// Plays the input sfx if it exists in memory.
+	pub fn play_sfx(&mut self, name: &str) -> &mut Self {
+		let result = self.sfx.get(name);
+		if result.is_none() { return self; }
+		
+		result.unwrap().play();
 		
 		self
 	}

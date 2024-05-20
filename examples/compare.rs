@@ -1,7 +1,7 @@
 
 
 use pleroma::{
-	debug::{errors::PlError, *},
+	debug::*,
 	keybinds::Device,
 	pleroma::*,
 	structures::{
@@ -21,7 +21,9 @@ fn main() {
 		.add_keybind("gp1-a", Device::Gamepad(0), [0,6]);
 	
 	//pleroma.audio.load_track("data/doom.json", 0);
-	pleroma.audio.load_song("data/sounds/new_bark_town.wav");
+	pleroma.audio
+		.load_song("data/sounds/new_bark_town.wav")
+		.load_sfx("data/sounds/ugh.wav", "ugh");
 	
 	let texture = Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture();
 	
@@ -33,7 +35,7 @@ fn main() {
 		//unsafe {if IsKeyPressed(66) { pleroma.log(PlError::TestError) }}
 		//unsafe {if IsKeyPressed(67) { pleroma.log(PlError::TestCitical) }}
 		//if pleroma.keys.key_pressed("mod") { println!("Mod down") }
-		if pleroma.is_pressed("A") { pleroma.log(PlError::Default) }
+		if pleroma.is_down("A") { pleroma.audio.play_sfx("ugh"); }
 		pleroma.audio.update();
 		
 		pleroma.start_draw();
