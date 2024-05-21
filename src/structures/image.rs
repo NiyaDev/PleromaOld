@@ -226,7 +226,7 @@ impl Image {
 	///
 	/// Create an image from text (custom sprite font)
 	pub fn text_ex(font: Font, text: &str, font_size: f32, spacing: f32, tint: Color) -> Self {
-		unsafe { Self(ImageTextEx(font.0, rl_str!(text), font_size, spacing, tint)) }
+		unsafe { Self(ImageTextEx(font.data, rl_str!(text), font_size, spacing, tint)) }
 	}
 	/// Wrapper for ImageFormat
 	///
@@ -497,7 +497,7 @@ impl Image {
 	///
 	/// Draw text (custom sprite font) within an image (destination)
 	pub fn draw_text_ex(&mut self, font: Font, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
-		unsafe { ImageDrawTextEx(&mut self.0, font.0, rl_str!(text), position, font_size, spacing, tint) }
+		unsafe { ImageDrawTextEx(&mut self.0, font.data, rl_str!(text), position, font_size, spacing, tint) }
 	}
 
 	//= Conversion

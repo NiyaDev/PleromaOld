@@ -14,10 +14,28 @@ use crate::{
 };
 
 
-/// Font
-pub struct Font(pub FontRl);
+/// #### Font
+pub struct Font{
+	pub data: FontRl,
+	pub size: f32,
+	pub spacing: f32,
+	pub tint: Color,
+}
+impl Default for Font {
+	fn default() -> Self {
+		unsafe {
+			Self{
+				data: GetFontDefault(),
+				size: 8.0,
+				spacing: 1.0,
+				tint: BLACK,
+			}
+		}
+	}
+}
 
-/// Raw raylib structure
+/// #### Raw raylib structure
+/// Seperated for compatibility no matter what changes.
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct FontRl {
@@ -29,7 +47,7 @@ pub struct FontRl {
     pub glyphs:	   *mut GlyphInfo,
 }
 
-/// Info on each symbol
+/// #### Raw raylib structure
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct GlyphInfo {
@@ -40,87 +58,161 @@ pub struct GlyphInfo {
     pub image:		ImageRl,
 }
 
-
-impl Default for Font {
-	fn default() -> Self {
-		unsafe { Self(GetFontDefault()) }
-	}
-}
-
 impl Font {
 
-	//= Creation
-	/// Wrapper for LoadFont
+	/// #### load
+	/// Wrapper for Raylib::LoadFont(fileName: *const i8).
 	pub fn load(filename: &str) -> Self {
 		unsafe {
-			let result = Self(LoadFont(rl_str!(filename)));
-
-			SetTextureFilter(result.0.texture, 0);
+			let result = Self{
+				data: LoadFont(rl_str!(filename)),
+				size: 8.0,
+				spacing: 1.0,
+				tint: BLACK,
+			};
+			SetTextureFilter(result.data.texture, 0);
 
 			result
 		}
 	}
-	/// Wrapper for LoadFontEx
+	/// #### load_ex
+	/// Wrapper for Raylib::LoadFontEx(fileName: *const i8, fontSize: i32, codepoints: *const i32, codepointCount: i32).
 	pub fn load_ex(filename: &str, font_size: i32, codepoints: Vec<i32>) -> Self {
 		unsafe {
 			let result = if codepoints.len() == 0 {
-				Self(LoadFontEx(
-					rl_str!(filename),
-					font_size,
-					null(),
-					0,
-				))
+				Self{
+					data: LoadFontEx(rl_str!(filename), font_size, null(), 0),
+					size: font_size as f32,
+					spacing: 1.0,
+					tint: BLACK,
+				}
 			} else {
-				Self(LoadFontEx(
-					rl_str!(filename),
-					font_size,
-					codepoints.as_ptr(),
-					codepoints.len() as i32,
-				))
+				Self{
+					data: LoadFontEx(rl_str!(filename), font_size, codepoints.as_ptr(), codepoints.len() as i32),
+					size: font_size as f32,
+					spacing: 1.0,
+					tint: BLACK,
+				}
 			};
 
-			SetTextureFilter(result.0.texture, 0);
+			SetTextureFilter(result.data.texture, 0);
 
 			result
 		}
 	}
-	/// Wrapper for LoadFontFromImage
+	/// #### load_from_image
+	/// Wrapper for Raylib::LoadFontFromImage(image: ImageRl, key: Color, firstChar: i32).
 	pub fn load_from_image(image: Image, key: Color, first_char: i32) -> Self {
-		unsafe { Self(LoadFontFromImage(image.0, key, first_char)) }
+		unsafe {
+			Self {
+				data: LoadFontFromImage(image.0, key, first_char),
+				size: 8.0,
+				spacing: 1.0,
+				tint: BLACK,
+			}
+		}
 	}
-	/// Wrapper for LoadFontFromMemory
+	/// #### load_from_memory
+	/// Wrapper for Raylib::LoadFontFromMemory(fileType: *const i8, fileData: *const u8, dataSize: i32, fontSize: i32, codepoints: *const i32, codepointCount: i32).
 	pub fn load_from_memory(file_type: &str, file_data: Vec<u8>, font_size: i32, codepoints: Vec<i32>) -> Self {
-		unsafe { Self(LoadFontFromMemory(
-			rl_str!(file_type),
-			file_data.as_ptr(), file_data.len() as i32,
-			font_size,
-			codepoints.as_ptr(), codepoints.len() as i32,
-		)) }
+		unsafe {
+			Self {
+				data: LoadFontFromMemory(
+					rl_str!(file_type),
+					file_data.as_ptr(), file_data.len() as i32,
+					font_size,
+					codepoints.as_ptr(), codepoints.len() as i32,
+					),
+				size: font_size as f32,
+				spacing: 1.0,
+				tint: BLACK,
+			}
+		}
 	}
-	/// Wrapper for UnloadFont
+	/// #### unload
+	/// Wrapper for Raylib::UnloadFont(font: Font).
 	pub fn unload(&mut self) {
-		unsafe { UnloadFont(self.0) }
+		unsafe { UnloadFont(self.data) }
 	}
-	/// Wrapper for IsFontReady
+	/// #### ready
+	/// Wrapper for Raylib::IsFontReady(font: Font) -> bool.
 	pub fn ready(&self) -> bool {
-		unsafe { IsFontReady(self.0) }
+		unsafe { IsFontReady(self.data) }
 	}
 
-	//= Manipulation
-	/// Wrapper for DrawFontEx
-	pub fn draw(&self, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) {
+	/// #### measure_width
+	/// Measures the width in pixels of a line of text.
+	pub fn measure_width(&self, text: &str) -> f32 {
+		let str = text.to_string();
+		
+		let mut longest = 0;
+		for i in str.lines() {
+			if i.len() > longest { longest = i.len() }
+		}
+		
+		(longest as f32 * self.size) + (longest as f32 * self.spacing)
+	}
+	/// #### measure_height
+	/// Measures the height in pixels of a line of text.
+	pub fn measure_height(&self, text: &str) -> f32 {
+		let str = text.to_string();
+		
+		let mut count = 0;
+		for _ in str.lines() { count += 1 }
+		
+		(count as f32 * self.size) + (count as f32 * self.spacing)
+	}
+	
+	/// #### draw
+	/// Wrapper for Raylib::DrawFontEx(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color).
+	pub fn draw(&self, text: &str, position: Vector2) -> &Self {
 		unsafe {
 			DrawTextEx(
-				self.0,
+				self.data,
+				rl_str!(text),
+				position,
+				self.size,
+				self.spacing,
+				self.tint,
+			);
+			
+			self
+		}
+	}
+	/// #### draw_force
+	/// Draw the text using the parameters input rather than the default ones included with font.
+	pub fn draw_force(&self, text: &str, position: Vector2, font_size: f32, spacing: f32, tint: Color) -> &Self {
+		unsafe {
+			DrawTextEx(
+				self.data,
 				rl_str!(text),
 				position,
 				font_size,
 				spacing,
 				tint,
-			)
+			);
+			
+			self
 		}
 	}
-	//
+	/// #### draw_pro
+	/// Wrapper for Raylib::DrawFont(font: Font, text: *const i8, position: Vector2, origin: Vector2, rotation: f32, font_size: f32, spacing: f32, tint: Color)
+	pub fn draw_pro(&self, text: &str, position: Vector2, origin: Vector2, rotation: f32, font_size: f32, spacing: f32, tint: Color) -> &Self {
+		unsafe {
+			DrawTextPro(
+				self.data,
+				rl_str!(text),
+				position,
+				origin,
+				rotation,
+				font_size,
+				spacing,
+				tint,
+			);
+			
+			self
+		}
+	}
 
 }
 
@@ -131,12 +223,14 @@ extern "C" { fn LoadFont(fileName: *const i8) -> FontRl; }
 extern "C" { fn LoadFontEx(fileName: *const i8, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
 extern "C" { fn LoadFontFromImage(image: ImageRl, key: Color, firstChar: i32) -> FontRl; }
 extern "C" { fn LoadFontFromMemory(fileType: *const i8, fileData: *const u8, dataSize: i32, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
-extern "C" { fn UnloadFont(font: FontRl); }
-extern "C" { fn SetTextureFilter(texture: TextureRl, filter: i32); }
 extern "C" { fn IsFontReady(font: FontRl) -> bool; }
+extern "C" { fn UnloadFont(font: FontRl); }
 //= Text drawing functions
 extern "C" { fn DrawTextEx(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color); }
+extern "C" { fn DrawTextPro(font: FontRl, text: *const i8, position: Vector2, origin: Vector2, rotation: f32, font_size: f32, spacing: f32, tint: Color); }
 
+
+extern "C" { fn SetTextureFilter(texture: TextureRl, filter: i32); }
 
 // Text drawing functions
 //void DrawTextPro(Font font, const char *text, Vector2 position, Vector2 origin, float rotation, float fontSize, float spacing, Color tint); // Draw text using Font and pro parameters (rotation)

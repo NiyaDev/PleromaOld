@@ -37,6 +37,7 @@ pub struct Pleroma {
 	render_texture: Option<RenderTexture>,
 	is_rendering: bool,
 	background_color: Color,
+	line_spacing: f32,
 
 	//* Input */
 	pub keybindings: HashMap<String, Keybind>,
@@ -77,6 +78,7 @@ impl Default for Pleroma {
 			render_texture: Some(RenderTexture::load(640, 360)),
 			is_rendering: false,
 			background_color: DARKGRAY,
+			line_spacing: 1.0,
 
 			keybindings: HashMap::new(),
 			
@@ -206,6 +208,16 @@ impl Pleroma {
 		self
 	}
 
+	//= Fonts
+	/// #### set_line_spacing
+	/// Wrapper for Raylib::SetTextLineSpacing(spacing: i32).
+	pub fn set_line_spacing(&mut self, spacing: i32) -> &mut Self {
+		self.line_spacing = spacing as f32;
+		unsafe{ SetTextLineSpacing(spacing) }
+		
+		self
+	}
+	
 	//= Rendering
 	/// ### update_render
 	/// Recreates the RenderTexture with the current render size.
@@ -240,7 +252,7 @@ impl Pleroma {
 		let _ = add_contents(self);
 
 		//* Debug info */
-		if self.get_debug_setting(DebugFlags::INFO_ENABLE) { self.draw_debug_info() }
+		if self.get_debug_setting(DebugFlags::INFO_ENABLE) { self.draw_debug_info(&self.db_font) }
 
 		//* Draw log */
 		if self.get_debug_setting(DebugFlags::SCRN_ENABLE) {
@@ -259,7 +271,7 @@ impl Pleroma {
 					};
 					let height = self.render_size.height as f32 - 8.0 - (10.0 * count as f32);
 					self.db_font
-						.draw(&i.1, Vector2 { x: 0.0, y: height }, 8.0, 1.0, col);
+						.draw_force(&i.1, Vector2 { x: 0.0, y: height }, 8.0, 1.0, col);
 					count += 1;
 				}
 			}
@@ -345,3 +357,5 @@ extern "C" { fn SetTargetFPS(fps: i32); }
 
 extern "C" { fn BeginDrawing(); }
 extern "C" { fn EndDrawing(); }
+
+extern "C" { fn SetTextLineSpacing(spacing: i32); }

@@ -3,7 +3,8 @@
 use crate::structures::vectors::*;
 
 
-/// Color
+/// #### Color
+/// Red, Blue, Green, Alpha
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Color {
@@ -11,86 +12,6 @@ pub struct Color {
 	pub g: u8,
 	pub b: u8,
 	pub a: u8,
-}
-impl Into<Vector3> for Color {
-	fn into(self) -> Vector3 {
-		let r = self.r as f32 / 255.0;
-		let g = self.g as f32 / 255.0;
-		let b = self.b as f32 / 255.0;
-		let cmax = r.max(g.max(b));
-		let cmin = r.min(g.min(b));
-		let delta = cmax - cmin;
-
-		let hue = if delta == 0.0 { 0.0 }
-			else if cmax == r { (60.0 * (((g - b) / delta) + 360.0)) % 360.0 }
-			else if cmax == g { (60.0 * (((b - r) / delta) + 120.0)) % 360.0 }
-			else if cmax == b { (60.0 * (((r - g) / delta) + 240.0)) % 360.0 }
-			else { -1.0 };
-		let sat = if cmax == 0.0 { 0.0 } else { delta / cmax };
-
-		Vector3 {
-			x: hue,
-			y: sat,
-			z: cmax,
-		}
-	}
-}
-impl From<Vector3> for Color {
-	fn from(value: Vector3) -> Self {
-		//unsafe { Self::from(ColorFromHSV(value.x, value.y, value.z)) }
-		let mut result = Self {
-			r: 0,
-			g: 0,
-			b: 0,
-			a: 255,
-		};
-
-		//* Red channel */
-		let mut k = (5.0 + value.x / 60.0).rem_euclid(6.0);
-		let t = 4.0 - k;
-		k = if t < k   { t } else { k   };
-		k = if k < 1.0 { k } else { 1.0 };
-		k = if k > 0.0 { k } else { 0.0 };
-		result.r = ((value.z - value.z * value.y * k) * 255.0) as u8;
-
-		//* Green channel */
-		let mut k = (3.0 + value.x / 60.0).rem_euclid(6.0);
-		let t = 4.0 - k;
-		k = if t < k   { t } else { k   };
-		k = if k < 1.0 { k } else { 1.0 };
-		k = if k > 0.0 { k } else { 0.0 };
-		result.g = ((value.z - value.z * value.y * k) * 255.0) as u8;
-
-		//* Blue channel */
-		let mut k = (1.0 + value.x / 60.0).rem_euclid(6.0);
-		let t = 4.0 - k;
-		k = if t < k   { t } else { k   };
-		k = if k < 1.0 { k } else { 1.0 };
-		k = if k > 0.0 { k } else { 0.0 };
-		result.b = ((value.z - value.z * value.y * k) * 255.0) as u8;
-
-		result
-	}
-}
-impl Into<Vector4> for Color {
-	fn into(self) -> Vector4 {
-		Vector4 {
-			x: self.r as f32 / 255.0,
-			y: self.g as f32 / 255.0,
-			z: self.b as f32 / 255.0,
-			w: self.a as f32 / 255.0,
-		}
-	}
-}
-impl From<Vector4> for Color {
-	fn from(value: Vector4) -> Self {
-		Self {
-			r: (value.x * 255.0) as u8,
-			g: (value.y * 255.0) as u8,
-			b: (value.z * 255.0) as u8,
-			a: (value.w * 255.0) as u8,
-		}
-	}
 }
 
 
@@ -126,9 +47,8 @@ pub const PALETTE_30:	Color = Color {r: 48,g: 56,b: 67,a: 255};
 impl Color {
 	
 	//= Manipulations
-	/// Wrapper for Fade
-	///
-	/// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+	/// #### fade
+	/// Apply alpha to color.
 	pub fn fade(self, alpha: f32) -> Self {
 		let n_alpha = if alpha < 0.0 { 0.0 } else if alpha > 1.0 { 1.0 } else { alpha };
 
@@ -139,15 +59,92 @@ impl Color {
 			a: (255.0 * n_alpha) as u8,
 		}
 	}
-	/// Wrapper for ColorToInt
-	///
-	/// Get hexadecimal value for a Color
+	/// #### to_int
+	/// Converts color to hexadecimal representation.
 	pub fn to_int(self) -> i32 {
 		return ((self.r as i32) << 24) | ((self.g as i32) << 16) | ((self.b as i32) << 8) | self.a as i32;
 	}
-	/// Wrapper for ColorTint
-	///
-	/// Get color multiplied with another color
+	/// #### normalize
+	/// Converts color into Vector4 representation.
+	pub fn normalize(self) -> Vector4 {
+		Vector4 {
+			x: self.r as f32 / 255.0,
+			y: self.g as f32 / 255.0,
+			z: self.b as f32 / 255.0,
+			w: self.a as f32 / 255.0,
+		}
+	}
+	/// #### from_normalized
+	/// Converts normaized Vector4 into a color.
+	pub fn from_normalized(normalized: Vector4) -> Self {
+		Self {
+			r: (normalized.x * 255.0) as u8,
+			g: (normalized.y * 255.0) as u8,
+			b: (normalized.z * 255.0) as u8,
+			a: (normalized.w * 255.0) as u8,
+		}
+	}
+	/// #### hsv
+	/// Converts color into Hue, Saturation, and Value represented as a Vector3.
+	pub fn hsv(self) -> Vector3 {
+		let r = self.r as f32 / 255.0;
+		let g = self.g as f32 / 255.0;
+		let b = self.b as f32 / 255.0;
+		let cmax = r.max(g.max(b));
+		let cmin = r.min(g.min(b));
+		let delta = cmax - cmin;
+
+		let hue = if delta == 0.0 { 0.0 }
+			else if cmax == r { (60.0 * (((g - b) / delta) + 360.0)) % 360.0 }
+			else if cmax == g { (60.0 * (((b - r) / delta) + 120.0)) % 360.0 }
+			else if cmax == b { (60.0 * (((r - g) / delta) + 240.0)) % 360.0 }
+			else { -1.0 };
+		let sat = if cmax == 0.0 { 0.0 } else { delta / cmax };
+
+		Vector3 {
+			x: hue,
+			y: sat,
+			z: cmax,
+		}
+	}
+	/// #### from_hsv
+	/// Converts input HSV into  it's equivalent color.
+	pub fn from_hsv(value: Vector3) -> Self {
+		let mut result = Self {
+			r: 0,
+			g: 0,
+			b: 0,
+			a: 255,
+		};
+
+		//* Red channel */
+		let mut k = (5.0 + value.x / 60.0).rem_euclid(6.0);
+		let t = 4.0 - k;
+		k = if t < k   { t } else { k   };
+		k = if k < 1.0 { k } else { 1.0 };
+		k = if k > 0.0 { k } else { 0.0 };
+		result.r = ((value.z - value.z * value.y * k) * 255.0) as u8;
+
+		//* Green channel */
+		let mut k = (3.0 + value.x / 60.0).rem_euclid(6.0);
+		let t = 4.0 - k;
+		k = if t < k   { t } else { k   };
+		k = if k < 1.0 { k } else { 1.0 };
+		k = if k > 0.0 { k } else { 0.0 };
+		result.g = ((value.z - value.z * value.y * k) * 255.0) as u8;
+
+		//* Blue channel */
+		let mut k = (1.0 + value.x / 60.0).rem_euclid(6.0);
+		let t = 4.0 - k;
+		k = if t < k   { t } else { k   };
+		k = if k < 1.0 { k } else { 1.0 };
+		k = if k > 0.0 { k } else { 0.0 };
+		result.b = ((value.z - value.z * value.y * k) * 255.0) as u8;
+
+		result
+	}
+	/// #### tint
+	/// Multiplies color by input.
 	pub fn tint(self, tint: Color) -> Self {
 		let mut result = self;
 
@@ -163,9 +160,8 @@ impl Color {
 
 		result
 	}
-	/// Wrapper for ColorBrightness
-	///
-	/// Get color with brightness correction, brightness factor goes from -1.0f to 1.0f
+	/// #### brightness
+	/// Corrects color for brightness.
 	pub fn brightness(self, factor: f32) -> Self {
 		let mut result = self;
 
@@ -192,9 +188,8 @@ impl Color {
 
 		result
 	}
-	/// Wrapper for ColorContrast
-	///
-	/// Get color with contrast correction, contrast values between -1.0f and 1.0fGet color with contrast correction, contrast values between -1.0f and 1.0f
+	/// #### contrast
+	/// Corrects color for contrast.
 	pub fn contrast(self, contrast: f32) -> Self {
 		let mut result = self;
 
@@ -229,9 +224,8 @@ impl Color {
 
 		result
 	}
-	/// Wrapper for ColorAlpha
-	///
-	/// Get color with alpha applied, alpha goes from 0.0f to 1.0f
+	/// #### alpha
+	/// Get color with alpha applied.
 	pub fn alpha(self, alpha: f32) -> Self {
 		let mut result = self;
 
@@ -241,15 +235,13 @@ impl Color {
 
 		result
 	}
-	/// Wrapper for ColorAlphaBlend
-	///
-	/// Get src alpha-blended into dst color with tint
+	/// #### alpha_blend
+	/// Get src alpha-blended into dst color with tint.
 	pub fn alpha_blend(self, src: Color, tint: Color) -> Self {
 		unsafe { ColorAlphaBlend(self, src, tint) }
 	}
-	/// Wrapper for GetColor
-	///
-	/// Get Color structure from hexadecimal value
+	/// #### hex
+	/// Convert hexcode into color.
 	pub fn hex(hex_value: u32) -> Self {
 		Self {
 			r: ((hex_value >> 24) & 0xFF) as u8,

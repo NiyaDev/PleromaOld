@@ -1,9 +1,8 @@
 
 
 pub mod errors;
-use crate::pleroma::Pleroma;
-use std::fs::OpenOptions;
-use std::io::prelude::*;
+use crate::{pleroma::Pleroma, structures::{font::*, vectors::Vector2}};
+use std::{fs::OpenOptions, io::prelude::*};
 use bitflags::bitflags;
 use chrono::Local;
 
@@ -82,10 +81,20 @@ impl Pleroma {
 	/// Draws debug info, including current FPS / Target FPS, number of drawn models and textures, etc.
 	/// 
 	/// TODO
-	pub fn draw_debug_info(&self) {
-		unsafe{ DrawFPS(0,0) }
+	pub fn draw_debug_info(&self, font: &Font) {
+		unsafe{
+			let fps = GetFPS();
+			let frame_time = GetFrameTime();
+			let time = GetTime();
+			
+			let frm = format!("{fps} - {frame_time}\n\n{time}");
+			
+			font.draw(&frm, Vector2{x: 8.0, y: 8.0});
+		}
 	}
 	
 }
 
-extern "C" { fn DrawFPS(PosX: i32, posY: i32); }
+extern "C" { fn GetFrameTime() -> f32; }
+extern "C" { fn GetTime() -> f64; }
+extern "C" { fn GetFPS() -> i32; }
