@@ -36,11 +36,14 @@ fn main() {
 		//unsafe {if IsKeyPressed(67) { pleroma.log(PlError::TestCitical) }}
 		//if pleroma.keys.key_pressed("mod") { println!("Mod down") }
 		if pleroma.is_down("A") { pleroma.audio.play_sfx("ugh"); }
-		pleroma.audio.update();
+		//pleroma.audio.update();
 		
-		pleroma.start_draw();
-		texture.draw(0, 0);
-		pleroma.end_draw();
+		//pleroma.start_draw();
+		//texture.draw(0, 0);
+		//pleroma.end_draw();
+		pleroma.draw( |_ct| {
+			texture.draw(0, 0);
+		});
 	}
 	
 	pleroma.close();

@@ -222,35 +222,29 @@ impl Pleroma {
 
 		self
 	}
-	/// ### start_draw
-	/// Starts drawing to render texture.
-	pub fn start_draw(&mut self) -> &mut Self {
+	/// #### draw
+	/// Draws to the screen. Calling any code implemented in add_contents.
+	pub fn draw(&mut self, add_contents: impl FnOnce(&mut Pleroma)) ->&mut Self {
+		//* Check if render texture exists */
 		if self.render_texture.is_none() {
 			self.log(PlError::RenderTextureDoesntExist);
 			return self;
 		}
-
+		
+		//* Start drawing to render texture */
 		self.render_texture.as_mut().unwrap().begin_texture_mode();
 		clear_background(self.background_color.into());
 		self.is_rendering = true;
-
-		self
-	}
-	/// ### end_draw
-	/// Stops drawing to render texture, draws debug info if applicable, and draws to screen.
-	pub fn end_draw(&mut self) -> &mut Self {
-		if self.render_texture.is_none() {
-			self.log(PlError::RenderTextureDoesntExist);
-			return self;
-		}
+		
+		//* Run content */
+		let _ = add_contents(self);
 
 		//* Debug info */
-		if self.get_debug_setting(DebugFlags::INFO_ENABLE) {
-			self.draw_debug_info()
-		}
+		if self.get_debug_setting(DebugFlags::INFO_ENABLE) { self.draw_debug_info() }
 
 		//* Draw log */
 		if self.get_debug_setting(DebugFlags::SCRN_ENABLE) {
+			//* Run through each message, draw them, then decrement their timer */
 			let mut count = 0;
 			let mut list: Vec<i32> = Vec::new();
 			for i in self.db_list.as_mut_slice().into_iter() {
@@ -269,10 +263,9 @@ impl Pleroma {
 					count += 1;
 				}
 			}
+			//* Reverse list and delete finished messages from bottom to top */
 			list.reverse();
-			for i in list {
-				self.db_list.remove(i as usize);
-			}
+			for i in list { self.db_list.remove(i as usize); }
 		}
 
 		//* Draw render texture to screen */
@@ -300,7 +293,7 @@ impl Pleroma {
 			EndDrawing();
 		}
 		self.is_rendering = false;
-
+		
 		self
 	}
 
@@ -336,6 +329,7 @@ impl Pleroma {
 	pub fn push_message(&mut self, level: LogLevel, message: String) {
 		self.db_list.push((level, message, self.framerate * 2));
 	}
+	
 }
 
 extern "C" { fn InitWindow(width: i32, height: i32, title: *const i8); }
