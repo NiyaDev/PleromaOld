@@ -29,35 +29,30 @@ pub struct RenderTextureRl {
 impl RenderTexture {
 	
 	//=Loading
-	/// Wrapper for LoadRenderTexture
-	///
-	/// Load texture for rendering (framebuffer)
+	/// #### load
+	/// Wrapper for Raylib::LoadRenderTexture().
 	pub fn load(width: i32, height: i32) -> Self {
 		unsafe { Self(LoadRenderTexture(width, height)) }
 	}
-	/// Wrapper for UnloadRenderTexture
-	///
-	/// Unload render texture from GPU memory (VRAM)
+	/// #### unload
+	/// Wrapper for Raylib::UnloadRenderTexture().
 	pub fn unload(&self) {
 		unsafe { UnloadRenderTexture(self.0) }
 	}
-	/// Wrapper for IsRenderTextureReady
-	///
-	/// Check if a render texture is ready
+	/// #### is_ready
+	/// Wrapper for Raylib::IsRenderTextureReady().
 	pub fn is_ready(&self) -> bool {
 		unsafe { IsRenderTextureReady(self.0) }
 	}
 
 	//= Manipulations
-	/// Wrapper for BeginTextureMode
-	///
-	/// Begin drawing to render texture
+	/// #### begin_texture_mode
+	/// Wrapper for Raylib::BeginTextureMode().
 	pub fn begin_texture_mode(&self) {
 		unsafe { BeginTextureMode(self.0) }
 	}
-	/// Wrapper for EndTextureMode
-	///
-	/// Ends drawing to render texture
+	/// #### end_texture_mode
+	/// Wrapper for Raylib::EndTextureMode().
 	pub fn end_texture_mode(&self) {
 		unsafe { EndTextureMode() }
 	}

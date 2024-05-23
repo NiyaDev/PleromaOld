@@ -116,6 +116,7 @@ pub const IDENTITY: Matrix = Matrix {
 
 impl Matrix {
 	
+	/// #### determinant
 	/// Compute matrix determinant
 	pub fn determinant(&self) -> f32 {
 		self.m12 * self.m9 * self.m6*self.m3 - self.m8 * self.m13 * self.m6 * self.m3 - self.m12 * self.m5 * self.m10 * self.m3 + self.m4*self.m13*self.m10*self.m3 +
@@ -125,11 +126,13 @@ impl Matrix {
 			self.m4  *self.m1 * self.m14 * self.m11 - self.m0 * self.m5  * self.m14 * self.m11 - self.m8  * self.m5 * self.m2  * self.m15 + self.m4 * self.m9  * self.m2  * self.m15 +
 			self.m8  *self.m1 * self.m6  * self.m15 - self.m0 * self.m9  * self.m6  * self.m15 - self.m4  * self.m1 * self.m10 * self.m15 + self.m0 * self.m5  * self.m10 * self.m15
 	}
+	/// #### trace
 	/// Get the trace of the matrix (sum of the values along the diagonal)
 	pub fn trace(&self) -> f32 {
 		self.m0 + self.m5 + self.m10 + self.m15
 	}
-	/// Transposes provided matrix
+	/// #### transpose
+	/// ransposes provided matrix
 	pub fn transpose(&self) -> Self {
 		let mut result = ZERO;
 
@@ -152,6 +155,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### invert
 	/// Invert provided matrix
 	pub fn invert(&self) -> Self {
 		let mut result = ZERO;
@@ -209,6 +213,7 @@ impl Matrix {
 
 		return result;
 	}
+	/// #### translate
 	/// Get translation matrix
 	pub fn translate(v: Vector3) -> Self {
 		Self {
@@ -218,6 +223,7 @@ impl Matrix {
 			m3:  0.0, m7:  0.0, m11: 0.0, m15: 1.0,
 		}
 	}
+	/// #### rotate
 	/// Create rotation matrix from axis and angle
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -262,6 +268,7 @@ impl Matrix {
 
 		return result;
 	}
+	/// #### rotate_x
 	/// Get x-rotation matrix
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -278,6 +285,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### rotate_y
 	/// Get y-rotation matrix
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -294,6 +302,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### rotate_z
 	/// Get z-rotation matrix
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -310,6 +319,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### rotate_xyz
 	/// Get xyz-rotation matrix
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -337,6 +347,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### rotate_zyx
 	/// Get zyx-rotation matrix
 	/// 
 	/// NOTE: Angle should be provided in radians
@@ -372,6 +383,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### scale
 	/// Get scaling matrix
 	pub fn scale(scale: Vector3) -> Self {
 		Self {
@@ -381,6 +393,7 @@ impl Matrix {
 			m3:     0.0, m7:     0.0, m11:     0.0, m15: 1.0,
 		}
 	}
+	/// #### frustum
 	/// Get perspective projection matrix
 	pub fn frustum(left: f64, right: f64, bottom: f64, top: f64, near: f64, far: f64) -> Self {
 		let mut result = ZERO;
@@ -411,6 +424,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### perspective
 	/// Get perspective projection matrix
 	/// 
 	/// NOTE: Fovy angle must be provided in radians
@@ -437,6 +451,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### ortho
 	/// Get orthographic projection matrix
 	pub fn ortho(left: f64, right: f64, bottom: f64, top: f64, near_plane: f64, far_plane: f64) -> Self {
 		let mut result = ZERO;
@@ -464,6 +479,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### look_at
 	/// Get camera look-at matrix (view matrix)
 	pub fn look_at(eye: Vector3, target: Vector3, up: Vector3) -> Self {
 		let mut result = ZERO;
@@ -516,6 +532,7 @@ impl Matrix {
 
 		result
 	}
+	/// #### quaternion_transform
 	/// Transform a quaternion given a transformation matrix
 	pub fn quaternion_transform(&self, q: Quaternion) -> Vector4 {
 		Vector4 {

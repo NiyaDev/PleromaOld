@@ -15,7 +15,6 @@ use crate::{
 	structures::{
 		color::*,
 		font::*,
-		misc::clear_background,
 		rectangle::*,
 		render_texture::*,
 		resolution::*,
@@ -245,7 +244,7 @@ impl Pleroma {
 		
 		//* Start drawing to render texture */
 		self.render_texture.as_mut().unwrap().begin_texture_mode();
-		clear_background(self.background_color.into());
+		unsafe{ ClearBackground(self.background_color.into()) }
 		self.is_rendering = true;
 		
 		//* Run content */
@@ -357,5 +356,6 @@ extern "C" { fn SetTargetFPS(fps: i32); }
 
 extern "C" { fn BeginDrawing(); }
 extern "C" { fn EndDrawing(); }
+extern "C" { fn ClearBackground(color: Color); }
 
 extern "C" { fn SetTextLineSpacing(spacing: i32); }

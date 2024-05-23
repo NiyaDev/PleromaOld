@@ -41,95 +41,82 @@ pub struct NPatchInfo {
 impl Texture {
 	
 	//=Loading
-	/// Wrapper for LoadTexture
-	///
-	/// Load texture from file into GPU memory (VRAM)
+	/// #### load
+	/// Wrapper for Raylib::LoadTexture().
 	pub fn load(filename: &str) -> Self {
 		unsafe { Self(LoadTexture(rl_str!(filename)), WHITE) }
 	}
-	/// Wrapper for UnloadTexture
-	///
-	/// Unload texture from GPU memory (VRAM)
+	/// #### unload
+	/// Wrapper for Raylib::UnloadTexture().
 	pub fn unload(&self) {
 		unsafe { UnloadTexture(self.0) }
 	}
-	/// Wrapper for IsTextureReady
-	///
-	/// Check if a texture is ready
+	/// #### is_ready
+	/// Wrapper for Raylib::IsTextureReady().
 	pub fn is_ready(&self) -> bool {
 		unsafe { IsTextureReady(self.0) }
 	}
-	/// Wrapper for UpdateTexture
-	///
-	/// Update GPU texture with new data
+	/// #### update
+	/// Wrapper for Raylib::UpdateTexture().
 	pub fn update(&self, pixels: &mut Vec<Color>) {
 		unsafe {
 			UpdateTexture(self.0, pixels.as_mut_slice().as_mut_ptr().cast())
 		}
 	}
-	/// Wrapper for UpdateTextureRec
-	///
-	/// Update GPU texture rectangle with new data
+	/// #### update_rec
+	/// Wrapper for Raylib::UpdateTextureRec().
 	pub fn update_rec(&self, rec: Rectangle, pixels: &mut Vec<Color>) {
 		unsafe { UpdateTextureRec(self.0, rec, pixels.as_mut_slice().as_mut_ptr().cast()) }
 	}
+	/// #### set_tint
 	/// Set texture tint
 	pub fn set_tint(&mut self, tint: Color) {
 		self.1 = tint;
 	}
 
 	//= Manipulations
-	/// Wrapper for GenTextureMipmaps
-	///
-	/// Generate GPU mipmaps for a texture
+	/// #### gen_mipmaps
+	/// Wrapper for Raylib::GenTextureMipmaps().
 	pub fn gen_mipmaps(&mut self) {
 		unsafe { GenTextureMipmaps(&mut self.0) }
 	}
-	/// Wrapper for SetTextureFilter
-	///
-	/// Set texture scaling filter mode
+	/// #### set_filter
+	/// Wrapper for Raylib::SetTextureFilter().
 	pub fn set_filter(&self, filter: i32) {
 		unsafe { SetTextureFilter(self.0, filter) }
 	}
-	/// Wrapper for SetTextureWrap
-	///
-	/// Set texture wrapping mode
+	/// #### set_wrap
+	/// Wrapper for Raylib::SetTextureWrap().
 	pub fn set_wrap(&self, wrap: i32) {
 		unsafe { SetTextureWrap(self.0, wrap) }
 	}
-	/// Wrapper for DrawTexture
-	///
-	/// Draw a Texture2D
+	/// #### draw
+	/// Wrapper for Raylib::DrawTexture().
 	pub fn draw(&self, pos_x: i32, pos_y: i32) {
 		unsafe { DrawTexture(self.0, pos_x, pos_y, self.1) }
 	}
-	/// Wrapper for DrawTextureV
-	///
-	/// Draw a Texture2D with position defined as Vector2
+	/// #### draw_v
+	/// Wrapper for Raylib::DrawTextureV().
 	pub fn draw_v(&self, position: Vector2) {
 		unsafe { DrawTextureV(self.0, position, self.1) }
 	}
-	/// Wrapper for DrawTextureEx
-	///
-	/// Draw a Texture2D with extended parameters
+	/// #### draw_ex
+	/// Wrapper for Raylib::DrawTextureEx().
 	pub fn draw_ex(&self, position: Vector2, rotation: f32, scale: f32) {
 		unsafe { DrawTextureEx(self.0, position, rotation, scale, self.1) }
 	}
-	/// Wrapper for DrawTextureRec
-	///
-	/// Draw a part of a texture defined by a rectangle
+	/// #### draw_rec
+	/// Wrapper for Raylib::DrawTextureRec().
 	pub fn draw_rec(&self, source: Rectangle, position: Vector2) {
 		unsafe { DrawTextureRec(self.0, source, position, self.1) }
 	}
-	/// Wrapper for DrawTexturePro
-	///
-	/// raw a part of a texture defined by a rectangle with 'pro' parameters
+	/// #### draw_pro
+	/// Wrapper for Raylib::DrawTexturePro().
 	pub fn draw_pro(&self, source: Rectangle, dest: Rectangle, origin: Vector2, rotation: f32) {
 		unsafe { DrawTexturePro(self.0, source, dest, origin, rotation, self.1) }
 	}
-	/// Wrapper for DrawTextureNPatch
-	///
-	/// Draws a texture (or part of it) that stretches or shrinks nicely
+	/// #### draw_npatch
+	/// Wrapper for Raylib::DrawTextureNPatch().
 	pub fn draw_npatch(&self, npatch_info: NPatchInfo, dest: Rectangle, origin: Vector2, rotation: f32) {
 		unsafe { DrawTextureNPatch(self.0, npatch_info, dest, origin, rotation, self.1) }
 	}

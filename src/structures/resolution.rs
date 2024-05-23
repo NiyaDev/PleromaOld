@@ -6,7 +6,6 @@ pub struct Resolution {
 	pub width: i32,
 	pub height: i32,
 }
-
 impl Div<i32> for Resolution {
 	type Output = Self;
 

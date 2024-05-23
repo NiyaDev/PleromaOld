@@ -1,21 +1,18 @@
 
 
-use crate::structures::{
-	color::*,
-	image::*,
-};
+use crate::structures::image::*;
 
 
 //= General
-/// Wrapper for WindowShouldClose
-pub fn should_window_close() -> bool {
-	unsafe { WindowShouldClose() }
-}
+/// #### set_icon
 /// Wrapper for SetWindowIcon
+/// TODO Move to pleroma
 pub fn set_icon(image: Image) {
 	unsafe { SetWindowIcon(image.0) }
 }
+/// #### set_icons
 /// Wrapper for SetWindowIcons
+/// TODO Move to pleroma
 pub fn set_icons(images: Vec<Image>) {
 	unsafe {
 		let mut array: Vec<ImageRl> = Vec::new();
@@ -25,14 +22,6 @@ pub fn set_icons(images: Vec<Image>) {
 	}
 }
 
-//= Drawing
-/// Wrapper for ClearBackground
-pub fn clear_background(color: Color) {
-	unsafe { ClearBackground(color) }
-}
 
-
-extern "C" { fn WindowShouldClose() -> bool; }
 extern "C" { fn SetWindowIcon(image: ImageRl); }
 extern "C" { fn SetWindowIcons(images: *mut ImageRl, count: i32); }
-extern "C" { fn ClearBackground(color: Color); }

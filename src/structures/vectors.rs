@@ -601,26 +601,32 @@ pub const IDENTITY: Quaternion = Quaternion{ x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 
 impl Vector2 {
 	
+	/// #### length
 	/// Calculate vector length
 	pub fn length(&self) -> f32 {
 		((self.x * self.x) + (self.y * self.y)).sqrt()
 	}
+	/// #### length_sqr
 	/// Calculate vector square length
 	pub fn length_sqr(&self) -> f32 {
 		(self.x * self.x) + (self.y * self.y)
 	}
+	/// #### dot_product
 	/// Calculate two vectors dot product
 	pub fn dot_product(&self, v2: Self) -> f32 {
 		(self.x * v2.x) + (self.y * v2.y)
 	}
+	/// #### distance
 	/// Calculate distance between two vectors
 	pub fn distance(&self, v2: Self) -> f32 {
 		((self.x - v2.x).powi(2) + (self.y - v2.y).powi(2)).sqrt()
 	}
+	/// #### distance_sqr
 	/// Calculate square distance between two vectors
 	pub fn distance_sqr(&self, v2: Self) -> f32 {
 		(self.x - v2.x).powi(2) + (self.y - v2.y).powi(2)
 	}
+	/// #### angle
 	/// Calculate angle between two vectors
 	// NOTE: Angle is calculated from origin point (0, 0)
 	pub fn angle(&self, v2: Self) -> f32 {
@@ -629,12 +635,14 @@ impl Vector2 {
 
 		dot.atan2(det)
 	}
+	/// #### angle_line
 	/// Calculate angle defined by a two vectors line
 	// NOTE: Parameters need to be normalized
 	// TODO: Maybe normalize them inside?
 	pub fn angle_line(&self, end: Self) -> f32 {
 		-(end.y - self.y).atan2(end.x - self.x)
 	}
+	/// #### normalize
 	/// Normalize provided vector
 	pub fn normalize(&self) -> Self {
 		let length = (self.x.powi(2) + self.y.powi(2)).sqrt();
@@ -649,6 +657,7 @@ impl Vector2 {
 
 		Self {x: self.x, y: self.y}
 	}
+	/// #### transform
 	/// Transforms a Vector2 by a given Matrix
 	pub fn transform(&self, mat: Matrix) -> Self {
 		let x = self.x;
@@ -660,6 +669,7 @@ impl Vector2 {
 			y: (mat.m1 * x) + (mat.m5 * y) + (mat.m9 * z) + mat.m13,
 		}
 	}
+	/// #### lerp
 	/// Calculate linear interpolation between two vectors
 	pub fn lerp(&self, v2: Self, amount: f32) -> Vector2 {
 		Self {
@@ -667,6 +677,7 @@ impl Vector2 {
 			y: self.y + (amount * (v2.y - self.y)),
 		}
 	}
+	/// #### reflect
 	/// Calculate reflected vector to normal
 	pub fn reflect(&self, normal: Self) -> Self {
 		let dot_product = self.dot_product(normal.clone());
@@ -676,6 +687,7 @@ impl Vector2 {
 			y: self.y - (2.0 * normal.y) * dot_product,
 		}
 	}
+	/// #### rotate
 	/// Rotate vector by angle
 	pub fn rotate(&self, angle: f32) -> Self {
 		let cosres = angle.cos();
@@ -686,6 +698,7 @@ impl Vector2 {
 			y: (self.x * sinres) + (self.y * cosres),
 		}
 	}
+	/// #### move_towards
 	/// Move Vector towards target
 	pub fn move_towards(&self, target: Self, max_distance: f32) -> Self {
 		let dx = target.x - self.x;
@@ -701,6 +714,7 @@ impl Vector2 {
 			y: self.y + (dy / dist) * max_distance,
 		}
 	}
+	/// #### invert
 	/// Invert the given vector
 	pub fn invert(&self) -> Self {
 		Self {
@@ -708,6 +722,7 @@ impl Vector2 {
 			y: 1.0 / self.y,
 		}
 	}
+	/// #### clamp
 	/// Clamp the components of the vector between
 	/// 
 	/// min and max values specified by the given vectors
@@ -717,6 +732,7 @@ impl Vector2 {
 			y: self.y.clamp(min.y, max.y),
 		}
 	}
+	/// #### clamp_mag
 	/// Clamp the magnitude of the vector between two min and max values
 	pub fn clamp_mag(&self, min: f32, max: f32) -> Self {
 		let mut length = self.x.powi(2) + self.y.powi(2);
@@ -747,6 +763,7 @@ impl Vector2 {
 
 impl Vector3 {
 
+	/// #### corss_product
 	/// Calculate two vectors cross product
 	pub fn cross_product(&self, v2: Self) -> Self {
 		Self {
@@ -755,6 +772,7 @@ impl Vector3 {
 			z: self.x * v2.y - self.y * v2.x,
 		}
 	}
+	/// #### perpendicular
 	/// Calculate one vector perpendicular vector
 	pub fn perpendicular(&self) -> Self {
 		let mut min = self.x.abs();
@@ -770,18 +788,22 @@ impl Vector3 {
 
 		self.cross_product(cardinal_axis)
 	}
+	/// #### length
 	/// Calculate vector length
 	pub fn length(&self) -> f32 {
 		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
 	}
+	/// #### length_sqr
 	/// Calculate vector square length
 	pub fn length_sqr(&self) -> f32 {
 		self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
 	}
+	/// #### dot_product
 	/// Calculate two vectors dot product
 	pub fn dot_product(&self, v2: Self) -> f32 {
 		self.x * v2.x + self.y * v2.y + self.z * v2.z
 	}
+	/// #### distance
 	/// Calculate distance between two vectors
 	pub fn distance(&self, v2: Self) -> f32 {
 		let result = Self {
@@ -792,6 +814,7 @@ impl Vector3 {
 
 		result.length()
 	}
+	/// #### distance_sqr
 	/// Calculate square distance between two vectors
 	pub fn distance_sqr(&self, v2: Self) -> f32 {
 		let result = Self {
@@ -802,6 +825,7 @@ impl Vector3 {
 
 		result.length_sqr()
 	}
+	/// #### angle
 	/// Calculate angle between two vectors
 	pub fn angle(&self, v2: Self) -> f32 {
 		let cross = self.cross_product(v2);
@@ -810,6 +834,7 @@ impl Vector3 {
 
 		len.atan2(dot)
 	}
+	/// #### normalize
 	/// Normalize provided vector
 	pub fn normalize(&self) -> Self {
 		let len = self.length();
@@ -823,7 +848,8 @@ impl Vector3 {
 			}
 		} else { *self }
 	}
-	///Calculate the projection of the vector v1 on to v2
+	/// #### project
+	/// Calculate the projection of the vector v1 on to v2
 	pub fn project(&self, v2: Self) -> Self {
 		let v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
 		let v2dv2 = v2.length_sqr();
@@ -832,7 +858,8 @@ impl Vector3 {
 
 		v2 * mag
 	}
-	///Calculate the rejection of the vector v1 on to v2
+	/// #### reject
+	/// Calculate the rejection of the vector v1 on to v2
 	pub fn reject(&self, v2: Self) -> Self {
 		let v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
 		let v2dv2 = v2.length_sqr();
@@ -841,6 +868,7 @@ impl Vector3 {
 
 		*self - (v2 * mag)
 	}
+	/// #### orthinormalize
 	/// Orthonormalize provided vectors
 	/// 
 	/// Makes vectors normalized and orthogonal to each other
@@ -876,6 +904,7 @@ impl Vector3 {
 		v2.y = vn2.y;
 		v2.z = vn2.z;
 	}
+	/// #### transform
 	/// Transforms a Vector3 by a given Matrix
 	pub fn transform(&self, mat: Matrix) -> Self {
 		Self {
@@ -884,6 +913,7 @@ impl Vector3 {
 			z: mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
 		}
 	}
+	/// #### rotate_quaternion
 	/// Transform a vector by quaternion rotation
 	pub fn rotate_quaternion(&self, q: Quaternion) -> Self {
 		Self {
@@ -892,6 +922,7 @@ impl Vector3 {
 			z: self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z) + self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z) + self.z * (q.w.powi(2) - q.x.powi(2) - q.y.powi(2) + q.z.powi(2)),
 		}
 	}
+	/// #### rotate_axis
 	/// Rotates a vector around an axis
 	/// 
 	/// Using Euler-Rodrigues Formula
@@ -927,6 +958,7 @@ impl Vector3 {
 		*self + wv + wwv
 
 	}
+	/// #### move_towards
 	/// Move Vector towards target
 	pub fn move_towards(&self, target: Self, max_distance: f32) -> Self {
 		let dx = target.x - self.x;
@@ -944,6 +976,7 @@ impl Vector3 {
 			z: self.z + dz / dist * max_distance,
 		}
 	}
+	/// #### lerp
 	/// Calculate linear interpolation between two vectors
 	pub fn lerp(&self, target: Self, amount: f32) -> Self {
 		Self {
@@ -952,6 +985,7 @@ impl Vector3 {
 			z: self.z + amount * (target.z - self.z),
 		}
 	}
+	/// #### reflect
 	/// Calculate reflected vector to normal
 	pub fn reflect(&self, normal: Self) -> Self {
 		let dot = self.dot_product(normal);
@@ -962,14 +996,17 @@ impl Vector3 {
 			z: self.z - (2.0 * normal.z) * dot,
 		}
 	}
+	/// #### min
 	/// Get min value for each pair of components
 	pub fn min(&self, v2: Self) -> Self {
 		Self { x: self.x.min(v2.x), y: self.y.min(v2.y), z: self.z.min(v2.z) }
 	}
+	/// #### max
 	/// Get max value for each pair of components
 	pub fn max(&self, v2: Self) -> Self {
 		Self { x: self.x.max(v2.x), y: self.y.max(v2.y), z: self.z.max(v2.z) }
 	}
+	/// #### barycenter
 	/// Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
 	/// 
 	/// NOTE: Assumes P is on the plane of the triangle
@@ -990,6 +1027,7 @@ impl Vector3 {
 
 		Self { x: 1.0 - (z + y), y, z }
 	}
+	/// #### unproject
 	/// Projects a Vector3 from screen space into object space
 	/// 
 	/// NOTE: We are avoiding calling other raymath functions despite available
@@ -1065,10 +1103,12 @@ impl Vector3 {
 		}
 
 	}
+	/// #### invert
 	/// Invert the given vector
 	pub fn invert(&self) -> Self {
 		Self { x: 1.0 / self.x, y: 1.0 / self.y, z: 1.0 / self.z }
 	}
+	/// #### clamp
 	/// Clamp the components of the vector between
 	/// 
 	/// min and max values specified by the given vectors
@@ -1079,6 +1119,7 @@ impl Vector3 {
 			z: max.z.min(min.z.max(self.z)),
 		}
 	}
+	/// #### clamp_value
 	/// Clamp the magnitude of the vector between two values
 	pub fn clamp_value(&self, min: f32, max: f32) -> Self {
 		let mut result = *self;
@@ -1102,6 +1143,7 @@ impl Vector3 {
 			z: result.z,
 		}
 	}
+	/// #### refract
 	/// Compute the direction of a refracted ray
 	/// 
 	/// v: normalized direction of the incoming ray
@@ -1132,26 +1174,32 @@ impl Vector3 {
 
 impl Vector4 {
 	
+	/// #### length
 	/// Calculate vector length
 	pub fn length(&self) -> f32 {
 		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
 	}
+	/// #### length_square
 	/// Calculate vector square length
 	pub fn length_square(&self) -> f32 {
 		self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)
 	}
+	/// #### dot_product
 	/// Calculate two vectors dot product
 	pub fn dot_product(&self, v2: Self) -> f32 {
 		self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w
 	}
+	/// #### distance
 	/// Calculate distance between two vectors
 	pub fn distance(&self, v2: Self) -> f32 {
 		((self.x - v2.x).powi(2) + (self.y - v2.y).powi(2) + (self.z - v2.z).powi(2) + (self.w - v2.w).powi(2)).sqrt()
 	}
+	/// #### distance_square
 	/// Calculate square distance between two vectors
 	pub fn distance_square(&self, v2: Self) -> f32 {
 		(self.x - v2.x).powi(2) + (self.y - v2.y).powi(2) + (self.z - v2.z).powi(2) + (self.w - v2.w).powi(2)
 	}
+	/// #### normalize
 	/// Normalize provided vector
 	pub fn normalize(&self) -> Self {
 		let mut result = ZERO_4;
@@ -1169,6 +1217,7 @@ impl Vector4 {
 
 		result
 	}
+	/// #### min
 	/// Get min value for each pair of components
 	pub fn min(&self, v2: Self) -> Self {
 		Self {
@@ -1178,6 +1227,7 @@ impl Vector4 {
 			w: self.w.min(v2.w),
 		}
 	}
+	/// #### max
 	/// Get max value for each pair of components
 	pub fn max(&self, v2: Self) -> Self {
 		Self {
@@ -1187,6 +1237,7 @@ impl Vector4 {
 			w: self.w.max(v2.w),
 		}
 	}
+	/// #### lerp
 	/// Calculate linear interpolation between two vectors
 	pub fn lerp(&self, target: Self, amount: f32) -> Self {
 		Self {
@@ -1196,6 +1247,7 @@ impl Vector4 {
 			w: self.w + amount * (target.w - self.w),
 		}
 	}
+	/// #### move_towards
 	/// Move Vector towards target
 	pub fn move_towards(&self, target: Self, max_distance: f32) -> Self {
 		let dx = target.x - self.x;
@@ -1215,6 +1267,7 @@ impl Vector4 {
 			w: self.w + dw / dist * max_distance,
 		} 
 	}
+	/// #### invert
 	/// Invert the given vector
 	pub fn invert(&self) -> Self {
 		Self {
@@ -1229,14 +1282,17 @@ impl Vector4 {
 
 impl Quaternion {
 
+	/// #### length
 	/// Computes the length of a quaternion
 	pub fn length(&self) -> f32 {
 		(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
 	}
+	/// #### dot_product
 	/// Calculate two quaternions dot product
 	pub fn dot_product(&self, v2: Self) -> f32 {
 		self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w
 	}
+	/// #### normalize
 	/// Normalize provided quaternion
 	pub fn normalize(&self) -> Self {
 		let mut result = ZERO_Q;
@@ -1254,6 +1310,7 @@ impl Quaternion {
 
 		result
 	}
+	/// #### invert
 	/// Invert provided quaternion
 	pub fn invert(&self) -> Self {
 		Self {
@@ -1263,6 +1320,7 @@ impl Quaternion {
 			w: 1.0 / self.w,
 		}
 	}
+	/// #### lerp
 	/// Calculate linear interpolation between two quaternions
 	pub fn lerp(&self, target: Self, amount: f32) -> Self {
 		Self {
@@ -1272,6 +1330,7 @@ impl Quaternion {
 			w: self.w + amount * (target.w - self.w),
 		}
 	}
+	/// #### n_lerp
 	/// Calculate slerp-optimized interpolation between two quaternions
 	pub fn n_lerp(&self, target: Self, amount: f32) -> Self {
 		let result = Self {
@@ -1292,6 +1351,7 @@ impl Quaternion {
 			w: result.w * ilen,
 		}
 	}
+	/// #### slerp
 	/// Calculates spherical linear interpolation between two quaternions
 	pub fn slerp(&self, target: Self, amount: f32) -> Self {
 		let result;
@@ -1334,6 +1394,7 @@ impl Quaternion {
 
 		result
 	}
+	/// #### from_v3_to_v3
 	/// Calculate quaternion based on the rotation from one vector to another
 	pub fn from_v3_to_v3(from: Vector3, to: Vector3) -> Self {
 		let result;
@@ -1359,6 +1420,7 @@ impl Quaternion {
 			w: result.w * ilen,
 		}
 	}
+	/// #### from_axis_angle
 	/// Get rotation quaternion for an angle and axis
 	/// 
 	/// NOTE: Angle must be provided in radians
@@ -1400,6 +1462,7 @@ impl Quaternion {
 
 		result
 	}
+	/// #### to_axis_angle
 	/// Get the rotation angle and axis for a given quaternion
 	pub fn to_axis_angle(&self) -> (Vector3, f32) {
 		let mut new_quat = *self;
@@ -1429,6 +1492,7 @@ impl Quaternion {
 
 		(res_axis, res_angle)
 	}
+	/// #### from_euler
 	/// Get the quaternion equivalent to Euler angles
 	/// 
 	/// NOTE: Rotation order is ZYX
@@ -1449,6 +1513,7 @@ impl Quaternion {
 
 		result
 	}
+	/// #### to_euler
 	/// Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
 	/// 
 	/// NOTE: Angles are returned in a Vector3 struct in radians
@@ -1475,6 +1540,7 @@ impl Quaternion {
 
 		(pitch, yaw, roll)
 	}
+	/// #### transform
 	/// Transform a quaternion given a transformation matrix
 	pub fn transform(&self, mat: Matrix) -> Self {
 		Self {
