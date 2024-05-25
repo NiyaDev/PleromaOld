@@ -27,7 +27,7 @@ fn main() {
 	let texture = Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture();
 	
 	while !pleroma.should_close() {
-		if pleroma.is_down("A") { pleroma.audio.play_sfx("ugh"); }
+		if pleroma.is_down("A") { pleroma.vsync(); }
 		pleroma.audio.update();
 		
 		pleroma.draw( |_ctx| {

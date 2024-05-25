@@ -1,25 +1,25 @@
-use std::{collections::HashMap, ops::BitXorAssign};
+use std::{collections::HashMap, ops::{BitOrAssign, BitXorAssign}};
 
-use bitflags::bitflags;
+use bitflags::{bitflags, Flags};
 
 use crate::{
-	audio::AudioHandler,
-	keybinds::Keybind,
-	rl_str,
-	debug::{
+	audio::AudioHandler, debug::{
 		self,
 		errors::*,
 		DebugFlags,
 		LogLevel,
 	},
+	keybinds::Keybind,
+	rl_str,
 	structures::{
 		color::*,
 		font::*,
+		image::*,
 		rectangle::*,
 		render_texture::*,
 		resolution::*,
 		texture::*,
-		vectors::*,
+		vectors::*
 	}
 };
 
@@ -29,7 +29,7 @@ pub struct Pleroma {
 	//* Settings */
 	screen_size: Resolution,
 	render_size: Resolution,
-	framerate: u32,
+	framerate: i32,
 	windows_flags: WindowFlags,
 
 	//* Screen */
@@ -118,6 +118,7 @@ bitflags! {
 }
 
 impl Pleroma {
+
 	//= System
 	/// ### close
 	/// Unloads the RenderTexture and tells Raylib to close the window.
@@ -135,7 +136,68 @@ impl Pleroma {
 	pub fn should_close(&mut self) -> bool {
 		unsafe { WindowShouldClose() }
 	}
-
+	/// ### ready
+	/// Wrapper for Raylib::IsWindowReady().
+	pub fn ready(&mut self) -> bool {
+		unsafe{ IsWindowReady() }
+	}
+	/// ### set_icon
+	/// Wrapper for Raylib::SetWindowIcon(image: Image).
+	pub fn set_icon(&mut self, image: Image) -> &mut Self {
+		unsafe{ SetWindowIcon(image.0) }
+		
+		self
+	}
+	
+	//= Monitor
+	/// ### get_monitor_count
+	/// Wrapper for Raylib::SetWindowIcon() -> i32.
+	pub fn get_monitor_count(&mut self) -> i32 {
+		unsafe{ GetMonitorCount() }
+	}
+	/// ### set_monitor
+	/// Wrapper for Raylib::SetWindowMonitor(monitor: i32).
+	pub fn set_monitor(&mut self, monitor: i32) -> &mut Self {
+		unsafe{ SetWindowMonitor(monitor) }
+		
+		self
+	}
+	/// ### get_current_monitor
+	/// Wrapper for Raylib::GetCurrentMonitor() -> i32.
+	pub fn get_current_monitor(&mut self) -> i32 {
+		unsafe{ GetCurrentMonitor() }
+	}
+	/// ### get_monitor_size
+	/// Wrapper for Raylib::GetMonitorWidth(monitor: i32) -> i32 and Raylib::GetMonitorHeight(monitor: i32) -> i32.
+	pub fn get_monitor_size(&mut self, monitor: i32) -> [i32;2] {
+		unsafe{
+			[
+				GetMonitorWidth(monitor),
+				GetMonitorHeight(monitor),
+			]
+		}
+	}
+	/// ### get_physical_monitor_size
+	/// Wrapper for Raylib::GetMonitorPhysicalWidth(monitor: i32) -> i32 and Raylib::GetMonitorPhysicalHeight(monitor: i32) -> i32.
+	pub fn get_physical_monitor_size(&mut self, monitor: i32) -> [i32;2] {
+		unsafe{
+			[
+				GetMonitorPhysicalWidth(monitor),
+				GetMonitorPhysicalHeight(monitor),
+			]
+		}
+	}
+	/// ### get_monitor_refresh_rate
+	/// Wrapper for Raylib::GetMonitorRefreshRate(monitor: i32) -> i32.
+	pub fn get_monitor_refresh_rate(&mut self, monitor: i32) -> i32 {
+		unsafe{ GetMonitorRefreshRate(monitor) }
+	}
+	/// ### get_monitor_name
+	/// Wrapper for Raylib::GetMonitorRefreshRate(monitor: i32) -> i32.
+	//pub fn get_monitor_name(&mut self, monitor: i32) -> &str {
+	//	unsafe{ GetMonitorName(monitor) }
+	//}
+	
 	//= Screen
 	/// ### set_resolution
 	/// Sets the resolution of the wondow to the input.
@@ -160,7 +222,7 @@ impl Pleroma {
 	}
 	/// ### set_window_flags
 	/// Sets the window flags for Raylib.
-	pub fn set_window_flags(&mut self, flags: WindowFlags) -> &mut Self {
+	fn set_window_flags(&mut self, flags: WindowFlags) -> &mut Self {
 		self.windows_flags = flags;
 		unsafe { SetWindowState(flags.0 .0 as i32) }
 
@@ -174,22 +236,36 @@ impl Pleroma {
 	/// ### fullscreen
 	/// Sets the window to be fullscreen mode.
 	pub fn fullscreen(&mut self) -> &mut Self {
-		let is_full = self.windows_flags.contains(WindowFlags::FULLSCREEN);
-		if is_full {
-			self.windows_flags.bitxor_assign(WindowFlags::FULLSCREEN)
-		}
+		self.windows_flags.bitxor_assign(WindowFlags::FULLSCREEN);
 
 		self.set_window_flags(self.windows_flags)
 	}
 	/// ### borderless
 	/// Sets the window to be borderless window mode.
 	pub fn borderless(&mut self) -> &mut Self {
-		let is_full = self.windows_flags.contains(WindowFlags::BORDERLESS);
-		if is_full {
-			self.windows_flags.bitxor_assign(WindowFlags::BORDERLESS)
-		}
+		self.windows_flags.bitxor_assign(WindowFlags::BORDERLESS);
 
 		self.set_window_flags(self.windows_flags)
+	}
+	/// ### set_framerate
+	/// Sets the window to run at the refresh rate of the monitor
+	pub fn set_framerate(&mut self, framerate: i32) -> &mut Self {
+		if self.windows_flags.contains(WindowFlags::VSYNC) {
+			self.framerate = framerate;
+			unsafe{ SetTargetFPS(framerate) }
+		}
+		
+		self
+	}
+	/// ### vsync
+	/// Sets the window to run at the refresh rate of the monitor
+	pub fn vsync(&mut self) -> &mut Self {
+		let cur_mon = self.get_current_monitor();
+		let rate = self.get_monitor_refresh_rate(cur_mon);
+		self.set_framerate(rate);
+		self.windows_flags.bitxor_assign(WindowFlags::VSYNC);
+		
+		self
 	}
 	/// ### set_title
 	/// Wrapper for Raylib::SetWindowTitle(const char* title).
@@ -206,7 +282,57 @@ impl Pleroma {
 
 		self
 	}
-
+	/// ### set_position
+	/// Wrapper for Raylib::SetWindowPosition(x: i32, y: i32).
+	pub fn set_position(&mut self, x: i32, y: i32) -> &mut Self {
+		unsafe{ SetWindowPosition(x, y) }
+		
+		self
+	}
+	/// ### get_position
+	/// Wrapper for Raylib::GetWindowPosition() -> Vector2.
+	pub fn get_position(&mut self) -> [i32;2] {
+		unsafe{
+			let vec2 = GetWindowPosition();
+			[
+				vec2.x as i32,
+				vec2.y as i32,
+			]
+		}
+	}
+	/// ### set_size_minimum
+	/// Wrapper for Raylib::SetWindowMinSize(width: i32, height: i32).
+	pub fn set_size_minimum(&mut self, width: i32, height: i32) -> &mut Self {
+		unsafe{ SetWindowMinSize(width, height) }
+		
+		self
+	}
+	/// ### set_size_maximum
+	/// Wrapper for Raylib::SetWindowMaxSize(width: i32, height: i32).
+	pub fn set_size_maximum(&mut self, width: i32, height: i32) -> &mut Self {
+		unsafe{ SetWindowMaxSize(width, height) }
+		
+		self
+	}
+	/// ### set_opacity
+	/// Wrapper for Raylib::SetWindowMaxSize(width: i32, height: i32).
+	pub fn set_opacity(&mut self, opacity: f32) -> &mut Self {
+		unsafe{ SetWindowOpacity(opacity) }
+		
+		self
+	}
+	/// ### get_dpi
+	/// Wrapper for Raylib::GetWindowScaleDPI() -> Vector2.
+	pub fn get_dpi(&mut self) -> [i32;2] {
+		unsafe{
+			let vec2 = GetWindowScaleDPI();
+			[
+				vec2.x as i32,
+				vec2.y as i32,
+			]
+		}
+	}
+	
 	//= Fonts
 	/// #### set_line_spacing
 	/// Wrapper for Raylib::SetTextLineSpacing(spacing: i32).
@@ -338,7 +464,7 @@ impl Pleroma {
 	///
 	/// The list is displayed on screen for 1 second, as the duration is set as twice the current framerate and each frame it is decremented.
 	pub fn push_message(&mut self, level: LogLevel, message: String) {
-		self.db_list.push((level, message, self.framerate * 2));
+		self.db_list.push((level, message, (self.framerate * 2) as u32));
 	}
 	
 }
@@ -346,6 +472,23 @@ impl Pleroma {
 extern "C" { fn InitWindow(width: i32, height: i32, title: *const i8); }
 extern "C" { fn CloseWindow(); }
 extern "C" { fn WindowShouldClose() -> bool; }
+extern "C" { fn IsWindowReady() -> bool; }
+extern "C" { fn SetWindowIcon(image: ImageRl); }
+extern "C" { fn SetWindowPosition(x: i32, y: i32); }
+extern "C" { fn SetWindowMonitor(monitor: i32); }
+extern "C" { fn SetWindowMinSize(width: i32, height: i32); }
+extern "C" { fn SetWindowMaxSize(width: i32, height: i32); }
+extern "C" { fn SetWindowOpacity(opacity: f32); }
+extern "C" { fn GetMonitorCount() -> i32; }
+extern "C" { fn GetCurrentMonitor() -> i32; }
+extern "C" { fn GetMonitorWidth(monitor: i32) -> i32; }
+extern "C" { fn GetMonitorHeight(monitor: i32) -> i32; }
+extern "C" { fn GetMonitorPhysicalWidth(monitor: i32) -> i32; }
+extern "C" { fn GetMonitorPhysicalHeight(monitor: i32) -> i32; }
+extern "C" { fn GetMonitorRefreshRate(monitor: i32) -> i32; }
+extern "C" { fn GetWindowPosition() -> Vector2; }
+extern "C" { fn GetWindowScaleDPI() -> Vector2; }
+extern "C" { fn GetMonitorName(monitor: i32) -> *const i8; }
 
 extern "C" { fn SetWindowTitle(title: *const i8); }
 extern "C" { fn SetWindowSize(width: i32, height: i32); }
