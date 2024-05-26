@@ -225,6 +225,7 @@ extern "C" { fn LoadFontFromImage(image: ImageRl, key: Color, firstChar: i32) ->
 extern "C" { fn LoadFontFromMemory(fileType: *const i8, fileData: *const u8, dataSize: i32, fontSize: i32, codepoints: *const i32, codepointCount: i32) -> FontRl; }
 extern "C" { fn IsFontReady(font: FontRl) -> bool; }
 extern "C" { fn UnloadFont(font: FontRl); }
+
 //= Text drawing functions
 extern "C" { fn DrawTextEx(font: FontRl, text: *const i8, position: Vector2, font_size: f32, spacing: f32, tint: Color); }
 extern "C" { fn DrawTextPro(font: FontRl, text: *const i8, position: Vector2, origin: Vector2, rotation: f32, font_size: f32, spacing: f32, tint: Color); }

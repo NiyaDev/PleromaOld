@@ -1,6 +1,6 @@
-use std::{collections::HashMap, ops::{BitOrAssign, BitXorAssign}};
+use std::{collections::HashMap, ops::BitXorAssign};
 
-use bitflags::{bitflags, Flags};
+use bitflags::bitflags;
 
 use crate::{
 	audio::AudioHandler, debug::{
@@ -9,7 +9,8 @@ use crate::{
 		DebugFlags,
 		LogLevel,
 	},
-	keybinds::Keybind,
+	keybinds::*,
+	camera::*,
 	rl_str,
 	structures::{
 		color::*,
@@ -19,7 +20,7 @@ use crate::{
 		render_texture::*,
 		resolution::*,
 		texture::*,
-		vectors::*
+		vectors::*,
 	}
 };
 
@@ -37,6 +38,9 @@ pub struct Pleroma {
 	is_rendering: bool,
 	background_color: Color,
 	line_spacing: f32,
+	
+	//* Camera */
+	pub camera: Camera,
 
 	//* Input */
 	pub keybindings: HashMap<String, Keybind>,
@@ -57,6 +61,7 @@ impl Default for Pleroma {
 			SetTraceLogLevel(7);
 			InitWindow(1280, 720, rl_str!("Default"));
 			SetTargetFPS(60);
+			SetExitKey(0);
 		}
 
 		//* Create structure */
@@ -78,6 +83,8 @@ impl Default for Pleroma {
 			is_rendering: false,
 			background_color: DARKGRAY,
 			line_spacing: 1.0,
+			
+			camera: Camera::default(),
 
 			keybindings: HashMap::new(),
 			
@@ -92,7 +99,7 @@ impl Default for Pleroma {
 }
 
 bitflags! {
-	/// ### WindowFlags
+	/// #### WindowFlags
 	/// Implementation of Raylib window flags.
 	#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 	pub struct WindowFlags: u32 {
@@ -120,7 +127,7 @@ bitflags! {
 impl Pleroma {
 
 	//= System
-	/// ### close
+	/// #### close
 	/// Unloads the RenderTexture and tells Raylib to close the window.
 	pub fn close(&mut self) {
 		//* Unload RenderTexture */
@@ -131,17 +138,17 @@ impl Pleroma {
 		//* Close Window */
 		unsafe { CloseWindow() }
 	}
-	/// ### should_close
+	/// #### should_close
 	/// Wrapper for Raylib::WindowShouldClose().
 	pub fn should_close(&mut self) -> bool {
 		unsafe { WindowShouldClose() }
 	}
-	/// ### ready
+	/// #### ready
 	/// Wrapper for Raylib::IsWindowReady().
 	pub fn ready(&mut self) -> bool {
 		unsafe{ IsWindowReady() }
 	}
-	/// ### set_icon
+	/// #### set_icon
 	/// Wrapper for Raylib::SetWindowIcon(image: Image).
 	pub fn set_icon(&mut self, image: Image) -> &mut Self {
 		unsafe{ SetWindowIcon(image.0) }
@@ -150,24 +157,24 @@ impl Pleroma {
 	}
 	
 	//= Monitor
-	/// ### get_monitor_count
+	/// #### get_monitor_count
 	/// Wrapper for Raylib::SetWindowIcon() -> i32.
 	pub fn get_monitor_count(&mut self) -> i32 {
 		unsafe{ GetMonitorCount() }
 	}
-	/// ### set_monitor
+	/// #### set_monitor
 	/// Wrapper for Raylib::SetWindowMonitor(monitor: i32).
 	pub fn set_monitor(&mut self, monitor: i32) -> &mut Self {
 		unsafe{ SetWindowMonitor(monitor) }
 		
 		self
 	}
-	/// ### get_current_monitor
+	/// #### get_current_monitor
 	/// Wrapper for Raylib::GetCurrentMonitor() -> i32.
 	pub fn get_current_monitor(&mut self) -> i32 {
 		unsafe{ GetCurrentMonitor() }
 	}
-	/// ### get_monitor_size
+	/// #### get_monitor_size
 	/// Wrapper for Raylib::GetMonitorWidth(monitor: i32) -> i32 and Raylib::GetMonitorHeight(monitor: i32) -> i32.
 	pub fn get_monitor_size(&mut self, monitor: i32) -> [i32;2] {
 		unsafe{
@@ -177,7 +184,7 @@ impl Pleroma {
 			]
 		}
 	}
-	/// ### get_physical_monitor_size
+	/// #### get_physical_monitor_size
 	/// Wrapper for Raylib::GetMonitorPhysicalWidth(monitor: i32) -> i32 and Raylib::GetMonitorPhysicalHeight(monitor: i32) -> i32.
 	pub fn get_physical_monitor_size(&mut self, monitor: i32) -> [i32;2] {
 		unsafe{
@@ -187,19 +194,59 @@ impl Pleroma {
 			]
 		}
 	}
-	/// ### get_monitor_refresh_rate
+	/// #### get_monitor_refresh_rate
 	/// Wrapper for Raylib::GetMonitorRefreshRate(monitor: i32) -> i32.
 	pub fn get_monitor_refresh_rate(&mut self, monitor: i32) -> i32 {
 		unsafe{ GetMonitorRefreshRate(monitor) }
 	}
-	/// ### get_monitor_name
-	/// Wrapper for Raylib::GetMonitorRefreshRate(monitor: i32) -> i32.
-	//pub fn get_monitor_name(&mut self, monitor: i32) -> &str {
-	//	unsafe{ GetMonitorName(monitor) }
-	//}
+	/// #### get_monitor_name
+	/// Wrapper for Raylib::GetMonitorName(monitor: i32) -> *const i8.
+	pub fn get_monitor_name(&mut self, monitor: i32) -> String {
+		unsafe{
+			let mut str = "".to_string();
+			let con = GetMonitorName(monitor);
+			
+			let mut offset = 0;
+			loop {
+				let con_off = con.wrapping_add(offset);
+				let val = con_off.read() as u8;
+				if val == 0 { break }
+				str.push(char::from(val));
+				offset += 1;
+			}
+			
+			str
+		}
+	}
+	/// #### set_clipboard
+	/// Wrapper for Raylib::SetClipboardText(text: *const i8).
+	pub fn set_clipboard(&mut self, text: &str) -> &mut Self {
+		unsafe{ SetClipboardText(rl_str!(text)) }
+		
+		self
+	}
+	/// #### get_clipboard
+	/// Wrapper for Raylib::GetClipboardText() -> *const i8.
+	pub fn get_clipboard(&mut self) -> String {
+		unsafe{
+			let mut str = "".to_string();
+			let con = GetClipboardText();
+			
+			let mut offset = 0;
+			loop {
+				let con_off = con.wrapping_add(offset);
+				let val = con_off.read() as u8;
+				if val == 0 { break }
+				str.push(char::from(val));
+				offset += 1;
+			}
+			
+			str
+		}
+	}
 	
 	//= Screen
-	/// ### set_resolution
+	/// #### set_resolution
 	/// Sets the resolution of the wondow to the input.
 	pub fn set_resolution(&mut self, width: i32, height: i32) -> &mut Self {
 		self.screen_size = Resolution { width, height };
@@ -207,7 +254,7 @@ impl Pleroma {
 
 		self
 	}
-	/// ### set_render
+	/// #### set_render
 	/// Sets the resolution the game is to be rendered at.
 	pub fn set_render(&mut self, width: i32, height: i32) -> &mut Self {
 		if !self.is_rendering {
@@ -220,7 +267,7 @@ impl Pleroma {
 
 		self
 	}
-	/// ### set_window_flags
+	/// #### set_window_flags
 	/// Sets the window flags for Raylib.
 	fn set_window_flags(&mut self, flags: WindowFlags) -> &mut Self {
 		self.windows_flags = flags;
@@ -228,26 +275,26 @@ impl Pleroma {
 
 		self
 	}
-	/// ### get_window_flag
+	/// #### get_window_flag
 	/// Gets whether the input flag is currently set.
 	pub fn get_window_flag(&mut self, flag: WindowFlags) -> bool {
 		self.windows_flags.contains(flag)
 	}
-	/// ### fullscreen
+	/// #### fullscreen
 	/// Sets the window to be fullscreen mode.
 	pub fn fullscreen(&mut self) -> &mut Self {
 		self.windows_flags.bitxor_assign(WindowFlags::FULLSCREEN);
 
 		self.set_window_flags(self.windows_flags)
 	}
-	/// ### borderless
+	/// #### borderless
 	/// Sets the window to be borderless window mode.
 	pub fn borderless(&mut self) -> &mut Self {
 		self.windows_flags.bitxor_assign(WindowFlags::BORDERLESS);
 
 		self.set_window_flags(self.windows_flags)
 	}
-	/// ### set_framerate
+	/// #### set_framerate
 	/// Sets the window to run at the refresh rate of the monitor
 	pub fn set_framerate(&mut self, framerate: i32) -> &mut Self {
 		if self.windows_flags.contains(WindowFlags::VSYNC) {
@@ -257,7 +304,7 @@ impl Pleroma {
 		
 		self
 	}
-	/// ### vsync
+	/// #### vsync
 	/// Sets the window to run at the refresh rate of the monitor
 	pub fn vsync(&mut self) -> &mut Self {
 		let cur_mon = self.get_current_monitor();
@@ -267,14 +314,14 @@ impl Pleroma {
 		
 		self
 	}
-	/// ### set_title
+	/// #### set_title
 	/// Wrapper for Raylib::SetWindowTitle(const char* title).
 	pub fn set_title(&mut self, title: &str) -> &mut Self {
 		unsafe { SetWindowTitle(rl_str!(title)) }
 
 		self
 	}
-	/// ### set_font
+	/// #### set_font
 	/// Sets the font to use in the debug text
 	pub fn set_font(&mut self, font: Font) -> &mut Self {
 		self.db_font.unload();
@@ -282,14 +329,14 @@ impl Pleroma {
 
 		self
 	}
-	/// ### set_position
+	/// #### set_position
 	/// Wrapper for Raylib::SetWindowPosition(x: i32, y: i32).
 	pub fn set_position(&mut self, x: i32, y: i32) -> &mut Self {
 		unsafe{ SetWindowPosition(x, y) }
 		
 		self
 	}
-	/// ### get_position
+	/// #### get_position
 	/// Wrapper for Raylib::GetWindowPosition() -> Vector2.
 	pub fn get_position(&mut self) -> [i32;2] {
 		unsafe{
@@ -300,28 +347,28 @@ impl Pleroma {
 			]
 		}
 	}
-	/// ### set_size_minimum
+	/// #### set_size_minimum
 	/// Wrapper for Raylib::SetWindowMinSize(width: i32, height: i32).
 	pub fn set_size_minimum(&mut self, width: i32, height: i32) -> &mut Self {
 		unsafe{ SetWindowMinSize(width, height) }
 		
 		self
 	}
-	/// ### set_size_maximum
+	/// #### set_size_maximum
 	/// Wrapper for Raylib::SetWindowMaxSize(width: i32, height: i32).
 	pub fn set_size_maximum(&mut self, width: i32, height: i32) -> &mut Self {
 		unsafe{ SetWindowMaxSize(width, height) }
 		
 		self
 	}
-	/// ### set_opacity
+	/// #### set_opacity
 	/// Wrapper for Raylib::SetWindowMaxSize(width: i32, height: i32).
 	pub fn set_opacity(&mut self, opacity: f32) -> &mut Self {
 		unsafe{ SetWindowOpacity(opacity) }
 		
 		self
 	}
-	/// ### get_dpi
+	/// #### get_dpi
 	/// Wrapper for Raylib::GetWindowScaleDPI() -> Vector2.
 	pub fn get_dpi(&mut self) -> [i32;2] {
 		unsafe{
@@ -331,6 +378,46 @@ impl Pleroma {
 				vec2.y as i32,
 			]
 		}
+	}
+	
+	//= Cursor
+	/// #### cursor_show
+	/// Wrapper for Raylib::().
+	pub fn cursor_show(&mut self) -> &mut Self {
+		unsafe{ ShowCursor() }
+		
+		self
+	}
+	/// #### cursor_hide
+	/// Wrapper for Raylib::().
+	pub fn cursor_hide(&mut self) -> &mut Self {
+		unsafe{ HideCursor() }
+		
+		self
+	}
+	/// #### cursor_hidden
+	/// Wrapper for Raylib::().
+	pub fn cursor_hidden(&mut self) -> bool {
+		unsafe{ IsCursorHidden() }
+	}
+	/// #### cursor_enable
+	/// Wrapper for Raylib::().
+	pub fn cursor_enable(&mut self) -> &mut Self {
+		unsafe{ EnableCursor() }
+		
+		self
+	}
+	/// #### cursor_disable
+	/// Wrapper for Raylib::().
+	pub fn cursor_disable(&mut self) -> &mut Self {
+		unsafe{ DisableCursor() }
+		
+		self
+	}
+	/// #### cursor_onscreen
+	/// Wrapper for Raylib::().
+	pub fn cursor_onscreen(&mut self) -> bool {
+		unsafe{ IsCursorOnScreen() }
 	}
 	
 	//= Fonts
@@ -344,7 +431,7 @@ impl Pleroma {
 	}
 	
 	//= Rendering
-	/// ### update_render
+	/// #### update_render
 	/// Recreates the RenderTexture with the current render size.
 	pub fn update_render(&mut self) -> &mut Self {
 		if self.render_texture.is_some() {
@@ -361,7 +448,7 @@ impl Pleroma {
 	}
 	/// #### draw
 	/// Draws to the screen. Calling any code implemented in add_contents.
-	pub fn draw(&mut self, add_contents: impl FnOnce(&mut Pleroma)) ->&mut Self {
+	pub fn draw(&mut self, draw_contents: impl FnOnce(&mut Pleroma)) -> &mut Self {
 		//* Check if render texture exists */
 		if self.render_texture.is_none() {
 			self.log(PlError::RenderTextureDoesntExist);
@@ -374,7 +461,7 @@ impl Pleroma {
 		self.is_rendering = true;
 		
 		//* Run content */
-		let _ = add_contents(self);
+		let _ = draw_contents(self);
 
 		//* Debug info */
 		if self.get_debug_setting(DebugFlags::INFO_ENABLE) { self.draw_debug_info(&self.db_font) }
@@ -433,33 +520,59 @@ impl Pleroma {
 		
 		self
 	}
-
+	/// #### draw_2d
+	/// Draw with 2D camera
+	pub fn draw_2d(&mut self, draw_contents: impl FnOnce(&mut Pleroma)) -> &mut Self {
+		unsafe{
+			BeginMode2D(self.camera.into());
+			
+			let _ = draw_contents(self);
+			
+			EndMode2D();
+		}
+		
+		self
+	}
+	/// #### draw_3d
+	/// Draw with 3D camera
+	pub fn draw_3d(&mut self, draw_contents: impl FnOnce(&mut Pleroma)) -> &mut Self {
+		unsafe{
+			BeginMode3D(self.camera.into());
+			
+			let _ = draw_contents(self);
+			
+			EndMode3D();
+		}
+		
+		self
+	} 
+	
 	//= Debug
-	/// ### set_log_level
+	/// #### set_log_level
 	/// Sets the level of severity that the messages that the system shows to the developer.
 	pub fn set_log_level(&mut self, level: debug::LogLevel) -> &mut Self {
 		self.db_level = level;
 
 		self
 	}
-	/// ### get_log_level
+	/// #### get_log_level
 	/// Gets the current level of severity that the system will show the developer.
 	pub fn get_log_level(&self) -> debug::LogLevel {
 		self.db_level.clone()
 	}
-	/// ### set_debug_settings
+	/// #### set_debug_settings
 	/// Sets the debug settings to the inputted bitflags.
 	pub fn set_debug_settings(&mut self, flags: debug::DebugFlags) -> &mut Self {
 		self.db_settings = flags;
 
 		self
 	}
-	/// ### get_debug_setting
+	/// #### get_debug_setting
 	/// Returns whether the input flag is current set.
 	pub fn get_debug_setting(&self, flag: debug::DebugFlags) -> bool {
 		self.db_settings.contains(flag)
 	}
-	/// ### push_message
+	/// #### push_message
 	/// Appends a message to the end of the debug message list.
 	///
 	/// The list is displayed on screen for 1 second, as the duration is set as twice the current framerate and each frame it is decremented.
@@ -469,6 +582,8 @@ impl Pleroma {
 	
 }
 
+
+//= Window-related functions
 extern "C" { fn InitWindow(width: i32, height: i32, title: *const i8); }
 extern "C" { fn CloseWindow(); }
 extern "C" { fn WindowShouldClose() -> bool; }
@@ -489,16 +604,39 @@ extern "C" { fn GetMonitorRefreshRate(monitor: i32) -> i32; }
 extern "C" { fn GetWindowPosition() -> Vector2; }
 extern "C" { fn GetWindowScaleDPI() -> Vector2; }
 extern "C" { fn GetMonitorName(monitor: i32) -> *const i8; }
+extern "C" { fn SetClipboardText(text: *const i8); }
+extern "C" { fn GetClipboardText() -> *const i8; }
+
+//= Cursor-related functions
+extern "C" { fn ShowCursor(); }
+extern "C" { fn HideCursor(); }
+extern "C" { fn IsCursorHidden() -> bool; }
+extern "C" { fn EnableCursor(); }
+extern "C" { fn DisableCursor(); }
+extern "C" { fn IsCursorOnScreen() -> bool; }
+
+//= Drawing-related functions
+extern "C" { fn ClearBackground(color: Color); }
+extern "C" { fn BeginDrawing(); }
+extern "C" { fn EndDrawing(); }
+extern "C" { fn BeginMode2D(camera: Camera2DRl); }
+extern "C" { fn EndMode2D(); }
+extern "C" { fn BeginMode3D(camera: Camera3DRl); }
+extern "C" { fn EndMode3D(); }
+
+//= Timing-related functions
+extern "C" { fn SetTargetFPS(fps: i32); }
+
+//= Misc. functions
+extern "C" { fn SetTraceLogLevel(logLevel: i32); }
+
+//= Input-related functions: keyboard
+extern "C" { fn SetExitKey(key: i32); }
+
+//= Text font info functions
+extern "C" { fn SetTextLineSpacing(spacing: i32); }
 
 extern "C" { fn SetWindowTitle(title: *const i8); }
 extern "C" { fn SetWindowSize(width: i32, height: i32); }
 extern "C" { fn SetWindowState(flags: i32); }
 
-extern "C" { fn SetTraceLogLevel(logLevel: i32); }
-extern "C" { fn SetTargetFPS(fps: i32); }
-
-extern "C" { fn BeginDrawing(); }
-extern "C" { fn EndDrawing(); }
-extern "C" { fn ClearBackground(color: Color); }
-
-extern "C" { fn SetTextLineSpacing(spacing: i32); }

@@ -19,7 +19,7 @@ pub struct Texture(pub TextureRl, pub Color);
 #[derive(Debug, Clone, Copy)]
 pub struct TextureRl {
 	pub id:		u32,
-    pub width:	i32,
+	pub width:	i32,
     pub height:	i32,
     pub mipmaps: i32,
     pub format:	i32,
@@ -126,14 +126,19 @@ impl Texture {
 }
 
 
+//= Texture loading functions
 extern "C" { fn LoadTexture(fileName: *const i8) -> TextureRl; }
 extern "C" { fn IsTextureReady(texture: TextureRl) -> bool; }
 extern "C" { fn UnloadTexture(texture: TextureRl); }
 extern "C" { fn UpdateTexture(texture: TextureRl, pixels: *const ::std::os::raw::c_void); }
 extern "C" { fn UpdateTextureRec(texture: TextureRl, rec: Rectangle, pixels: *const ::std::os::raw::c_void); }
+
+//= Texture configuration functions
 extern "C" { fn GenTextureMipmaps(texture: *mut TextureRl); }
 extern "C" { fn SetTextureFilter(texture: TextureRl, filter: i32); }
 extern "C" { fn SetTextureWrap(texture: TextureRl, wrap: i32); }
+
+//= Texture drawing functions
 extern "C" { fn DrawTexture(texture: TextureRl, posX: i32, posY: i32, tint: Color); }
 extern "C" { fn DrawTextureV(texture: TextureRl, position: Vector2, tint: Color); }
 extern "C" { fn DrawTextureEx(texture: TextureRl, position: Vector2, rotation: f32, scale: f32, tint: Color); }

@@ -62,8 +62,11 @@ impl RenderTexture {
 }
 
 
+//= Texture loading functions
 extern "C" { fn LoadRenderTexture(width: i32, height: i32) -> RenderTextureRl; }
-extern "C" { fn UnloadRenderTexture(target: RenderTextureRl); }
 extern "C" { fn IsRenderTextureReady(target: RenderTextureRl) -> bool; }
+extern "C" { fn UnloadRenderTexture(target: RenderTextureRl); }
+
+//= Drawing-related functions
 extern "C" { fn BeginTextureMode(target: RenderTextureRl); }
 extern "C" { fn EndTextureMode(); }

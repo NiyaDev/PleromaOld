@@ -448,6 +448,7 @@ impl Image {
 }
 
 
+//= Image loading functions
 extern "C" { fn LoadImage(fileName: *const i8) -> ImageRl; }
 extern "C" { fn LoadImageRaw( fileName: *const i8, width: i32, height: i32, format: i32, header_size: i32) -> ImageRl; }
 extern "C" { fn LoadImageSvg(fileNameOrString: *const i8, width: i32, height: i32) -> ImageRl; }
@@ -461,6 +462,7 @@ extern "C" { fn ExportImage(image: ImageRl, fileName: *const i8) -> bool; }
 extern "C" { fn ExportImageToMemory(image: ImageRl, fileType: *const i8, fileSize: *mut i32) -> *mut u8; }
 extern "C" { fn ExportImageAsCode(image: ImageRl, fileName: *const i8) -> bool; }
 
+//= Image generation functions
 extern "C" { fn GenImageColor(width: i32, height: i32, color: Color) -> ImageRl; }
 extern "C" { fn GenImageGradientLinear(width: i32, height: i32, direction: i32, start: Color, end: Color,) -> ImageRl; }
 extern "C" { fn GenImageGradientRadial(width: i32, height: i32, density: f32, inner: Color, outer: Color) -> ImageRl; }
@@ -471,6 +473,7 @@ extern "C" { fn GenImagePerlinNoise(width: i32, height: i32, offsetX: i32, offse
 extern "C" { fn GenImageCellular(width: i32, height: i32, tileSize: i32) -> ImageRl; }
 extern "C" { fn GenImageText(width: i32, height: i32, text: *const i8) -> ImageRl; }
 
+//= Image manipulation functions
 extern "C" { fn ImageCopy(image: ImageRl) -> ImageRl; }
 extern "C" { fn ImageFromImage(image: ImageRl, rec: Rectangle) -> ImageRl; }
 extern "C" { fn ImageText(text: *const i8, fontSize: i32, color: Color) -> ImageRl; }
@@ -504,6 +507,7 @@ extern "C" { fn GetImageAlphaBorder(image: ImageRl, threshold: f32) -> Rectangle
 extern "C" { fn UnloadImagePalette(colors: *mut Color); }
 extern "C" { fn GetImageColor(image: ImageRl, x: i32, y: i32) -> Color; }
 
+//= Image drawing functions
 extern "C" { fn ImageClearBackground(dst: *mut ImageRl, color: Color); }
 extern "C" { fn ImageDrawPixel(dst: *mut ImageRl, posX: i32, posY: i32, color: Color); }
 extern "C" { fn ImageDrawPixelV(dst: *mut ImageRl, position: Vector2, color: Color); }
@@ -521,5 +525,6 @@ extern "C" { fn ImageDraw(dst: *mut ImageRl, src: ImageRl, srcRec: Rectangle, ds
 extern "C" { fn ImageDrawText(dst: *mut ImageRl, text: *const i8, posX: i32, posY: i32, fontSize: i32, color: Color); }
 extern "C" { fn ImageDrawTextEx(dst: *mut ImageRl, font: FontRl, text: *const i8, position: Vector2, fontSize: f32, spacing: f32, tint: Color); }
 
+//= Texture loading functions
 extern "C" { fn LoadTextureFromImage(image: ImageRl) -> TextureRl; }
 extern "C" { fn LoadTextureCubemap(image: ImageRl, layout: i32) -> TextureRl; }

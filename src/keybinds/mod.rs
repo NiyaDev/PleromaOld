@@ -258,21 +258,24 @@ impl Pleroma {
 	
 }
 
+//= Input-related functions: keyboard
 extern "C" { fn IsKeyPressed(key: i32) -> bool; }
 extern "C" { fn IsKeyDown(key: i32) -> bool; }
 extern "C" { fn IsKeyReleased(key: i32) -> bool; }
 extern "C" { fn IsKeyUp(key: i32) -> bool; }
 
-extern "C" { fn IsMouseButtonPressed(button: i32) -> bool; }
-extern "C" { fn IsMouseButtonDown(button: i32) -> bool; }
-extern "C" { fn IsMouseButtonReleased(button: i32) -> bool; }
-extern "C" { fn IsMouseButtonUp(button: i32) -> bool; }
-extern "C" { fn GetMouseDelta() -> Vector2; }
-extern "C" { fn GetMouseWheelMove() -> f32; }
-
+//= Input-related functions: gamepads
 extern "C" { fn IsGamepadAvailable(gamepad: i32) -> bool; }
 extern "C" { fn IsGamepadButtonPressed(gamepad: i32, button: i32) -> bool; }
 extern "C" { fn IsGamepadButtonDown(gamepad: i32, button: i32) -> bool; }
 extern "C" { fn IsGamepadButtonReleased(gamepad: i32, button: i32) -> bool; }
 extern "C" { fn IsGamepadButtonUp(gamepad: i32, button: i32) -> bool; }
 extern "C" { fn GetGamepadAxisMovement(gamepad: i32, axis: i32) -> f32; }
+
+//= Input-related functions: mouse
+extern "C" { fn IsMouseButtonPressed(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonDown(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonReleased(button: i32) -> bool; }
+extern "C" { fn IsMouseButtonUp(button: i32) -> bool; }
+extern "C" { fn GetMouseDelta() -> Vector2; }
+extern "C" { fn GetMouseWheelMove() -> f32; }

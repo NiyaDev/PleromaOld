@@ -95,6 +95,7 @@ impl Pleroma {
 	
 }
 
+//= Timing-related functions
 extern "C" { fn GetFrameTime() -> f32; }
 extern "C" { fn GetTime() -> f64; }
 extern "C" { fn GetFPS() -> i32; }
