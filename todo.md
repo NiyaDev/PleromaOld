@@ -1,14 +1,6 @@
 TODO:
 - Raylib
-	- Fonts
-		- Remaining functions
-	- Meshes
-	- Models
-	- Shader functions
-	- Sound / Music
-		- Midi
-		- Standard
-	- Camera
+	- Finish going through every function
 - File loading
 	- .mnf: .blk number and pointers to data
 	- .blk: compressed data
@@ -28,23 +20,9 @@ TODO:
 	- Texture
 	- Vector3
 	- Font
+- Camera
+	- Add rotation controls
+	- Change pan so it applies based off of up
 
 Changes:
 - Finished:
-	- ~~Go through and re-implement color functions without using Raylib~~ 4/7/24
-	- ~~Add rectangle functions~~ 4/7/24
-	- ~~Finish Vector3~~ 4/9/24
-	- ~~Finish Vector4~~ 4/9/24
-	- ~~Finish Matrix~~ 4/10/24
-	- ~~Finish keybindings~~ Good enough for now 4/24/24
-	- Tests
-		- ~~Rectangle~~ 4/7/24
-		- ~~Vector2~~ 4/9/24
-		- ~~Vector4~~ 4/9/24
-	- Fonts
-		- ~~Basics~~ 4/24/24
-	- Debug system
-		- Error logging into File, Console, Screen ~~4/27/24~~
-		- On-screen debug info ~~4/27/24~~
-	- Redid pleroma.rs and debugging features ~~5/15/24~~
-	- Fully redid keybindings. ~~5/16/24~~

@@ -449,6 +449,9 @@ impl Pleroma {
 	/// #### draw
 	/// Draws to the screen. Calling any code implemented in add_contents.
 	pub fn draw(&mut self, draw_contents: impl FnOnce(&mut Pleroma)) -> &mut Self {
+		//* Update music */
+		self.audio.update();
+		
 		//* Check if render texture exists */
 		if self.render_texture.is_none() {
 			self.log(PlError::RenderTextureDoesntExist);
@@ -461,7 +464,10 @@ impl Pleroma {
 		self.is_rendering = true;
 		
 		//* Run content */
-		let _ = draw_contents(self);
+		match self.camera.camera_mode {
+			CameraMode::Mode2D => { self.draw_2d(draw_contents); }
+			CameraMode::Mode3D => { self.draw_3d(draw_contents); }
+		}
 
 		//* Debug info */
 		if self.get_debug_setting(DebugFlags::INFO_ENABLE) { self.draw_debug_info(&self.db_font) }

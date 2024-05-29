@@ -1,10 +1,10 @@
 
 
 /// Shader wrapper
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Shader {
 	pub shader: ShaderRl,
-	pub locations: Vec<i32>,
+	//pub locations: Vec<i32>,
 }
 
 #[repr(C)]

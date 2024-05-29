@@ -132,7 +132,7 @@ impl Matrix {
 		self.m0 + self.m5 + self.m10 + self.m15
 	}
 	/// #### transpose
-	/// ransposes provided matrix
+	/// Transposes provided matrix
 	pub fn transpose(&self) -> Self {
 		let mut result = ZERO;
 

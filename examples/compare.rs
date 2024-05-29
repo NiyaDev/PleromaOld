@@ -1,11 +1,8 @@
 
 
 use pleroma::{
-	debug::*,
-	keybinds::Device,
-	pleroma::*,
-	structures::{
-		color::*, font::*, image::*
+	camera::CameraMode, debug::*, keybinds::{keyboard::KeyboardKey, Device}, pleroma::*, structures::{
+		color::*, font::*, image::*, material::*, matrix::*, model::*, vectors::Vector3
 	}
 };
 
@@ -17,25 +14,38 @@ fn main() {
 		.set_log_level(LogLevel::Info)
 		.set_title("Pleroma Test")
 		.set_font(Font::load_ex("data/Pixeboy.ttf", 8, Vec::new()))
-		.add_keybind("A", Device::Keyboard, [0,65])
-		.add_keybind("gp1-a", Device::Gamepad(0), [0,6]);
+		.add_keybind("left", Device::Keyboard, [0,KeyboardKey::A.into()])
+		.add_keybind("right", Device::Keyboard, [0,KeyboardKey::D.into()])
+		.add_keybind("up", Device::Keyboard, [0,KeyboardKey::W.into()])
+		.add_keybind("down", Device::Keyboard, [0,KeyboardKey::S.into()]);
+	pleroma.camera.camera_mode = CameraMode::Mode3D; // TODO: Change this
 	
 	pleroma.audio
 		.load_song("data/sounds/new_bark_town.wav")
 		.load_sfx("data/sounds/ugh.wav", "ugh");
 	
 	let texture = Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture();
+	let mut mesh = Mesh::gen_cube(1.0, 1.0, 1.0);
+	let mut transforms = Vec::new();
+	transforms.push(IDENTITY);
+	transforms.push(Matrix::translate(Vector3{x: 2.0, y: 0.0, z: 0.0}));
+	transforms.push(Matrix::translate(Vector3{x: 0.0, y: 2.0, z: 0.0}));
+	let trans = transforms.as_slice();
 	
 	while !pleroma.should_close() {
-		if pleroma.is_pressed("A") { print!("{}", pleroma.get_monitor_name(0)); }
-		pleroma.audio.update();
+		if pleroma.is_pressed("left") { pleroma.camera.pan(Vector3{x: -1.0, y:  0.0, z: 0.0}); }
+		if pleroma.is_pressed("right"){ pleroma.camera.pan(Vector3{x:  1.0, y:  0.0, z: 0.0}); }
+		if pleroma.is_pressed("up")	{ pleroma.camera.pan(Vector3{x:  0.0, y:  1.0, z: 0.0}); }
+		if pleroma.is_pressed("down") { pleroma.camera.pan(Vector3{x:  0.0, y: -1.0, z: 0.0}); }
 		
 		pleroma.draw( |_ctx| {
 			texture.draw(100, 10);
+			//mesh.draw(Material::default(), IDENTITY);
+			mesh.draw_instanced(Material::default(), trans);
 		});
 	}
 	
-	pleroma.close();
+	pleroma.close(); // TODO: Unload everything
 }
 
 

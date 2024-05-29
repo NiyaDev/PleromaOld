@@ -87,7 +87,7 @@ impl Pleroma {
 			let frame_time = GetFrameTime();
 			let time = GetTime();
 			
-			let frm = format!("{fps} - {frame_time}\n\n{time}");
+			let frm = format!("{fps:03} - {frame_time:.4} - {}\n{}", time as i32, self.camera.position);
 			
 			font.draw(&frm, Vector2{x: 8.0, y: 8.0});
 		}

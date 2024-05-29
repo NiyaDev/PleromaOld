@@ -1,11 +1,8 @@
 
 
 use std::{
-	f32::EPSILON,
-	ops::{
-		Add, Sub,
-		Mul, Div,
-		Not,
+	f32::EPSILON, fmt::Display, ops::{
+		Add, AddAssign, Div, Mul, Not, Sub
 	}
 };
 
@@ -133,6 +130,13 @@ impl Add<Self> for Vector3 {
 		}
 	}
 }
+impl AddAssign<Self> for Vector3 {
+	fn add_assign(&mut self, rhs: Self) {
+		self.x += rhs.x;
+		self.y += rhs.y;
+		self.z += rhs.z;
+	}
+}
 impl Add<f32> for Vector3 {
 	type Output = Self;
 
@@ -226,6 +230,11 @@ impl Not for Vector3 {
 			y: -self.y,
 			z: -self.z,
 		}
+	}
+}
+impl Display for Vector3 {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "[{},{},{}]", self.x, self.y, self.z)
 	}
 }
 

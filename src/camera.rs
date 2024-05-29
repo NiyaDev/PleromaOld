@@ -9,24 +9,24 @@ use crate::structures::vectors::*;
 pub struct Camera {
 	pub camera_mode: CameraMode,
 	
-	pub position: Vector3,
-	pub target: Vector3,
-	pub up: Vector3,
-	pub rotation: f32,
-	pub zoom: f32,
-	pub fovy: f32,
-	pub projection: CameraProjection,
+	pub position:	Vector3,
+	pub target:		Vector3,
+	pub up:			Vector3,
+	pub rotation:	f32,
+	pub zoom:		f32,
+	pub fovy:		f32,
+	pub projection:	CameraProjection,
 }
 impl Default for Camera {
 	fn default() -> Self {
 		Self {
 			camera_mode:	Default::default(),
-			position:		ZERO_3,
+			position:		Vector3 { x: 0.0, y: 0.0, z: 5.0 },
 			target:			ZERO_3,
-			up:				ZERO_3,
-			rotation:		Default::default(),
-			zoom:			Default::default(),
-			fovy:			Default::default(),
+			up:				Vector3{ x: 0.0, y: 1.0, z: 0.0 },
+			rotation:		0.0,
+			zoom:			1.0,
+			fovy:			45.0,
 			projection:		Default::default(),
 		}
 	}
@@ -52,6 +52,20 @@ impl Into<Camera3DRl> for Camera {
 		}
 	}
 }
+
+impl Camera {
+	
+	/// #### pan
+	/// Moves the camera target and postion by the same amount.
+	pub fn pan(&mut self, direction: Vector3) -> &mut Self {
+		self.position += direction;
+		self.target += direction;
+		
+		self
+	}
+	
+}
+
 
 /// #### Camera mode
 #[repr(C)]
