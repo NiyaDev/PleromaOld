@@ -1,6 +1,6 @@
 
 
-use crate::structures::{vectors::*, texture::*, color::*, rectangle::*};
+use crate::structures::{vectors::*, texture::*, color::*, rectangle::*, rays::*, matrix::*};
 
 
 /// #### Camera
@@ -86,6 +86,29 @@ impl Camera {
 		self
 	}
 	
+	/// #### mouse_ray
+	/// Creates a ray using the current mouse position.
+	pub fn mouse_ray(&mut self) -> Ray {
+		unsafe{
+			let pos = GetMousePosition();
+			GetMouseRay(pos, (*self).into())
+		}
+	}
+	/// #### get_mouse
+	/// Wrapper for getting the camera matrix
+	pub fn get_matrix(&mut self) -> Matrix {
+		unsafe{
+			match self.camera_mode {
+				CameraMode::Mode2D => {
+					GetCameraMatrix2D((*self).into())
+				}
+				CameraMode::Mode3D => {
+					GetCameraMatrix((*self).into())
+				}
+			}
+		}
+	}
+	
 }
 
 //= Model drawing functions
@@ -93,6 +116,13 @@ extern "C" { fn DrawBillboard(camera: Camera3DRl, texture: TextureRl, position: 
 extern "C" { fn DrawBillboardRec(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, size: Vector3, tint: Color); }
 extern "C" { fn DrawBillboardPro(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32, tint: Color); }
 
+//= Screen-space-related functions
+extern "C" { fn GetMouseRay(mousePosition: Vector2, camera: Camera2DRl) -> Ray; }
+extern "C" { fn GetCameraMatrix(camera: Camera3DRl) -> Matrix; }
+extern "C" { fn GetCameraMatrix2D(camera: Camera2DRl) -> Matrix; }
+
+//= Input-related functions: mouse
+extern "C" { fn GetMousePosition() -> Vector2; }
 
 
 /// #### Camera mode

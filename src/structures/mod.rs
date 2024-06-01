@@ -21,6 +21,7 @@ pub mod material;
 pub mod model;
 pub mod shader;
 pub mod audio;
+pub mod rays;
 
 /// Generic functions
 pub mod misc;
