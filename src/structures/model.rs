@@ -1,5 +1,15 @@
 
-use crate::structures::{matrix::*, vectors::*, material::*};
+use crate::{
+	rl_str,
+	structures::{
+		bounds::*,
+		color::*,
+		image::*,
+		material::*,
+		matrix::*,
+		vectors::*,
+	}
+};
 
 
 #[repr(C)]
@@ -31,6 +41,17 @@ impl Mesh {
 		
 		self
 	}
+	/// #### export
+	/// Wrapper for Raylib::ExportMesh(mesh: Mesh, filenmae: *const i8).
+	pub fn export(&mut self, filename: &str) -> bool {
+		unsafe{ ExportMesh(*self, rl_str!(filename)) }
+	}
+	
+	/// #### get_bounds
+	/// Wrapper for Raylib::GetMeshBoundingBox(mesh: Mesh).
+	pub fn get_bounds(&mut self) -> BoundingBox {
+		unsafe{ GetMeshBoundingBox(*self) }
+	}
 	
 	/// #### draw
 	/// Wrapper for Raylib::DrawMesh(mesh: Mesh, material: Material, transform: Matrix).
@@ -48,21 +69,92 @@ impl Mesh {
 		self
 	}
 	
+	/// #### gen_poly
+	/// Wrapper for Raylib::GenMeshPoly(width: f32, height: f32, length: f32).
+	pub fn gen_poly(sides: i32, radius: f32) -> Self {
+		unsafe{ GenMeshPoly(sides, radius) }
+	}
+	/// #### gen_plane
+	/// Wrapper for Raylib::GenMeshPlane(width: f32, height: f32, length: f32).
+	pub fn gen_plane(width: f32, length: f32, resx: i32, resz: i32) -> Self {
+		unsafe{ GenMeshPlane(width, length, resx, resz) }
+	}
 	/// #### gen_cube
-	/// Wrapper for Raylib::
+	/// Wrapper for Raylib::GenMeshCube(width: f32, height: f32, length: f32).
 	pub fn gen_cube(width: f32, height: f32, length: f32) -> Self {
 		unsafe{ GenMeshCube(width, height, length) }
 	}
+	/// #### gen_sphere
+	/// Wrapper for Raylib::GenMeshSphere(radius: f32, rings: i32, slices: i32).
+	pub fn gen_sphere(radius: f32, rings: i32, slices: i32) -> Self {
+		unsafe{ GenMeshSphere(radius, rings, slices) }
+	}
+	/// #### gen_hemi_sphere
+	/// Wrapper for Raylib::GenMesh(radius: f32, rings: i32, slices: i32).
+	pub fn gen_hemi_sphere(radius: f32, rings: i32, slices: i32) -> Self {
+		unsafe{ GenMeshHemiSphere(radius, rings, slices) }
+	}
+	/// #### gen_cylinder
+	/// Wrapper for Raylib::GenMeshCylinder(radius: f32, rings: i32, slices: i32).
+	pub fn gen_cylinder(radius: f32, height: f32, slices: i32) -> Self {
+		unsafe{ GenMeshCylinder(radius, height, slices) }
+	}
+	/// #### gen_cone
+	/// Wrapper for Raylib::GenMeshCone(radius: f32, rings: i32, slices: i32).
+	pub fn gen_cone(radius: f32, height: f32, slices: i32) -> Self {
+		unsafe{ GenMeshCone(radius, height, slices) }
+	}
+	/// #### gen_torus
+	/// Wrapper for Raylib::GenMeshTorus(radius: f32, size: f32, radseg: i32, sides: i32).
+	pub fn gen_torus(radius: f32, size: f32, radseg: i32, sides: i32) -> Self {
+		unsafe{ GenMeshTorus(radius, size, radseg, sides) }
+	}
+	/// #### gen_knot
+	/// Wrapper for Raylib::GenMeshKnot(radius: f32, size: f32, radseg: i32, sides: i32).
+	pub fn gen_knot(radius: f32, size: f32, radseg: i32, sides: i32) -> Self {
+		unsafe{ GenMeshKnot(radius, size, radseg, sides) }
+	}
+	/// #### gen_heightmap
+	/// Wrapper for Raylib::GenMeshHeightmap(heightmap: ImageRl, size: Vector3).
+	pub fn gen_heightmap(heightmap: Image, size: Vector3) -> Self {
+		unsafe{ GenMeshHeightmap(heightmap.0, size) }
+	}
+	/// #### gen_cubicmap
+	/// Wrapper for Raylib::GenMeshCubicmap(cubicmap: ImageRl, size: Vector3).
+	pub fn gen_cubicmap(cubicmap: Image, size: Vector3) -> Self {
+		unsafe{ GenMeshCubicmap(cubicmap.0, size) }
+	}
+	
+	/// #### model
+	/// Wrapper for Raylib::LoadModelFromMesh(mesh: Mesh) -> Model.
+	pub fn model(&mut self) -> Model {
+		unsafe{ LoadModelFromMesh(*self) }
+	}
 	
 }
+
+//= Model management functions
+extern "C" { fn LoadModelFromMesh(mesh: Mesh) -> Model; }
 
 //= Mesh management functions
 extern "C" { fn UnloadMesh(mesh: Mesh); }
 extern "C" { fn DrawMesh(mesh: Mesh, material: Material, transform: Matrix); }
 extern "C" { fn DrawMeshInstanced(mesh: Mesh, material: Material, transforms: *const Matrix, instances: i32); }
+extern "C" { fn ExportMesh(mesh: Mesh, filenmae: *const i8) -> bool; }
+extern "C" { fn GetMeshBoundingBox(mesh: Mesh) -> BoundingBox; }
 
 //= Mesh generation functions
+extern "C" { fn GenMeshPoly(sides: i32, radius: f32) -> Mesh; }
+extern "C" { fn GenMeshPlane(width: f32, length: f32, resx: i32, resz: i32) -> Mesh; }
 extern "C" { fn GenMeshCube(width: f32, height: f32, length: f32) -> Mesh; }
+extern "C" { fn GenMeshSphere(radius: f32, rings: i32, slices: i32) -> Mesh; }
+extern "C" { fn GenMeshHemiSphere(radius: f32, rings: i32, slices: i32) -> Mesh; }
+extern "C" { fn GenMeshCylinder(radius: f32, height: f32, slices: i32) -> Mesh; }
+extern "C" { fn GenMeshCone(radius: f32, height: f32, slices: i32) -> Mesh; }
+extern "C" { fn GenMeshTorus(radius: f32, size: f32, radseg: i32, sides: i32) -> Mesh; }
+extern "C" { fn GenMeshKnot(radius: f32, size: f32, radseg: i32, sides: i32) -> Mesh; }
+extern "C" { fn GenMeshHeightmap(heightmap: ImageRl, size: Vector3) -> Mesh; }
+extern "C" { fn GenMeshCubicmap(cubicmap: ImageRl, size: Vector3) -> Mesh; }
 
 
 #[repr(C)]
@@ -78,6 +170,84 @@ pub struct Model {
 	pub bones:			*mut BoneInfo,
 	pub bind_pose:		*mut Transform,
 }
+
+impl Model {
+	
+	/// #### load
+	/// Wrapper for Raylib::LoadModel(filename: *cont i8).
+	pub fn load(filename: &str) -> Self {
+		unsafe{ LoadModel(rl_str!(filename)) }
+	}
+	/// #### ready
+	/// Wrapper for Raylib::LoadModel(model: Model) -> bool.
+	pub fn ready(&mut self) -> bool {
+		unsafe{ IsModelReady(*self) }
+	}
+	/// #### unload
+	/// Wrapper for Raylib::UnloadModel(model: Model).
+	pub fn unload(&mut self) {
+		unsafe{ UnloadModel(*self) }
+	}
+	
+	/// #### set_material
+	/// Wrapper for Raylib::SetModelMeshMaterial(model: *mut Model, mesh_id: i32, material_id: i32).
+	pub fn set_material(&mut self, mesh_id: i32, material_id: i32) -> &mut Self {
+		unsafe{ SetModelMeshMaterial(self, mesh_id, material_id) }
+		
+		self
+	}
+	
+	/// #### draw
+	/// Wrapper for Raylib::DrawModel(model: Model, position: Vector3, scale: f32, tint: Color) .
+	pub fn draw(&mut self, position: Vector3, scale: f32, tint: Color) -> &mut Self {
+		unsafe{ DrawModel(*self, position, scale, tint) }
+		
+		self
+	}
+	/// #### draw_ex
+	/// Wrapper for Raylib::DrawModel(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) .
+	pub fn draw_ex(&mut self, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) -> &mut Self {
+		unsafe{ DrawModelEx(*self, position, rotation_axis, rotation_angle, scale, tint) }
+		
+		self
+	}
+	/// #### draw_wires
+	/// Wrapper for Raylib::DrawModel(model: Model, position: Vector3, scale: f32, tint: Color) .
+	pub fn draw_wires(&mut self, position: Vector3, scale: f32, tint: Color) -> &mut Self {
+		unsafe{ DrawModelWires(*self, position, scale, tint) }
+		
+		self
+	}
+	/// #### draw_wires_ex
+	/// Wrapper for Raylib::DrawModel(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) .
+	pub fn draw_wires_ex(&mut self, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color) -> &mut Self {
+		unsafe{ DrawModelWiresEx(*self, position, rotation_axis, rotation_angle, scale, tint) }
+		
+		self
+	}
+	
+	/// #### get_bounds
+	/// Wrapper for Raylib::GetModelBoundingBox(model: Model) -> BoundingBox.
+	pub fn get_bounds(&mut self) -> BoundingBox {
+		unsafe{ GetModelBoundingBox(*self) }
+	}
+	
+}
+
+//= Model management functions
+extern "C" { fn LoadModel(filename: *const i8) -> Model; }
+extern "C" { fn IsModelReady(model: Model) -> bool; }
+extern "C" { fn UnloadModel(model: Model); }
+extern "C" { fn GetModelBoundingBox(model: Model) -> BoundingBox; }
+
+//= Model drawing functions
+extern "C" { fn DrawModel(model: Model, position: Vector3, scale: f32, tint: Color); }
+extern "C" { fn DrawModelEx(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
+extern "C" { fn DrawModelWires(model: Model, position: Vector3, scale: f32, tint: Color); }
+extern "C" { fn DrawModelWiresEx(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
+
+//= Material loading/unloading functions
+extern "C" { fn SetModelMeshMaterial(model: *mut Model, meshId: i32, materialId: i32); }
 
 
 #[repr(C)]

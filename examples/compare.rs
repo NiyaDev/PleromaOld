@@ -27,21 +27,23 @@ fn main() {
 	let texture = Image::gen_linear_gradient(64, 64, 1,BLACK, DARKPURPLE).texture();
 	let mut mesh = Mesh::gen_cube(1.0, 1.0, 1.0);
 	let mut transforms = Vec::new();
-	transforms.push(IDENTITY);
-	transforms.push(Matrix::translate(Vector3{x: 2.0, y: 0.0, z: 0.0}));
-	transforms.push(Matrix::translate(Vector3{x: 0.0, y: 2.0, z: 0.0}));
-	let trans = transforms.as_slice();
+	for i in 0..10000 {
+		transforms.push(Matrix::translate(Vector3{x: (i%100) as f32, y: (i/100) as f32, z: -100.0}));
+	}
 	
 	while !pleroma.should_close() {
-		if pleroma.is_pressed("left") { pleroma.camera.pan(Vector3{x: -1.0, y:  0.0, z: 0.0}); }
-		if pleroma.is_pressed("right"){ pleroma.camera.pan(Vector3{x:  1.0, y:  0.0, z: 0.0}); }
-		if pleroma.is_pressed("up")	{ pleroma.camera.pan(Vector3{x:  0.0, y:  1.0, z: 0.0}); }
-		if pleroma.is_pressed("down") { pleroma.camera.pan(Vector3{x:  0.0, y: -1.0, z: 0.0}); }
+		if pleroma.is_down("left") { pleroma.camera.pan(Vector3{x: -0.2, y:  0.0, z: 0.0}); }
+		if pleroma.is_down("right"){ pleroma.camera.pan(Vector3{x:  0.2, y:  0.0, z: 0.0}); }
+		if pleroma.is_down("up")	 { pleroma.camera.pan(Vector3{x:  0.0, y:  0.2, z: 0.0}); }
+		if pleroma.is_down("down") { pleroma.camera.pan(Vector3{x:  0.0, y: -0.2, z: 0.0}); }
 		
 		pleroma.draw( |_ctx| {
 			texture.draw(100, 10);
 			//mesh.draw(Material::default(), IDENTITY);
-			mesh.draw_instanced(Material::default(), trans);
+			//mesh.draw_instanced(Material::default(), trans);
+			for i in transforms.iter() {
+				mesh.draw(Material::default(), *i);
+			}
 		});
 	}
 	

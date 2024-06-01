@@ -1,6 +1,6 @@
 
 
-use crate::structures::vectors::*;
+use crate::structures::{vectors::*, texture::*, color::*, rectangle::*};
 
 
 /// #### Camera
@@ -63,8 +63,36 @@ impl Camera {
 		
 		self
 	}
+
+	/// #### billboard
+	/// Wrapper for Raylib::DrawBillboard(camera: Camera3DRl, texture: TextureRl, position: Vector3, size: f32, tint: Color).
+	pub fn billboard(&mut self, texture: Texture, position: Vector3, size: f32) -> &mut Self {
+		unsafe{ DrawBillboard((*self).into(), texture.0, position, size, texture.1) }
+		
+		self
+	}
+	/// #### billboard_rec
+	/// Wrapper for Raylib::DrawBillboardEx(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, size: Vector3, tint: Color) -> BoundingBox.
+	pub fn billboard_rec(&mut self, texture: Texture, source: Rectangle, position: Vector3, size: Vector3) -> &mut Self {
+		unsafe{ DrawBillboardRec((*self).into(), texture.0, source, position, size, texture.1) }
+		
+		self
+	}
+	/// #### billboard_pro
+	/// Wrapper for Raylib::GetModelBoundingBox(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32) -> BoundingBox.
+	pub fn billboard_pro(&mut self, texture: Texture, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32) -> &mut Self {
+		unsafe{ DrawBillboardPro((*self).into(), texture.0, source, position, up, size, origin, rotation, texture.1) }
+		
+		self
+	}
 	
 }
+
+//= Model drawing functions
+extern "C" { fn DrawBillboard(camera: Camera3DRl, texture: TextureRl, position: Vector3, size: f32, tint: Color); }
+extern "C" { fn DrawBillboardRec(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, size: Vector3, tint: Color); }
+extern "C" { fn DrawBillboardPro(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32, tint: Color); }
+
 
 
 /// #### Camera mode
