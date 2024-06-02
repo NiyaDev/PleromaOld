@@ -9,6 +9,7 @@ use chrono::Local;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum LogLevel {
+	Raylib,
 	Info,
 	Error,
 	Critical,
@@ -17,10 +18,11 @@ pub enum LogLevel {
 impl Into<u8> for LogLevel {
 	fn into(self) -> u8 {
 		match self {
-			LogLevel::Info => 0,
-			LogLevel::Error => 1,
-			LogLevel::Critical => 2,
-			LogLevel::None => 3,
+			LogLevel::Raylib	=> 0,
+			LogLevel::Info		=> 1,
+			LogLevel::Error		=> 2,
+			LogLevel::Critical	=> 3,
+			LogLevel::None		=> 4,
 		}
 	}
 }
@@ -87,7 +89,7 @@ impl Pleroma {
 			let frame_time = GetFrameTime();
 			let time = GetTime();
 			
-			let frm = format!("{fps:03} - {frame_time:.4} - {}\n{}", time as i32, self.camera.position);
+			let frm = format!("{fps:03} - {frame_time:.4} - {}\n{}", time as i32, self.camera.target);
 			
 			font.draw(&frm, Vector2{x: 8.0, y: 8.0});
 		}

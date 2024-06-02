@@ -1,5 +1,7 @@
 
 
+use std::f32::consts::PI;
+
 use crate::structures::{vectors::*, texture::*, color::*, rectangle::*, rays::*, matrix::*};
 
 
@@ -9,7 +11,8 @@ use crate::structures::{vectors::*, texture::*, color::*, rectangle::*, rays::*,
 pub struct Camera {
 	pub camera_mode: CameraMode,
 	
-	pub position:	Vector3,
+	pub distance:	Vector3,
+//	pub position:	Vector3,
 	pub target:		Vector3,
 	pub up:			Vector3,
 	pub rotation:	f32,
@@ -21,7 +24,7 @@ impl Default for Camera {
 	fn default() -> Self {
 		Self {
 			camera_mode:	Default::default(),
-			position:		Vector3 { x: 0.0, y: 0.0, z: 5.0 },
+			distance:		Vector3 { x: 0.0, y: 10.0, z: 20.0 },
 			target:			ZERO_3,
 			up:				Vector3{ x: 0.0, y: 1.0, z: 0.0 },
 			rotation:		0.0,
@@ -34,7 +37,7 @@ impl Default for Camera {
 impl Into<Camera2DRl> for Camera {
 	fn into(self) -> Camera2DRl {
 		Camera2DRl {
-			offset:		Vector2 {x: self.position.x, y: self.position.y},
+			offset:		Vector2 {x: self.distance.x, y: self.distance.y},
 			target:		Vector2 {x: self.target.x, y: self.target.y},
 			rotation:	self.rotation,
 			zoom:		self.zoom,
@@ -43,8 +46,17 @@ impl Into<Camera2DRl> for Camera {
 }
 impl Into<Camera3DRl> for Camera {
 	fn into(self) -> Camera3DRl {
+		let mut position = Vector3{x:0.0,y:0.0,z:0.0};
+					
+		position.x = self.distance.x * (self.rotation / 57.3).cos() - self.distance.z * (self.rotation / 57.3).sin();
+		position.z = self.distance.x * (self.rotation / 57.3).sin() + self.distance.z * (self.rotation / 57.3).cos();
+			
+		position.x += self.target.x;
+		position.y  = self.target.y + self.distance.y;
+		position.z += self.target.z;
+		
 		Camera3DRl {
-			position:	self.position,
+			position,
 			target:		self.target,
 			up:			self.up,
 			fovy:		self.fovy,
@@ -58,12 +70,18 @@ impl Camera {
 	/// #### pan
 	/// Moves the camera target and postion by the same amount.
 	pub fn pan(&mut self, direction: Vector3) -> &mut Self {
-		self.position += direction;
 		self.target += direction;
 		
 		self
 	}
-
+	/// #### rotate
+	/// Rotate the camera by input around the target.
+	pub fn rotate(&mut self, amount: f32) -> &mut Self {
+		self.rotation += amount / PI;
+		
+		self
+	}
+	
 	/// #### billboard
 	/// Wrapper for Raylib::DrawBillboard(camera: Camera3DRl, texture: TextureRl, position: Vector3, size: f32, tint: Color).
 	pub fn billboard(&mut self, texture: Texture, position: Vector3, size: f32) -> &mut Self {

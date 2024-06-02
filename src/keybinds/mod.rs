@@ -7,11 +7,13 @@ pub mod mouse;
 pub mod gamepad;
 
 
+#[derive(Debug, Clone)]
 pub struct Keybind {
 	pub device: Device,
 	pub keys: [i32;2],
 }
 
+#[derive(Debug, Clone)]
 pub enum Device {
 	Keyboard,
 	Mouse,

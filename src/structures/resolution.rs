@@ -2,6 +2,7 @@ use std::ops::Div;
 
 
 
+#[derive(Debug, Clone)]
 pub struct Resolution {
 	pub width: i32,
 	pub height: i32,

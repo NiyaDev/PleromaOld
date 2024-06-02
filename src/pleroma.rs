@@ -24,6 +24,7 @@ use crate::{
 	}
 };
 
+#[derive(Debug, Clone)]
 pub struct Pleroma {
 	initialized: bool,
 
@@ -557,6 +558,14 @@ impl Pleroma {
 	/// #### set_log_level
 	/// Sets the level of severity that the messages that the system shows to the developer.
 	pub fn set_log_level(&mut self, level: debug::LogLevel) -> &mut Self {
+		match level {
+			LogLevel::Raylib	=> unsafe{ SetTraceLogLevel(0) },
+			LogLevel::Info		=> unsafe{ SetTraceLogLevel(7) },
+			LogLevel::Error		=> unsafe{ SetTraceLogLevel(7) },
+			LogLevel::Critical	=> unsafe{ SetTraceLogLevel(7) },
+			LogLevel::None		=> unsafe{ SetTraceLogLevel(7) },
+		}
+		
 		self.db_level = level;
 
 		self

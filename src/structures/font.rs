@@ -15,6 +15,7 @@ use crate::{
 
 
 /// #### Font
+#[derive(Debug, Clone)]
 pub struct Font{
 	pub data: FontRl,
 	pub size: f32,
