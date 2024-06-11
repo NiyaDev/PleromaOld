@@ -44,8 +44,8 @@ impl Material {
 	}
 	/// #### set_texture
 	/// Wrapper for Raylib::SetMaterialTexture(material: Material, map_type: i32, texture: Texture).
-	pub fn set_texture(&mut self, map_type: i32, texture: Texture) {
-		unsafe{ SetMaterialTexture(self, map_type, texture.0) }
+	pub fn set_texture(&mut self, map_type: i32, texture: TextureRl) {
+		unsafe{ SetMaterialTexture(self, map_type, texture) }
 	}
 	
 }

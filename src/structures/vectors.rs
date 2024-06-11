@@ -2,7 +2,7 @@
 
 use std::{
 	f32::EPSILON, fmt::Display, ops::{
-		Add, AddAssign, Div, Mul, Not, Sub
+		Add, AddAssign, Div, Mul, Not, Sub, SubAssign
 	}
 };
 
@@ -157,6 +157,13 @@ impl Sub<Self> for Vector3 {
 			y: self.y - rhs.y,
 			z: self.z - rhs.z,
 		}
+	}
+}
+impl SubAssign<Self> for Vector3 {
+	fn sub_assign(&mut self, rhs: Self) {
+		self.x -= rhs.x;
+		self.y -= rhs.y;
+		self.z -= rhs.z;
 	}
 }
 impl Sub<f32> for Vector3 {

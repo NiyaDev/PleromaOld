@@ -91,8 +91,8 @@ impl Image {
 	}
 	/// #### load_from_texture
 	/// Wrapper for Raylib::LoadImageFromTexture().
-	pub fn load_from_texture(texture: Texture) -> Self {
-		unsafe { Self(LoadImageFromTexture(texture.0)) }
+	pub fn load_from_texture(texture: TextureRl) -> Self {
+		unsafe { Self(LoadImageFromTexture(texture)) }
 	}
 	/// #### load_from_screen
 	/// Wrapper for Raylib::LoadImageFromScreen().
@@ -435,14 +435,14 @@ impl Image {
 	//= Conversion
 	/// #### texture
 	/// Wrapper for Raylib::LoadTextureFromImage().
-	pub fn texture(&self) -> Texture {
-		unsafe { Texture(LoadTextureFromImage(self.0), WHITE) }
+	pub fn texture(&self) -> TextureRl {
+		unsafe { LoadTextureFromImage(self.0) }
 	}
 	/// #### cubemap
 	/// Wrapper for LoadTextureCubemap
 	// TODO: fix layout enum
-	pub fn cubemap(&self, layout: i32) -> Texture {
-		unsafe { Texture(LoadTextureCubemap(self.0, layout), WHITE) }
+	pub fn cubemap(&self, layout: i32) -> TextureRl {
+		unsafe { LoadTextureCubemap(self.0, layout) }
 	}
 
 }

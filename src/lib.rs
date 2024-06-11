@@ -5,6 +5,7 @@ pub mod pleroma;
 
 /// Custom systems
 pub mod structures;
+pub mod sprites;
 pub mod keybinds;
 //pub mod files;
 pub mod camera;

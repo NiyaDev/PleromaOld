@@ -84,22 +84,22 @@ impl Camera {
 	
 	/// #### billboard
 	/// Wrapper for Raylib::DrawBillboard(camera: Camera3DRl, texture: TextureRl, position: Vector3, size: f32, tint: Color).
-	pub fn billboard(&mut self, texture: Texture, position: Vector3, size: f32) -> &mut Self {
-		unsafe{ DrawBillboard((*self).into(), texture.0, position, size, texture.1) }
+	pub fn billboard(&mut self, texture: TextureRl, position: Vector3, size: f32, tint: Color) -> &mut Self {
+		unsafe{ DrawBillboard((*self).into(), texture, position, size, tint) }
 		
 		self
 	}
 	/// #### billboard_rec
 	/// Wrapper for Raylib::DrawBillboardEx(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, size: Vector3, tint: Color) -> BoundingBox.
-	pub fn billboard_rec(&mut self, texture: Texture, source: Rectangle, position: Vector3, size: Vector3) -> &mut Self {
-		unsafe{ DrawBillboardRec((*self).into(), texture.0, source, position, size, texture.1) }
+	pub fn billboard_rec(&mut self, texture: TextureRl, source: Rectangle, position: Vector3, size: Vector3, tint: Color) -> &mut Self {
+		unsafe{ DrawBillboardRec((*self).into(), texture, source, position, size, tint) }
 		
 		self
 	}
 	/// #### billboard_pro
 	/// Wrapper for Raylib::GetModelBoundingBox(camera: Camera3DRl, texture: TextureRl, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32) -> BoundingBox.
-	pub fn billboard_pro(&mut self, texture: Texture, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32) -> &mut Self {
-		unsafe{ DrawBillboardPro((*self).into(), texture.0, source, position, up, size, origin, rotation, texture.1) }
+	pub fn billboard_pro(&mut self, texture: TextureRl, source: Rectangle, position: Vector3, up: Vector3, size: Vector3, origin: Vector3, rotation: f32, tint: Color) -> &mut Self {
+		unsafe{ DrawBillboardPro((*self).into(), texture, source, position, up, size, origin, rotation, tint) }
 		
 		self
 	}

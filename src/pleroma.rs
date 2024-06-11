@@ -19,7 +19,6 @@ use crate::{
 		rectangle::*,
 		render_texture::*,
 		resolution::*,
-		texture::*,
 		vectors::*,
 	}
 };
@@ -298,7 +297,7 @@ impl Pleroma {
 	/// #### set_framerate
 	/// Sets the window to run at the refresh rate of the monitor
 	pub fn set_framerate(&mut self, framerate: i32) -> &mut Self {
-		if self.windows_flags.contains(WindowFlags::VSYNC) {
+		if !self.windows_flags.contains(WindowFlags::VSYNC) {
 			self.framerate = framerate;
 			unsafe{ SetTargetFPS(framerate) }
 		}
@@ -504,7 +503,7 @@ impl Pleroma {
 		unsafe {
 			BeginDrawing();
 
-			Texture(self.render_texture.as_mut().unwrap().0.texture, WHITE).draw_pro(
+			self.render_texture.as_mut().unwrap().0.texture.draw_pro(
 				Rectangle {
 					x: 0.0,
 					y: 0.0,
@@ -519,6 +518,7 @@ impl Pleroma {
 				},
 				Vector2 { x: 0.0, y: 0.0 },
 				0.0,
+				WHITE,
 			);
 
 			EndDrawing();
