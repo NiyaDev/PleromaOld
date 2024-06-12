@@ -1,14 +1,13 @@
 
 use crate::{
 	rl_str,
-	structures::{
-		bounds::*,
-		color::*,
-		image::*,
-		material::*,
-		matrix::*,
-		vectors::*,
-	}
+	bounds::*,
+	color::*,
+	image::*,
+	material::*,
+	matrix::*,
+	vectors::*,
+	
 };
 
 
@@ -31,7 +30,6 @@ pub struct Mesh {
 	pub vao_id:			u32,
 	pub vbo_id:			*mut u32,
 }
-
 impl Mesh {
 	
 	/// #### unload
@@ -127,14 +125,14 @@ impl Mesh {
 	
 	/// #### model
 	/// Wrapper for Raylib::LoadModelFromMesh(mesh: Mesh) -> Model.
-	pub fn model(&mut self) -> Model {
+	pub fn model(&mut self) -> ModelRl {
 		unsafe{ LoadModelFromMesh(*self) }
 	}
 	
 }
 
 //= Model management functions
-extern "C" { fn LoadModelFromMesh(mesh: Mesh) -> Model; }
+extern "C" { fn LoadModelFromMesh(mesh: Mesh) -> ModelRl; }
 
 //= Mesh management functions
 extern "C" { fn UnloadMesh(mesh: Mesh); }
@@ -159,7 +157,7 @@ extern "C" { fn GenMeshCubicmap(cubicmap: ImageRl, size: Vector3) -> Mesh; }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Model {
+pub struct ModelRl {
 	pub transform:		Matrix,
 	pub mesh_count:		i32,
 	pub material_count:	i32,
@@ -170,8 +168,7 @@ pub struct Model {
 	pub bones:			*mut BoneInfo,
 	pub bind_pose:		*mut Transform,
 }
-
-impl Model {
+impl ModelRl {
 	
 	/// #### load
 	/// Wrapper for Raylib::LoadModel(filename: *cont i8).
@@ -235,19 +232,70 @@ impl Model {
 }
 
 //= Model management functions
-extern "C" { fn LoadModel(filename: *const i8) -> Model; }
-extern "C" { fn IsModelReady(model: Model) -> bool; }
-extern "C" { fn UnloadModel(model: Model); }
-extern "C" { fn GetModelBoundingBox(model: Model) -> BoundingBox; }
+extern "C" { fn LoadModel(filename: *const i8) -> ModelRl; }
+extern "C" { fn IsModelReady(model: ModelRl) -> bool; }
+extern "C" { fn UnloadModel(model: ModelRl); }
+extern "C" { fn GetModelBoundingBox(model: ModelRl) -> BoundingBox; }
 
 //= Model drawing functions
-extern "C" { fn DrawModel(model: Model, position: Vector3, scale: f32, tint: Color); }
-extern "C" { fn DrawModelEx(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
-extern "C" { fn DrawModelWires(model: Model, position: Vector3, scale: f32, tint: Color); }
-extern "C" { fn DrawModelWiresEx(model: Model, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
+extern "C" { fn DrawModel(model: ModelRl, position: Vector3, scale: f32, tint: Color); }
+extern "C" { fn DrawModelEx(model: ModelRl, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
+extern "C" { fn DrawModelWires(model: ModelRl, position: Vector3, scale: f32, tint: Color); }
+extern "C" { fn DrawModelWiresEx(model: ModelRl, position: Vector3, rotation_axis: Vector3, rotation_angle: f32, scale: Vector3, tint: Color); }
 
 //= Material loading/unloading functions
-extern "C" { fn SetModelMeshMaterial(model: *mut Model, meshId: i32, materialId: i32); }
+extern "C" { fn SetModelMeshMaterial(model: *mut ModelRl, meshId: i32, materialId: i32); }
+
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ModelAnimation {
+	pub bone_count: i32,
+	pub frame_count: i32,
+	pub bones: *mut BoneInfo,
+	pub frame_poses: *mut *mut Transform,
+	pub name: [u8;32],
+}
+impl ModelAnimation {
+	
+	/// #### load
+	/// Wrapper for Raylib::LoadModelAnimations(filename: *const i8, anim_count: *mut i32) -> *mut ModelAnimations
+	pub fn load(filename: &str) -> Vec<Self> {
+		unsafe{
+			let mut count = [0;1];
+			let anims = LoadModelAnimations(rl_str!(filename), count.as_mut_ptr());
+			let mut result = Vec::new();
+			
+			for i in 0..count[0] {
+				result.push(anims.wrapping_add(i as usize).read())
+			}
+			
+			result
+		}
+	}
+	///// #### unload
+	///// Wrapper for Raylib::UnloadModelAnimations(animations: *mut ModelAnimations, anim_count: i32);
+	//pub fn unload(animations: Vec<Self>) {}
+	///// #### valid
+	///// Wrapper for Raylib::IsModelAnimationValid(model: Model, anim: ModelAnimation) -> bool.
+	//pub fn valid(&mut self) -> bool {}
+	//
+	/// #### update
+	/// Wrapper for Raylib::UpdateModelAnimation(model: Model, anim: ModelAnimation, frame: i32);
+	pub fn update(&mut self, model: ModelRl, frame: i32) -> &mut Self {
+		unsafe{
+			UpdateModelAnimation(model, *self, frame);
+		}
+		
+		self
+	}
+	
+}
+
+
+//= Model animations loading/unloading functions
+extern "C" { fn LoadModelAnimations(filename: *const i8, animCount: *mut i32) -> *mut ModelAnimation; }
+extern "C" { fn UpdateModelAnimation(model: ModelRl, anim: ModelAnimation, frame: i32); }
 
 
 #[repr(C)]

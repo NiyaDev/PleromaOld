@@ -2,7 +2,7 @@
 
 use std::f32::consts::PI;
 
-use crate::structures::{vectors::*, texture::*, color::*, rectangle::*, rays::*, matrix::*};
+use crate::{vectors::*, texture::*, color::*, rectangle::*, rays::*, matrix::*};
 
 
 /// #### Camera

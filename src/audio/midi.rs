@@ -1,6 +1,6 @@
 
 
-use super::Sound;
+use crate::sound::*;
 
 
 #[derive(Debug, Clone, Default)]

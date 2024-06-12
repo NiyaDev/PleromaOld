@@ -2,11 +2,9 @@
 
 use crate::{
 	rl_str,
-	structures::{
-		color::*,
-		rectangle::*,
-		vectors::*,
-	}
+	color::*,
+	rectangle::*,
+	vectors::*,
 };
 
 

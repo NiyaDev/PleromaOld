@@ -2,14 +2,13 @@
 
 use crate::{
 	rl_str,
-	structures::{
-		color::*,
-		font::*,
-		pixel_format::*,
-		rectangle::*,
-		texture::*,
-		vectors::*,
-	}
+	color::*,
+	font::*,
+	pixel_format::*,
+	rectangle::*,
+	texture::*,
+	vectors::*,
+	
 };
 
 

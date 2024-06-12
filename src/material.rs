@@ -1,5 +1,5 @@
 
-use crate::{rl_str, structures::{color::*, shader::*, texture::*}};
+use crate::{rl_str, color::*, shader::*, texture::*};
 
 
 #[repr(C)]

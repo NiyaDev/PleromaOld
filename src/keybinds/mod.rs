@@ -1,6 +1,6 @@
 
 
-use crate::{pleroma::Pleroma, structures::vectors::Vector2};
+use crate::{pleroma::Pleroma, vectors::*};
 
 pub mod keyboard;
 pub mod mouse;

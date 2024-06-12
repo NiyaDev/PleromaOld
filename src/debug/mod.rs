@@ -1,7 +1,7 @@
 
 
 pub mod errors;
-use crate::{pleroma::Pleroma, structures::{font::*, vectors::Vector2}};
+use crate::{pleroma::Pleroma, font::*, vectors::Vector2};
 use std::{fs::OpenOptions, io::prelude::*};
 use bitflags::bitflags;
 use chrono::Local;

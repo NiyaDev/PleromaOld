@@ -4,7 +4,7 @@ pub mod animator;
 
 
 use animator::*;
-use crate::structures::{color::*, texture::*, vectors::*};
+use crate::{color::*, texture::*, vectors::*};
 
 
 /// #### Sprite

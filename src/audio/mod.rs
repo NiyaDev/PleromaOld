@@ -2,7 +2,7 @@
 
 use std::{collections::HashMap, fs::File, io::Read};
 
-use crate::structures::audio::*;
+use crate::sound::*;
 use self::midi::*;
 
 pub mod midi;

@@ -1,7 +1,7 @@
 
 
 use std::collections::HashMap;
-use crate::structures::rectangle::*;
+use crate::rectangle::*;
 
 
 /// #### Animator

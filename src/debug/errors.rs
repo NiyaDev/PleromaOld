@@ -1,6 +1,6 @@
 
 
-use super::LogLevel;
+use super::*;
 
 
 /// Types of errors that can be a result of systems and functions.
@@ -14,19 +14,6 @@ pub enum PlError {
 	RenderTextureDoesntExist,
 	KeybindCalledAxisInBool,
 }
-//impl Into<u16> for PlError {
-//	fn into(self) -> u16 {
-//		match self {
-//			PlError::Default => 0,
-//			PlError::TestError => 0,
-//			PlError::TestCitical => 0
-//			,
-//			PlError::EditingRenderSize => 1,
-//			PlError::RenderTextureDoesntExist => 2,
-//			PlError::KeybindCalledAxisInBool => todo!(),
-//		}
-//	}
-//}
 impl Into<LogLevel> for PlError {
 	fn into(self) -> LogLevel {
 		match self {

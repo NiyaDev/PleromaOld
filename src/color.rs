@@ -1,6 +1,6 @@
 
 
-use crate::structures::vectors::*;
+use crate::vectors::*;
 
 
 /// #### Color

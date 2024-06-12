@@ -12,15 +12,13 @@ use crate::{
 	keybinds::*,
 	camera::*,
 	rl_str,
-	structures::{
-		color::*,
-		font::*,
-		image::*,
-		rectangle::*,
-		render_texture::*,
-		resolution::*,
-		vectors::*,
-	}
+	color::*,
+	font::*,
+	image::*,
+	rectangle::*,
+	render_texture::*,
+	resolution::*,
+	vectors::*,
 };
 
 #[derive(Debug, Clone)]

@@ -1,6 +1,6 @@
 
 
-use crate::structures::texture::*;
+use crate::texture::*;
 
 
 /// Texture wrapper

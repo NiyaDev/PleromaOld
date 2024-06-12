@@ -4,13 +4,11 @@ use std::ptr::null;
 
 use crate::{
 	rl_str,
-	structures::{
-		color::*,
-		image::*,
-		rectangle::*,
-		texture::*,
-		vectors::*,
-	}
+	color::*,
+	image::*,
+	rectangle::*,
+	texture::*,
+	vectors::*,
 };
 
 
