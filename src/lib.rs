@@ -25,10 +25,10 @@ pub mod sound;
 pub mod rays;
 
 /// Custom systems
-pub mod sprites;
-pub mod models;
+pub mod g_2d;
+pub mod g_3d;
 pub mod keybinds;
-//pub mod files;
+pub mod files;
 pub mod camera;
 pub mod audio;
 pub mod debug;

@@ -12,7 +12,6 @@ pub struct Camera {
 	pub camera_mode: CameraMode,
 	
 	pub distance:	Vector3,
-//	pub position:	Vector3,
 	pub target:		Vector3,
 	pub up:			Vector3,
 	pub rotation:	f32,
@@ -67,6 +66,13 @@ impl Into<Camera3DRl> for Camera {
 
 impl Camera {
 	
+	/// #### mode
+	/// Sets the camera mode
+	pub fn mode(&mut self, mode: CameraMode) -> &mut Self {
+		self.camera_mode = mode;
+		
+		self
+	}
 	/// #### pan
 	/// Moves the camera target and postion by the same amount.
 	pub fn pan(&mut self, direction: Vector3) -> &mut Self {

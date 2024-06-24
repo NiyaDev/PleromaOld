@@ -1,9 +1,6 @@
 
 
-pub mod animator;
-
-
-use animator::*;
+use super::animator::*;
 use crate::{color::*, texture::*, vectors::*};
 
 
